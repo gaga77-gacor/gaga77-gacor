@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Game Lobby</title>
+
+<style>
+
+/* =====================================================
+   RESET
+===================================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+
+/* =====================================================
+   BODY
+===================================================== */
+
+body{
+    min-height:100vh;
+    background:
+        radial-gradient(
+            circle at top,
+            #172b49 0%,
+            #0b1729 35%,
+            #08131f 75%
+        );
+    color:#fff;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+header{
+    padding:15px;
+    text-align:center;
+    background:rgba(13,28,45,.97);
+    border-bottom:2px solid #6d35d9;
+    position:relative;
+}
+
+.logoWrap{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:55px;
+}
+
+#logoImg{
+    max-width:200px;
+    max-height:65px;
+    width:auto;
+    height:auto;
+    object-fit:contain;
+    display:block;
+}
+
+
+/* =====================================================
+   MAIN
+===================================================== */
+
+.container{
+    width:100%;
+    max-width:760px;
+    margin:auto;
+    padding:18px 15px 35px;
+}
+
+
+/* =====================================================
+   HERO TITLE
+===================================================== */
+
+.heroTitle{
+    text-align:center;
+    padding:22px 10px 15px;
+}
+
+.heroTitle h1{
+    font-size:25px;
+    font-weight:900;
+    color:#69b9ff;
+    text-transform:uppercase;
+    line-height:1.3;
+    text-shadow:
+        0 0 15px rgba(105,185,255,.15);
+}
+
+.heroTitle p{
+    color:#9caec4;
+    font-size:13px;
+    margin-top:8px;
+    line-height:1.5;
+}
+
+
+/* =====================================================
+   BANNER
+===================================================== */
+
+.banner{
+    width:100%;
+    border-radius:16px;
+    overflow:hidden;
+    border:2px solid rgba(105,185,255,.3);
+    background:#11243b;
+
+    box-shadow:
+        0 10px 35px rgba(0,0,0,.35),
+        0 0 25px rgba(105,185,255,.08);
+}
+
+.banner img{
+    width:100%;
+    display:block;
+    aspect-ratio:16/7;
+    object-fit:cover;
+}
+
+
+/* =====================================================
+   LOGIN REGISTER
+===================================================== */
+
+.actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:18px;
+}
+
+.actionBtn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    min-height:58px;
+
+    border-radius:13px;
+
+    color:#fff;
+    text-decoration:none;
+
+    font-weight:900;
+    font-size:16px;
+    letter-spacing:.3px;
+
+    box-shadow:
+        0 7px 18px rgba(0,0,0,.25);
+
+    transition:
+        transform .15s,
+        filter .15s;
+}
+
+.actionBtn:hover{
+    filter:brightness(1.08);
+}
+
+.actionBtn:active{
+    transform:scale(.97);
+}
+
+.login{
+    background:
+        linear-gradient(
+            135deg,
+            #00a8ff,
+            #4169e1
+        );
+}
+
+.register{
+    background:
+        linear-gradient(
+            135deg,
+            #7c3aed,
+            #a855f7
+        );
+}
+
+.actionIcon{
+    font-size:21px;
+    margin-right:8px;
+}
+
+
+/* =====================================================
+   INFO
+===================================================== */
+
+.infoText{
+    text-align:center;
+    margin:22px 5px 15px;
+
+    color:#dce7f5;
+
+    font-size:15px;
+    line-height:1.6;
+}
+
+.infoText b{
+    color:#69b9ff;
+}
+
+
+/* =====================================================
+   FEATURES
+===================================================== */
+
+.features{
+    background:
+        linear-gradient(
+            145deg,
+            rgba(24,42,68,.98),
+            rgba(15,30,50,.98)
+        );
+
+    border:1px solid rgba(105,185,255,.1);
+
+    border-radius:15px;
+
+    padding:17px;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.2);
+}
+
+.feature{
+    display:flex;
+    align-items:center;
+
+    gap:12px;
+
+    padding:11px 5px;
+
+    color:#e8f1fb;
+
+    font-size:14px;
+}
+
+.feature + .feature{
+    border-top:
+        1px solid
+        rgba(255,255,255,.05);
+}
+
+.featureIcon{
+    width:38px;
+    height:38px;
+
+    flex:none;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:10px;
+
+    background:#0d1c2d;
+
+    font-size:19px;
+}
+
+.featureText b{
+    display:block;
+
+    font-size:14px;
+
+    color:#fff;
+
+    margin-bottom:3px;
+}
+
+.featureText span{
+    color:#8fa3ba;
+
+    font-size:11px;
+
+    line-height:1.4;
+}
+
+
+/* =====================================================
+   STATS
+===================================================== */
+
+.stats{
+    display:grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    gap:8px;
+
+    margin-top:18px;
+}
+
+.stat{
+    background:#11243b;
+
+    border:
+        1px solid
+        rgba(255,255,255,.05);
+
+    border-radius:11px;
+
+    padding:12px 5px;
+
+    text-align:center;
+
+    box-shadow:
+        0 5px 15px
+        rgba(0,0,0,.15);
+}
+
+.stat b{
+    display:block;
+
+    color:#69b9ff;
+
+    font-size:15px;
+
+    margin-bottom:4px;
+}
+
+.stat span{
+    color:#899db5;
+
+    font-size:9px;
+}
+
+
+/* =====================================================
+   SECTION GAME
+===================================================== */
+
+.sectionTitle{
+    margin-top:24px;
+    margin-bottom:12px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.sectionTitle h2{
+    font-size:18px;
+    color:#fff;
+}
+
+.sectionTitle span{
+    color:#69b9ff;
+    font-size:11px;
+}
+
+
+/* =====================================================
+   GAME GRID
+===================================================== */
+
+.games{
+    display:grid;
+
+    grid-template-columns:
+        repeat(3,1fr);
+
+    gap:10px;
+}
+
+.card{
+    background:#11243b;
+
+    border:
+        1px solid
+        rgba(255,255,255,.05);
+
+    border-radius:13px;
+
+    overflow:hidden;
+
+    box-shadow:
+        0 5px 15px
+        rgba(0,0,0,.2);
+}
+
+.thumb{
+    height:105px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1d4ed8,
+            #6d28d9
+        );
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    font-size:30px;
+}
+
+.info{
+    padding:9px;
+}
+
+.badge{
+    display:inline-block;
+
+    padding:3px 6px;
+
+    border-radius:5px;
+
+    background:#ff3b3b;
+
+    color:#fff;
+
+    font-size:9px;
+
+    font-weight:bold;
+}
+
+.info h4{
+    margin-top:6px;
+
+    font-size:12px;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+}
+
+.rtpv{
+    color:#55ff8a;
+
+    font-size:10px;
+
+    margin-top:4px;
+}
+
+.play{
+    width:100%;
+
+    margin-top:8px;
+
+    padding:8px 5px;
+
+    border:none;
+
+    border-radius:7px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #00c853,
+            #00bfa5
+        );
+
+    color:#fff;
+
+    font-size:10px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+}
+
+.play:active{
+    transform:scale(.97);
+}
+
+
+/* =====================================================
+   BOTTOM NAV
+===================================================== */
+
+nav{
+    position:fixed;
+
+    left:0;
+    right:0;
+    bottom:0;
+
+    z-index:20;
+
+    height:62px;
+
+    background:
+        rgba(13,28,45,.98);
+
+    border-top:
+        1px solid
+        rgba(105,185,255,.12);
+
+    display:flex;
+
+    justify-content:center;
+    align-items:center;
+
+    gap:45px;
+
+    backdrop-filter:blur(10px);
+}
+
+nav a{
+    color:#8ea3bc;
+
+    text-decoration:none;
+
+    font-size:11px;
+
+    text-align:center;
+
+    transition:.2s;
+}
+
+nav a.active{
+    color:#69b9ff;
+
+    text-shadow:
+        0 0 10px
+        rgba(105,185,255,.35);
+}
+
+.navIcon{
+    display:block;
+
+    font-size:19px;
+
+    margin-bottom:3px;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+footer{
+    text-align:center;
+
+    color:#61748b;
+
+    font-size:11px;
+
+    padding:
+        25px
+        10px
+        85px;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:500px){
+
+    .container{
+        padding:
+            12px
+            12px
+            25px;
+    }
+
+
+    .heroTitle{
+        padding-top:18px;
+    }
+
+
+    .heroTitle h1{
+        font-size:21px;
+    }
+
+
+    .heroTitle p{
+        font-size:12px;
+    }
+
+
+    .banner{
+        border-radius:13px;
+    }
+
+
+    .actions{
+        gap:9px;
+    }
+
+
+    .actionBtn{
+        min-height:55px;
+        font-size:14px;
+    }
+
+
+    .games{
+        grid-template-columns:
+            repeat(3,1fr);
+
+        gap:7px;
+    }
+
+
+    .thumb{
+        height:85px;
+        font-size:25px;
+    }
+
+
+    .info{
+        padding:7px;
+    }
+
+
+    .info h4{
+        font-size:10px;
+    }
+
+
+    .stats{
+        gap:6px;
+    }
+
+
+    .stat{
+        padding:10px 3px;
+    }
+
+
+    nav{
+        gap:35px;
+    }
+
+
+    #logoImg{
+        max-width:180px;
+        max-height:55px;
+    }
+
+}
+
+
+@media(max-width:360px){
+
+    .games{
+        grid-template-columns:
+            repeat(2,1fr);
+    }
+
+
+    .thumb{
+        height:100px;
+    }
+
+
+    nav{
+        gap:22px;
+    }
+
+
+    .heroTitle h1{
+        font-size:19px;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header>
+
+    <div class="logoWrap">
+
+        <img
+            id="logoImg"
+            src="assets/logo.png"
+            alt="Logo"
+        >
+
+    </div>
+
+</header>
+
+
+<!-- =====================================================
+     MAIN CONTENT
+===================================================== -->
+
+<div class="container">
+
+
+    <!-- =================================================
+         TITLE
+    ================================================== -->
+
+    <div class="heroTitle">
+
+        <h1>
+            PLATFORM GAME
+            <br>
+            TERBAIK UNTUK KAMU
+        </h1>
+
+        <p>
+            Nikmati pengalaman bermain
+            dengan tampilan modern dan nyaman.
+        </p>
+
+    </div>
+
+
+    <!-- =================================================
+         BANNER
+    ================================================== -->
+
+    <div class="banner">
+
+        <img
+            id="bannerImg"
+            src="assets/banner.png"
+            alt="Banner"
+        >
+
+    </div>
+
+
+    <!-- =================================================
+         LOGIN / REGISTER
+    ================================================== -->
+
+    <div class="actions">
+
+
+        <a
+            href="masuk/"
+            class="actionBtn login"
+        >
+
+            <span class="actionIcon">
+                🔐
+            </span>
+
+            MASUK
+
+        </a>
+
+
+        <a
+            href="daftar/"
+            class="actionBtn register"
+        >
+
+            <span class="actionIcon">
+                ✨
+            </span>
+
+            DAFTAR
+
+        </a>
+
+
+    </div>
+
+
+    <!-- =================================================
+         INFO
+    ================================================== -->
+
+    <div class="infoText">
+
+        Akses platform dengan cepat,
+        <b>aman</b> dan nyaman melalui
+        perangkat kamu.
+
+    </div>
+
+
+    <!-- =================================================
+         FEATURES
+    ================================================== -->
+
+    <div class="features">
+
+
+        <div class="feature">
+
+            <div class="featureIcon">
+                ⚡
+            </div>
+
+            <div class="featureText">
+
+                <b>
+                    Akses Cepat
+                </b>
+
+                <span>
+                    Tampilan ringan dan responsif
+                    di berbagai perangkat.
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div class="featureIcon">
+                🛡️
+            </div>
+
+            <div class="featureText">
+
+                <b>
+                    Sistem Terintegrasi
+                </b>
+
+                <span>
+                    Data akun tersimpan secara
+                    otomatis pada sistem.
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="feature">
+
+            <div class="featureIcon">
+                📱
+            </div>
+
+            <div class="featureText">
+
+                <b>
+                    Mobile Friendly
+                </b>
+
+                <span>
+                    Nyaman digunakan melalui
+                    smartphone maupun desktop.
+                </span>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =================================================
+         STATS
+    ================================================== -->
+
+    <div class="stats">
+
+
+        <div class="stat">
+
+            <b id="onlineCount">
+                0
+            </b>
+
+            <span>
+                PLAYER ONLINE
+            </span>
+
+        </div>
+
+
+        <div class="stat">
+
+            <b id="winCount">
+                Rp0
+            </b>
+
+            <span>
+                TOTAL WIN
+            </span>
+
+        </div>
+
+
+        <div class="stat">
+
+            <b id="jackpotCount">
+                x0
+            </b>
+
+            <span>
+                JACKPOT
+            </span>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =================================================
+         GAME SECTION
+    ================================================== -->
+
+    <div class="sectionTitle">
+
+        <h2>
+            🎮 GAME TERPOPULER
+        </h2>
+
+        <span>
+            Lihat Game
+        </span>
+
+    </div>
+
+
+    <div
+        class="games"
+        id="games"
+    ></div>
+
+
+</div>
+
+
+<!-- =====================================================
+     BOTTOM NAV
+===================================================== -->
+
+<nav>
+
+
+    <a
+        href="./"
+        class="active"
+    >
+
+        <span class="navIcon">
+            🏠
+        </span>
+
+        Beranda
+
+    </a>
+
+
+    <a
+        href="home/"
+    >
+
+        <span class="navIcon">
+            🎮
+        </span>
+
+        Game
+
+    </a>
+
+
+    <a
+        href="daftar/"
+    >
+
+        <span class="navIcon">
+            ✨
+        </span>
+
+        Daftar
+
+    </a>
+
+
+    <a
+        href="masuk/"
+    >
+
+        <span class="navIcon">
+            👤
+        </span>
+
+        Akun
+
+    </a>
+
+
+</nav>
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<footer>
+
+    © 2026 Game Lobby.
+    All Rights Reserved.
+
+</footer>
+
+
+<script>
+
+/* =====================================================
+   DATA GAME
+===================================================== */
+
+let games =
+    JSON.parse(
+        localStorage.getItem("games")
+    ) || [];
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(text){
+
+    return String(text ?? "")
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =====================================================
+   FORMAT UANG
+===================================================== */
+
+function formatUang(value){
+
+    value =
+        String(value)
+        .replace(/,/g,"");
+
+
+    if(isNaN(value)){
+        return "Rp0";
+    }
+
+
+    let num =
+        parseInt(value);
+
+
+    if(num >= 1000000000){
+
+        return "Rp" +
+            (num / 1000000000)
+            .toFixed(1)
+            .replace(".0","") +
+            "M";
+
+    }
+
+
+    if(num >= 1000000){
+
+        return "Rp" +
+            (num / 1000000)
+            .toFixed(1)
+            .replace(".0","") +
+            "JT";
+
+    }
+
+
+    if(num >= 1000){
+
+        return "Rp" +
+            (num / 1000)
+            .toFixed(1)
+            .replace(".0","") +
+            "K";
+
+    }
+
+
+    return "Rp" + num;
+
+}
+
+
+/* =====================================================
+   RENDER GAME
+===================================================== */
+
+function renderGames(){
+
+    let box =
+        document.getElementById(
+            "games"
+        );
+
+
+    if(!games.length){
+
+        box.innerHTML = `
+
+            <div
+                style="
+                    grid-column:1/-1;
+                    text-align:center;
+                    padding:25px;
+                    color:#71849a;
+                    background:#11243b;
+                    border-radius:12px;
+                "
+            >
+
+                Belum ada game.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    let html = "";
+
+
+    games.forEach(
+        (g,index)=>{
+
+
+            let icons = [
+
+                "🎰",
+                "🎲",
+                "🃏",
+                "💎",
+                "🔥",
+                "⭐"
+
+            ];
+
+
+            let icon =
+                icons[
+                    index %
+                    icons.length
+                ];
+
+
+            html += `
+
+                <div class="card">
+
+                    <div class="thumb">
+
+                        ${icon}
+
+                    </div>
+
+
+                    <div class="info">
+
+                        <span class="badge">
+
+                            ${escapeHTML(
+                                g.badge ||
+                                "HOT"
+                            )}
+
+                        </span>
+
+
+                        <h4>
+
+                            ${escapeHTML(
+                                g.nama ||
+                                "Game"
+                            )}
+
+                        </h4>
+
+
+                        <div class="rtpv">
+
+                            RTP
+                            ${escapeHTML(
+                                g.rtp ||
+                                "0"
+                            )}%
+
+                        </div>
+
+
+                        <button
+                            class="play"
+                            onclick="
+                                location.href='home/'
+                            "
+                        >
+
+                            MAINKAN
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    box.innerHTML =
+        html;
+
+}
+
+
+/* =====================================================
+   ONLINE RANDOM
+===================================================== */
+
+function getOnlineRandom(){
+
+    let min =
+        15000;
+
+    let max =
+        25000;
+
+
+    return Math.floor(
+        Math.random() *
+        (
+            max -
+            min +
+            1
+        )
+    ) + min;
+
+}
+
+
+/* =====================================================
+   UPDATE STATS
+===================================================== */
+
+function updateStats(){
+
+
+    document.getElementById(
+        "onlineCount"
+    ).innerText =
+        getOnlineRandom();
+
+
+    let win =
+        localStorage.getItem(
+            "totalWin"
+        ) || 0;
+
+
+    document.getElementById(
+        "winCount"
+    ).innerText =
+        formatUang(win);
+
+
+    document.getElementById(
+        "jackpotCount"
+    ).innerText =
+        "x" +
+        Math.floor(
+            Math.random() *
+            99999
+        );
+
+}
+
+
+/* =====================================================
+   LOAD
+===================================================== */
+
+function sync(){
+
+
+    games =
+        JSON.parse(
+            localStorage.getItem(
+                "games"
+            )
+        ) || [];
+
+
+    renderGames();
+
+
+    updateStats();
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+sync();
+
+
+/* =====================================================
+   AUTO UPDATE
+===================================================== */
+
+setInterval(
+    sync,
+    5000
+);
+
+</script>
+
+
+</body>
+</html>

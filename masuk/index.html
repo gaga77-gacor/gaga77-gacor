@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Masuk Akun</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    background:
+        radial-gradient(circle at 15% 15%,rgba(0,168,255,.18),transparent 35%),
+        radial-gradient(circle at 85% 85%,rgba(124,58,237,.18),transparent 35%),
+        linear-gradient(135deg,#030812,#081526,#030812);
+    color:white;
+}
+
+.container{
+    width:100%;
+    max-width:420px;
+}
+
+.logo{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.logo img{
+    max-width:180px;
+    max-height:70px;
+}
+
+.card{
+    background:rgba(9,23,40,.96);
+    border:1px solid rgba(100,180,255,.15);
+    border-radius:22px;
+    padding:28px 22px;
+    box-shadow:0 25px 70px rgba(0,0,0,.5);
+}
+
+h1{
+    text-align:center;
+    font-size:25px;
+    margin-bottom:8px;
+    background:linear-gradient(90deg,#36b9ff,#8b5cf6);
+    -webkit-background-clip:text;
+    color:transparent;
+}
+
+.subtitle{
+    text-align:center;
+    color:#8094aa;
+    font-size:12px;
+    margin-bottom:25px;
+}
+
+.group{
+    margin-bottom:16px;
+}
+
+label{
+    display:block;
+    font-size:12px;
+    font-weight:bold;
+    color:#c8d6e7;
+    margin-bottom:7px;
+}
+
+.input{
+    position:relative;
+}
+
+.input span{
+    position:absolute;
+    left:14px;
+    top:50%;
+    transform:translateY(-50%);
+    opacity:.7;
+}
+
+input{
+    width:100%;
+    height:52px;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:12px;
+    outline:none;
+    background:#050f1c;
+    color:white;
+    padding:0 45px;
+    font-size:14px;
+}
+
+input:focus{
+    border-color:#36b9ff;
+    box-shadow:0 0 0 3px rgba(54,185,255,.08);
+}
+
+input::placeholder{
+    color:#5f7388;
+}
+
+.eye{
+    position:absolute;
+    right:10px;
+    top:50%;
+    transform:translateY(-50%);
+    border:0;
+    background:none;
+    color:#7890a8;
+    font-size:17px;
+    cursor:pointer;
+    padding:7px;
+}
+
+.remember{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    color:#8094aa;
+    font-size:12px;
+    margin:4px 0 18px;
+}
+
+.remember input{
+    width:15px;
+    height:15px;
+    padding:0;
+}
+
+button.login{
+    width:100%;
+    height:54px;
+    border:0;
+    border-radius:13px;
+    background:linear-gradient(135deg,#00a8ff,#4169e1,#7c3aed);
+    color:white;
+    font-weight:900;
+    font-size:15px;
+    cursor:pointer;
+    box-shadow:0 10px 25px rgba(37,99,235,.25);
+}
+
+button.login:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+}
+
+.message{
+    display:none;
+    padding:12px;
+    margin-bottom:16px;
+    border-radius:10px;
+    font-size:12px;
+    line-height:1.5;
+    text-align:center;
+}
+
+.message.show{
+    display:block;
+}
+
+.error{
+    color:#ff8585;
+    background:rgba(255,50,50,.08);
+    border:1px solid rgba(255,50,50,.2);
+}
+
+.success{
+    color:#50f0a0;
+    background:rgba(0,255,136,.07);
+    border:1px solid rgba(0,255,136,.18);
+}
+
+.info{
+    color:#ffc857;
+    background:rgba(255,193,7,.07);
+    border:1px solid rgba(255,193,7,.18);
+}
+
+.divider{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#53677e;
+    font-size:10px;
+    margin:22px 0;
+}
+
+.divider:before,
+.divider:after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:rgba(255,255,255,.07);
+}
+
+.register{
+    text-align:center;
+    color:#8094aa;
+    font-size:12px;
+}
+
+.register a{
+    color:#69b9ff;
+    text-decoration:none;
+    font-weight:bold;
+}
+
+.home{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:44px;
+    margin-top:16px;
+    border-radius:11px;
+    border:1px solid rgba(255,255,255,.07);
+    color:#8da1b6;
+    text-decoration:none;
+    font-size:12px;
+}
+
+.footer{
+    text-align:center;
+    color:#52667c;
+    font-size:10px;
+    margin-top:18px;
+}
+
+.spinner{
+    display:inline-block;
+    width:14px;
+    height:14px;
+    border:2px solid rgba(255,255,255,.3);
+    border-top-color:white;
+    border-radius:50%;
+    animation:spin .7s linear infinite;
+    vertical-align:middle;
+    margin-right:7px;
+}
+
+@keyframes spin{
+    to{transform:rotate(360deg)}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="logo">
+        <img src="../assets/logo.png" alt="Logo"
+             onerror="this.style.display='none'">
+    </div>
+
+    <div class="card">
+
+        <h1>SELAMAT DATANG</h1>
+
+        <div class="subtitle">
+            Silakan masuk ke akun kamu
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <div class="group">
+            <label>USERNAME</label>
+
+            <div class="input">
+                <span>👤</span>
+
+                <input
+                    id="username"
+                    type="text"
+                    placeholder="Masukkan username"
+                    autocomplete="username"
+                    autocapitalize="none"
+                    spellcheck="false"
+                >
+            </div>
+        </div>
+
+        <div class="group">
+            <label>PASSWORD</label>
+
+            <div class="input">
+                <span>🔒</span>
+
+                <input
+                    id="password"
+                    type="password"
+                    placeholder="Masukkan password"
+                    autocomplete="current-password"
+                >
+
+                <button
+                    type="button"
+                    class="eye"
+                    id="eye"
+                >👁</button>
+            </div>
+        </div>
+
+        <label class="remember">
+            <input type="checkbox" id="remember">
+            Ingat saya
+        </label>
+
+        <button
+            type="button"
+            class="login"
+            id="loginButton"
+        >
+            🔐 &nbsp; MASUK KE AKUN
+        </button>
+
+        <div class="divider">
+            ATAU
+        </div>
+
+        <div class="register">
+            Belum punya akun?
+            <a href="../daftar/">Daftar sekarang</a>
+        </div>
+
+        <a href=".././" class="home">
+            ← &nbsp; Kembali ke Beranda
+        </a>
+
+    </div>
+
+    <div class="footer">
+        © 2026 Game Lobby. All Rights Reserved.
+    </div>
+
+</div>
+
+<script>
+"use strict";
+
+/* =========================================
+   WORKER
+========================================= */
+
+const API_URL =
+    "https://game-login-api.orkutstok64.workers.dev";
+
+
+/* =========================================
+   ELEMENT
+========================================= */
+
+const username =
+    document.getElementById("username");
+
+const password =
+    document.getElementById("password");
+
+const remember =
+    document.getElementById("remember");
+
+const loginButton =
+    document.getElementById("loginButton");
+
+const message =
+    document.getElementById("message");
+
+const eye =
+    document.getElementById("eye");
+
+
+/* =========================================
+   MESSAGE
+========================================= */
+
+function showMessage(text,type){
+
+    message.textContent = text;
+
+    message.className =
+        "message show " + type;
+}
+
+
+/* =========================================
+   PASSWORD
+========================================= */
+
+eye.addEventListener("click",function(){
+
+    if(password.type === "password"){
+
+        password.type = "text";
+        eye.textContent = "🙈";
+
+    }else{
+
+        password.type = "password";
+        eye.textContent = "👁";
+
+    }
+
+});
+
+
+/* =========================================
+   LOGIN
+========================================= */
+
+async function doLogin(){
+
+    const user =
+        username.value.trim();
+
+    const pass =
+        password.value;
+
+
+    /* VALIDASI */
+
+    if(!user){
+
+        showMessage(
+            "Username wajib diisi.",
+            "error"
+        );
+
+        username.focus();
+        return;
+    }
+
+
+    if(!pass){
+
+        showMessage(
+            "Password wajib diisi.",
+            "error"
+        );
+
+        password.focus();
+        return;
+    }
+
+
+    if(user.length < 3){
+
+        showMessage(
+            "Username minimal 3 karakter.",
+            "error"
+        );
+
+        username.focus();
+        return;
+    }
+
+
+    if(pass.length < 8){
+
+        showMessage(
+            "Password minimal 8 karakter.",
+            "error"
+        );
+
+        password.focus();
+        return;
+    }
+
+
+    /* LOADING */
+
+    loginButton.disabled = true;
+
+    loginButton.innerHTML =
+        '<span class="spinner"></span> MEMPROSES...';
+
+    message.className = "message";
+
+
+    try{
+
+        console.log(
+            "Mengirim login ke:",
+            API_URL + "/login"
+        );
+
+
+        const response =
+            await fetch(
+                API_URL + "/login",
+                {
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json",
+
+                        "Accept":
+                            "application/json"
+                    },
+
+                    body:JSON.stringify({
+
+                        username:user,
+
+                        password:pass
+
+                    })
+                }
+            );
+
+
+        console.log(
+            "HTTP STATUS:",
+            response.status
+        );
+
+
+        const text =
+            await response.text();
+
+
+        console.log(
+            "SERVER RESPONSE:",
+            text
+        );
+
+
+        let result;
+
+
+        try{
+
+            result =
+                JSON.parse(text);
+
+        }catch(e){
+
+            throw new Error(
+                "Server mengirim response bukan JSON."
+            );
+
+        }
+
+
+        /* LOGIN GAGAL */
+
+        if(
+            !response.ok ||
+            !result.success
+        ){
+
+            throw new Error(
+                result.message ||
+                "Username atau password salah."
+            );
+
+        }
+
+
+        /* TOKEN */
+
+        if(
+            !result.token
+        ){
+
+            throw new Error(
+                "Login berhasil tetapi token tidak diterima."
+            );
+
+        }
+
+
+        /* DATA USER */
+
+        const sessionUser = {
+
+            ...(result.user || {}),
+
+            username:
+                result.user?.username ||
+                user,
+
+            token:
+                result.token
+
+        };
+
+
+        /* HAPUS SESSION LAMA */
+
+        localStorage.removeItem(
+            "currentUser"
+        );
+
+        localStorage.removeItem(
+            "token"
+        );
+
+        localStorage.removeItem(
+            "authToken"
+        );
+
+
+        /* SIMPAN SESSION */
+
+        localStorage.setItem(
+            "currentUser",
+            JSON.stringify(sessionUser)
+        );
+
+        localStorage.setItem(
+            "token",
+            result.token
+        );
+
+
+        /* REMEMBER */
+
+        if(remember.checked){
+
+            localStorage.setItem(
+                "rememberUser",
+                user
+            );
+
+        }else{
+
+            localStorage.removeItem(
+                "rememberUser"
+            );
+
+        }
+
+
+        /* BERHASIL */
+
+        showMessage(
+            "✓ Login berhasil. Membuka akun...",
+            "success"
+        );
+
+        loginButton.innerHTML =
+            "✓ BERHASIL";
+
+
+        setTimeout(function(){
+
+            window.location.href =
+                "../home/";
+
+        },700);
+
+
+    }catch(error){
+
+        console.error(
+            "LOGIN ERROR:",
+            error
+        );
+
+
+        showMessage(
+            "❌ " +
+            (
+                error.message ||
+                "Gagal menghubungi server."
+            ),
+            "error"
+        );
+
+
+        loginButton.disabled =
+            false;
+
+        loginButton.innerHTML =
+            "🔐 &nbsp; MASUK KE AKUN";
+
+    }
+
+}
+
+
+/* =========================================
+   BUTTON
+========================================= */
+
+loginButton.addEventListener(
+    "click",
+    doLogin
+);
+
+
+/* =========================================
+   ENTER
+========================================= */
+
+username.addEventListener(
+    "keydown",
+    function(e){
+
+        if(e.key === "Enter"){
+            e.preventDefault();
+            doLogin();
+        }
+
+    }
+);
+
+password.addEventListener(
+    "keydown",
+    function(e){
+
+        if(e.key === "Enter"){
+            e.preventDefault();
+            doLogin();
+        }
+
+    }
+);
+
+
+/* =========================================
+   REMEMBER USER
+========================================= */
+
+try{
+
+    const saved =
+        localStorage.getItem(
+            "rememberUser"
+        );
+
+    if(saved){
+
+        username.value = saved;
+
+        remember.checked = true;
+
+    }
+
+}catch(e){
+
+    console.error(e);
+
+}
+
+
+/* =========================================
+   API TEST
+========================================= */
+
+console.log(
+    "Login page aktif."
+);
+
+console.log(
+    "API:",
+    API_URL
+);
+</script>
+
+</body>
+</html>

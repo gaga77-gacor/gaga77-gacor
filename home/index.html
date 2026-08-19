@@ -1,0 +1,2360 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Lobby</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    background:#08131f;
+    color:#fff;
+    padding-bottom:75px;
+}
+
+/* ================= HEADER ================= */
+
+header{
+    padding:12px 16px;
+    text-align:center;
+    background:#0d1c2d;
+    position:sticky;
+    top:0;
+    z-index:200;
+    border-bottom:1px solid rgba(105,185,255,.08);
+}
+
+#logoImg{
+    display:block;
+    width:320px;
+    max-width:90%;
+    height:auto;
+    max-height:70px;
+    margin:auto;
+    object-fit:contain;
+}
+
+.logo{
+    font-size:28px;
+    font-weight:bold;
+    color:#69b9ff;
+}
+
+/* ================= USER BAR ================= */
+
+.userBar{
+    margin:10px 15px;
+    padding:10px;
+    display:none;
+    align-items:center;
+    justify-content:space-between;
+    background:rgba(13,28,45,.97);
+    backdrop-filter:blur(15px);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:14px;
+    position:sticky;
+    top:84px;
+    z-index:150;
+    box-shadow:0 8px 25px rgba(0,0,0,.30);
+}
+
+.avatar{
+    width:42px;
+    height:42px;
+    min-width:42px;
+    border-radius:50%;
+    background:linear-gradient(135deg,#00c6ff,#6a00ff);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
+    color:#fff;
+    font-size:16px;
+    text-transform:uppercase;
+}
+
+.userInfo{
+    flex:1;
+    margin-left:10px;
+    min-width:0;
+}
+
+.userInfo .name{
+    font-size:14px;
+    font-weight:bold;
+    color:#fff;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.userInfo .sub{
+    font-size:11px;
+    color:#aaa;
+}
+
+.saldoBox{
+    text-align:right;
+    margin-left:5px;
+}
+
+.saldoBox .label{
+    font-size:10px;
+    color:#aaa;
+}
+
+.saldoBox .saldo{
+    font-size:14px;
+    font-weight:bold;
+    background:linear-gradient(90deg,#00ff88,#00c6ff);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.userActions{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    margin-left:12px;
+}
+
+.depositBtn{
+    padding:8px 14px;
+    background:linear-gradient(135deg,#00c853,#00bfa5);
+    border-radius:10px;
+    color:#fff;
+    text-decoration:none;
+    font-size:12px;
+    font-weight:bold;
+    white-space:nowrap;
+    transition:.2s;
+    text-align:center;
+}
+
+.depositBtn:hover{
+    transform:translateY(-1px);
+}
+
+.depositBtn:active{
+    transform:scale(.96);
+}
+
+/* ================= BANNER ================= */
+
+.banner{
+    margin:15px;
+    border-radius:16px;
+    overflow:hidden;
+    border:1px solid rgba(105,185,255,.15);
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+
+.banner img{
+    width:100%;
+    display:block;
+    aspect-ratio:16/7;
+    object-fit:cover;
+}
+
+/* ================= TICKER ================= */
+
+.winTicker{
+    width:calc(100% - 30px);
+    margin:0 15px 10px;
+    height:46px;
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    align-items:center;
+    background:linear-gradient(90deg,#0e2135,#102942,#0e2135);
+    border:1px solid rgba(105,185,255,.10);
+    border-radius:11px;
+    box-shadow:0 5px 15px rgba(0,0,0,.15);
+}
+
+.winTrack{
+    display:flex;
+    width:max-content;
+    align-items:center;
+    flex-shrink:0;
+    animation:tickerMove 130s linear infinite;
+    will-change:transform;
+}
+
+@keyframes tickerMove{
+    from{transform:translateX(0);}
+    to{transform:translateX(-50%);}
+}
+
+.winItem{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    flex-shrink:0;
+    margin-right:65px;
+    white-space:nowrap;
+    font-size:11px;
+    color:#b9c7d8;
+}
+
+.winIcon{
+    width:25px;
+    height:25px;
+    min-width:25px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,rgba(0,200,83,.22),rgba(0,198,255,.12));
+    border:1px solid rgba(0,255,136,.15);
+    font-size:13px;
+}
+
+.winName{
+    color:#fff;
+    font-weight:bold;
+}
+
+.winText{
+    color:#8da0b5;
+}
+
+.winAmount{
+    color:#00e889;
+    font-weight:900;
+}
+
+/* ================= STATS ================= */
+
+.stats{
+    display:flex;
+    justify-content:space-around;
+    padding:10px 15px 15px;
+    gap:8px;
+}
+
+.stat{
+    background:#11243b;
+    padding:10px;
+    border-radius:10px;
+    width:31%;
+    text-align:center;
+    font-size:12px;
+    border:1px solid rgba(255,255,255,.04);
+}
+
+.stat b{
+    font-size:15px;
+    color:#69b9ff;
+}
+
+/* ================= GAME HEADER ================= */
+
+.gameHeader{
+    padding:0 15px;
+    margin-top:10px;
+    scroll-margin-top:160px;
+}
+
+.gameTitle{
+    font-size:18px;
+    font-weight:bold;
+    margin-bottom:12px;
+}
+
+/* ================= SEARCH ================= */
+
+.searchBox{
+    position:relative;
+    margin-bottom:12px;
+}
+
+.searchBox input{
+    width:100%;
+    padding:13px 45px 13px 15px;
+    border:none;
+    outline:none;
+    border-radius:12px;
+    background:#11243b;
+    color:#fff;
+    font-size:13px;
+    border:1px solid rgba(255,255,255,.06);
+}
+
+.searchBox input::placeholder{
+    color:#777;
+}
+
+.searchIcon{
+    position:absolute;
+    right:15px;
+    top:50%;
+    transform:translateY(-50%);
+    font-size:18px;
+    color:#aaa;
+}
+
+/* ================= CATEGORY ================= */
+
+.categories{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom:5px;
+    scrollbar-width:none;
+}
+
+.categories::-webkit-scrollbar{
+    display:none;
+}
+
+.categoryBtn{
+    border:none;
+    padding:9px 15px;
+    border-radius:20px;
+    background:#11243b;
+    color:#aaa;
+    font-size:12px;
+    font-weight:bold;
+    white-space:nowrap;
+    cursor:pointer;
+    border:1px solid rgba(255,255,255,.05);
+    transition:.2s;
+}
+
+.categoryBtn:hover{
+    transform:translateY(-1px);
+}
+
+.categoryBtn.active{
+    background:linear-gradient(135deg,#6a00ff,#00c6ff);
+    color:#fff;
+    border-color:transparent;
+}
+
+/* ================= GAME GRID ================= */
+
+.games{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    padding:15px 15px 30px;
+}
+
+.card{
+    background:#12243a;
+    border-radius:14px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,.04);
+    transition:.2s;
+    box-shadow:0 5px 15px rgba(0,0,0,.15);
+}
+
+.card:hover{
+    transform:translateY(-3px);
+}
+
+.thumb{
+    height:110px;
+    background:linear-gradient(135deg,#1d4ed8,#7c3aed);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:30px;
+    font-weight:bold;
+    position:relative;
+    overflow:hidden;
+}
+
+.gameThumbImg{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+}
+
+.baccaratThumb{
+    height:110px;
+    background:#120b18;
+    position:relative;
+    overflow:hidden;
+}
+
+.baccaratThumb img{
+    width:100%;
+    height:100%;
+    display:block;
+    object-fit:cover;
+    transition:.3s;
+}
+
+.card:hover .baccaratThumb img{
+    transform:scale(1.05);
+}
+
+.liveCard{
+    border:1px solid rgba(255,70,70,.25);
+}
+
+.liveLabel{
+    position:absolute;
+    top:7px;
+    left:7px;
+    background:#ff3333;
+    color:#fff;
+    padding:4px 7px;
+    border-radius:6px;
+    font-size:9px;
+    font-weight:bold;
+    z-index:5;
+    animation:livePulse 1.5s infinite;
+}
+
+.liveDot{
+    display:inline-block;
+    width:6px;
+    height:6px;
+    background:#fff;
+    border-radius:50%;
+    margin-right:3px;
+}
+
+@keyframes livePulse{
+    0%,100%{opacity:1;}
+    50%{opacity:.65;}
+}
+
+.info{
+    padding:8px;
+}
+
+.info h4{
+    margin-top:5px;
+    font-size:14px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.badge{
+    display:inline-block;
+    background:#ff4444;
+    padding:2px 6px;
+    border-radius:5px;
+    font-size:10px;
+}
+
+.liveBadge{
+    background:linear-gradient(135deg,#ff3030,#ff5b5b);
+}
+
+.rtpv{
+    color:#55ff55;
+    font-size:12px;
+    margin-top:4px;
+}
+
+.categoryLabel{
+    font-size:10px;
+    color:#aaa;
+    margin-top:3px;
+}
+
+.play{
+    width:100%;
+    margin-top:8px;
+    padding:8px;
+    border:none;
+    border-radius:8px;
+    background:linear-gradient(135deg,#00c853,#00bfa5);
+    color:#fff;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.play:hover{
+    filter:brightness(1.08);
+}
+
+.play:active{
+    transform:scale(.97);
+}
+
+.livePlay{
+    background:linear-gradient(135deg,#ff3030,#d50000);
+}
+
+.noGame{
+    grid-column:1/-1;
+    text-align:center;
+    padding:35px 10px;
+    color:#777;
+    font-size:13px;
+}
+
+.noGameIcon{
+    font-size:35px;
+    margin-bottom:8px;
+}
+
+/* ================= NAV ================= */
+
+nav{
+    position:fixed;
+    bottom:0;
+    left:0;
+    width:100%;
+    height:68px;
+    background:rgba(13,28,45,.97);
+    backdrop-filter:blur(15px);
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+    padding:5px 8px;
+    z-index:300;
+    border-top:1px solid rgba(255,255,255,.08);
+    box-shadow:0 -5px 20px rgba(0,0,0,.25);
+}
+
+.bottomNavItem{
+    flex:1;
+    height:58px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:3px;
+    color:#8d98a8;
+    text-decoration:none;
+    font-size:10px;
+    border-radius:12px;
+    transition:.2s;
+    cursor:pointer;
+}
+
+.bottomNavItem .navIcon{
+    font-size:21px;
+    line-height:22px;
+}
+
+.bottomNavItem:hover{
+    color:#fff;
+}
+
+.bottomNavItem.active{
+    color:#69b9ff;
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:500px){
+
+    header{
+        padding:8px 5px;
+    }
+
+    #logoImg{
+        width:280px;
+        max-width:96%;
+        max-height:65px;
+    }
+
+    .logo{
+        font-size:23px;
+    }
+
+    .userBar{
+        margin:8px 5px;
+        padding:8px;
+        top:73px;
+        border-radius:12px;
+    }
+
+    .avatar{
+        width:36px;
+        height:36px;
+        min-width:36px;
+        font-size:14px;
+    }
+
+    .userInfo{
+        margin-left:7px;
+    }
+
+    .userInfo .name{
+        font-size:12px;
+    }
+
+    .saldoBox .saldo{
+        font-size:11px;
+    }
+
+    .saldoBox .label{
+        font-size:9px;
+    }
+
+    .userActions{
+        margin-left:6px;
+        gap:4px;
+    }
+
+    .depositBtn{
+        padding:6px 8px;
+        font-size:9px;
+    }
+
+    .banner{
+        margin:10px;
+        border-radius:13px;
+    }
+
+    .winTicker{
+        width:calc(100% - 20px);
+        margin:0 10px 8px;
+        height:42px;
+    }
+
+    .winTrack{
+        animation-duration:60s;
+    }
+
+    .winItem{
+        margin-right:45px;
+        font-size:9px;
+    }
+
+    .winIcon{
+        width:20px;
+        height:20px;
+        min-width:20px;
+        font-size:10px;
+    }
+
+    .stats{
+        padding:8px 10px 10px;
+    }
+
+    .stat{
+        font-size:10px;
+        padding:8px 4px;
+    }
+
+    .stat b{
+        font-size:13px;
+    }
+
+    .gameHeader{
+        padding:0 10px;
+        scroll-margin-top:145px;
+    }
+
+    .games{
+        grid-template-columns:repeat(3,1fr);
+        gap:7px;
+        padding:10px 10px 30px;
+    }
+
+    .thumb,
+    .baccaratThumb{
+        height:85px;
+    }
+
+    .info{
+        padding:6px;
+    }
+
+    .info h4{
+        font-size:10px;
+    }
+
+    .badge{
+        font-size:8px;
+        padding:2px 4px;
+    }
+
+    .rtpv{
+        font-size:9px;
+    }
+
+    .categoryLabel{
+        font-size:8px;
+    }
+
+    .play{
+        font-size:9px;
+        padding:7px 2px;
+    }
+
+    nav{
+        height:65px;
+        padding:4px 5px;
+    }
+
+    .bottomNavItem{
+        height:57px;
+        font-size:9px;
+    }
+}
+
+/* ================= SMALL PHONE ================= */
+
+@media(max-width:360px){
+
+    .userBar{
+        top:69px;
+        padding:6px;
+    }
+
+    .avatar{
+        width:32px;
+        height:32px;
+        min-width:32px;
+        font-size:12px;
+    }
+
+    .userInfo .name{
+        font-size:10px;
+    }
+
+    .userInfo .sub{
+        font-size:8px;
+    }
+
+    .saldoBox .saldo{
+        font-size:9px;
+    }
+
+    .depositBtn{
+        padding:5px 6px;
+        font-size:8px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+    <img
+        id="logoImg"
+        src="../assets/logo.png"
+        alt="Logo"
+    >
+
+    <div
+        id="logoText"
+        class="logo"
+        style="display:none;"
+    >
+        LOGO
+    </div>
+
+    <div
+        class="userBar"
+        id="userBar"
+    >
+
+        <div
+            class="avatar"
+            id="avatarText"
+        >
+            U
+        </div>
+
+        <div class="userInfo">
+
+            <div
+                class="name"
+                id="userName"
+            >
+                -
+            </div>
+
+            <div class="sub">
+                Member
+            </div>
+
+        </div>
+
+        <div class="saldoBox">
+
+            <div class="label">
+                Saldo
+            </div>
+
+            <div
+                class="saldo"
+                id="userSaldo"
+            >
+                Rp 0,00
+            </div>
+
+        </div>
+
+        <div class="userActions">
+
+            <a
+                href="../deposit/"
+                class="depositBtn"
+            >
+                💳 Deposit
+            </a>
+
+            <a
+                href="../withdraw/"
+                class="depositBtn"
+                style="background:linear-gradient(135deg,#ff4d4d,#ff7a59);"
+            >
+                💸 Withdraw
+            </a>
+
+            <a
+                href="../livechat/"
+                class="depositBtn"
+                style="background:linear-gradient(135deg,#4f46e5,#7c3aed);"
+            >
+                💬 Live Chat
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+<div class="banner">
+
+    <img
+        src="../assets/banner.png"
+        alt="Banner"
+    >
+
+</div>
+
+<div class="winTicker">
+
+    <div
+        class="winTrack"
+        id="winTrack"
+    ></div>
+
+</div>
+
+<div class="stats">
+
+    <div class="stat">
+
+        <b id="onlineCount">
+            0
+        </b>
+
+        <br>
+
+        Player Online
+
+    </div>
+
+    <div class="stat">
+
+        <b id="winCount">
+            0
+        </b>
+
+        <br>
+
+        Jumlah Win
+
+    </div>
+
+    <div class="stat">
+
+        <b id="jackpotCount">
+            ×0
+        </b>
+
+        <br>
+
+        Jackpot
+
+    </div>
+
+</div>
+
+<div
+    class="gameHeader"
+    id="gameSection"
+>
+
+    <div class="gameTitle">
+        🎮 GAME
+    </div>
+
+    <div class="searchBox">
+
+        <input
+            type="text"
+            id="gameSearch"
+            placeholder="🔎 Cari nama game..."
+            oninput="filterGames()"
+        >
+
+        <div class="searchIcon">
+            🔍
+        </div>
+
+    </div>
+
+    <div class="categories">
+
+        <button
+            class="categoryBtn active"
+            onclick="setCategory('all',this)"
+        >
+            🎮 Semua
+        </button>
+
+        <button
+            class="categoryBtn"
+            onclick="setCategory('live',this)"
+        >
+            🔴 Live Game
+        </button>
+
+        <button
+            class="categoryBtn"
+            onclick="setCategory('casino',this)"
+        >
+            🎰 Casino
+        </button>
+
+        <button
+            class="categoryBtn"
+            onclick="setCategory('crash',this)"
+        >
+            🚀 Crash Game
+        </button>
+
+        <button
+            class="categoryBtn"
+            onclick="setCategory('slot',this)"
+        >
+            🎰 Slot Game
+        </button>
+
+    </div>
+
+</div>
+
+<div
+    class="games"
+    id="games"
+></div>
+
+<nav>
+
+    <a
+        href="../home/"
+        class="bottomNavItem active"
+    >
+
+        <span class="navIcon">
+            🏠
+        </span>
+
+        <span>
+            Home
+        </span>
+
+    </a>
+
+    <a
+        href="#gameSection"
+        class="bottomNavItem"
+        onclick="openGameSearch(event)"
+    >
+
+        <span class="navIcon">
+            🔎
+        </span>
+
+        <span>
+            Cari Game
+        </span>
+
+    </a>
+
+    <a
+        href="../deposit/"
+        class="bottomNavItem"
+    >
+
+        <span class="navIcon">
+            💳
+        </span>
+
+        <span>
+            Tambah Dana
+        </span>
+
+    </a>
+
+    <a
+        href="../akun/"
+        class="bottomNavItem"
+    >
+
+        <span class="navIcon">
+            👤
+        </span>
+
+        <span>
+            Akun
+        </span>
+
+    </a>
+
+</nav>
+
+<script>
+
+/* =====================================================
+   DATA GAME
+===================================================== */
+
+let games =
+    JSON.parse(
+        localStorage.getItem("games")
+    ) || [];
+
+let activeCategory = "all";
+
+
+/* =====================================================
+   GAME DEFAULT
+===================================================== */
+
+function addDefaultGames(){
+
+    const defaultGames = [
+
+        {
+            nama:"Royal Baccarat",
+            kategori:"casino",
+            category:"casino",
+            badge:"HOT",
+            gameType:"baccarat",
+            url:"../baccarat/"
+        },
+
+        {
+            nama:"Royal Baccarat 2",
+            kategori:"casino",
+            category:"casino",
+            badge:"NEW",
+            gameType:"baccarat",
+            url:"../baccarat2/"
+        },
+
+        {
+            nama:"Royal Baccarat 3",
+            kategori:"casino",
+            category:"casino",
+            badge:"HOT",
+            gameType:"baccarat",
+            url:"../baccarat3/"
+        },
+
+        {
+            nama:"Baccarat IDN 1",
+            kategori:"casino",
+            category:"casino",
+            badge:"LIVE",
+            gameType:"baccarat",
+            url:"../baccarat-idn-1/"
+        },
+
+        {
+            nama:"Baccarat IDN 2",
+            kategori:"casino",
+            category:"casino",
+            badge:"LIVE",
+            gameType:"baccarat",
+            url:"../baccarat-idn-2/"
+        },
+
+        {
+            nama:"Baccarat IDN 3",
+            kategori:"casino",
+            category:"casino",
+            badge:"NEW",
+            gameType:"baccarat",
+            url:"../baccarat-idn-3/"
+        },
+
+        {
+            nama:"Spaceman",
+            kategori:"crash",
+            category:"crash",
+            badge:"HOT",
+            gameType:"crash",
+            url:"../spaceman/"
+        }
+
+    ];
+
+    defaultGames.forEach(game => {
+
+        const exists =
+            games.some(
+                g =>
+                    String(
+                        g.nama || ""
+                    )
+                    .toLowerCase()
+                    .trim()
+                    ===
+                    String(
+                        game.nama
+                    )
+                    .toLowerCase()
+                    .trim()
+            );
+
+        if(!exists){
+
+            games.push(game);
+
+        }
+
+    });
+
+    localStorage.setItem(
+        "games",
+        JSON.stringify(games)
+    );
+
+}
+
+
+/* =====================================================
+   FORMAT IDR
+===================================================== */
+
+function formatIDR(num){
+
+    return new Intl.NumberFormat(
+        "id-ID",
+        {
+            minimumFractionDigits:2,
+            maximumFractionDigits:2
+        }
+    ).format(
+        Number(num) || 0
+    );
+
+}
+
+
+/* =====================================================
+   FORMAT BESAR
+===================================================== */
+
+function formatLargeNumber(num){
+
+    num = Number(num) || 0;
+
+    if(num >= 1000000000){
+
+        return (
+            num / 1000000000
+        )
+        .toFixed(1)
+        .replace(".0","")
+        + "M";
+
+    }
+
+    if(num >= 1000000){
+
+        return (
+            num / 1000000
+        )
+        .toFixed(1)
+        .replace(".0","")
+        + "JT";
+
+    }
+
+    if(num >= 1000){
+
+        return (
+            num / 1000
+        )
+        .toFixed(1)
+        .replace(".0","")
+        + "K";
+
+    }
+
+    return String(num);
+
+}
+
+
+/* =====================================================
+   RANDOM ANGKA
+===================================================== */
+
+function randomNumber(min,max){
+
+    return Math.floor(
+        Math.random() *
+        (max - min + 1)
+    ) + min;
+
+}
+
+
+/* =====================================================
+   RTP RANDOM 90-98
+   BERUBAH SETIAP 10 MENIT
+===================================================== */
+
+function getRandomRTP(game){
+
+    const key =
+        "rtp_" +
+        String(game.nama || "")
+        .toLowerCase()
+        .replace(/\s+/g,"_");
+
+    const now =
+        Date.now();
+
+    let saved = null;
+
+    try{
+
+        saved =
+            JSON.parse(
+                localStorage.getItem(key)
+            );
+
+    }catch(e){
+
+        saved = null;
+
+    }
+
+    if(
+        !saved ||
+        now - saved.time >=
+        10 * 60 * 1000
+    ){
+
+        saved = {
+
+            value:
+                (
+                    randomNumber(9000,9800)
+                    / 100
+                )
+                .toFixed(2),
+
+            time:now
+
+        };
+
+        localStorage.setItem(
+            key,
+            JSON.stringify(saved)
+        );
+
+    }
+
+    return saved.value;
+
+}
+
+
+/* =====================================================
+   ESCAPE
+===================================================== */
+
+function escapeHTML(text){
+
+    return String(
+        text ?? ""
+    )
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+/* =====================================================
+   CATEGORY
+===================================================== */
+
+function normalizeCategory(game){
+
+    const category =
+        String(
+            game.kategori ||
+            game.category ||
+            "slot"
+        )
+        .toLowerCase()
+        .trim();
+
+    const name =
+        String(
+            game.nama || ""
+        )
+        .toLowerCase()
+        .trim();
+
+    if(
+        name.includes("baccarat")
+    ){
+
+        return "casino";
+
+    }
+
+    if(
+        category.includes("casino")
+    ){
+
+        return "casino";
+
+    }
+
+    if(
+        category.includes("live")
+    ){
+
+        return "live";
+
+    }
+
+    if(
+        category.includes("crash")
+    ){
+
+        return "crash";
+
+    }
+
+    return "slot";
+
+}
+
+
+/* =====================================================
+   LOGO
+===================================================== */
+
+function loadLogo(){
+
+    const logo =
+        localStorage.getItem("logo");
+
+    const img =
+        document.getElementById(
+            "logoImg"
+        );
+
+    const text =
+        document.getElementById(
+            "logoText"
+        );
+
+    if(logo){
+
+        img.src = logo;
+
+    }else{
+
+        img.src = "../assets/logo.png";
+
+    }
+
+    img.style.display = "block";
+    text.style.display = "none";
+
+}
+
+
+/* =====================================================
+   LOAD USER
+===================================================== */
+
+function loadUser(){
+
+    const userBar =
+        document.getElementById(
+            "userBar"
+        );
+
+    const userName =
+        document.getElementById(
+            "userName"
+        );
+
+    const userSaldo =
+        document.getElementById(
+            "userSaldo"
+        );
+
+    const avatarText =
+        document.getElementById(
+            "avatarText"
+        );
+
+    let currentUser = null;
+
+    try{
+
+        currentUser =
+            JSON.parse(
+                localStorage.getItem(
+                    "currentUser"
+                )
+            );
+
+    }catch(e){
+
+        currentUser = null;
+
+    }
+
+    if(!currentUser){
+
+        userBar.style.display = "none";
+
+        return;
+
+    }
+
+    let players = [];
+
+    try{
+
+        players =
+            JSON.parse(
+                localStorage.getItem(
+                    "players"
+                )
+            ) || [];
+
+    }catch(e){
+
+        players = [];
+
+    }
+
+    function getUsername(user){
+
+        return String(
+            user?.username ??
+            user?.name ??
+            user?.nama ??
+            user?.user ??
+            ""
+        ).trim();
+
+    }
+
+    const currentUsername =
+        getUsername(currentUser);
+
+    let matchedPlayer = null;
+
+    if(
+        currentUser.id !== undefined &&
+        currentUser.id !== null
+    ){
+
+        matchedPlayer =
+            players.find(
+                player =>
+                    player.id !== undefined &&
+                    String(player.id) ===
+                    String(currentUser.id)
+            );
+
+    }
+
+    if(
+        !matchedPlayer &&
+        currentUsername
+    ){
+
+        matchedPlayer =
+            players.find(
+                player =>
+                    getUsername(player)
+                    .toLowerCase()
+                    ===
+                    currentUsername
+                    .toLowerCase()
+            );
+
+    }
+
+    const userData =
+        matchedPlayer ||
+        currentUser;
+
+    const username =
+        getUsername(userData) ||
+        currentUsername ||
+        "User";
+
+    let saldo =
+        userData?.saldo ??
+        userData?.balance ??
+        userData?.saldoUser ??
+        userData?.wallet ??
+        currentUser?.saldo ??
+        currentUser?.balance ??
+        0;
+
+    if(
+        typeof saldo === "string"
+    ){
+
+        saldo =
+            saldo.replace(
+                /[^\d.-]/g,
+                ""
+            );
+
+    }
+
+    saldo = Number(saldo);
+
+    if(
+        !Number.isFinite(saldo)
+    ){
+
+        saldo = 0;
+
+    }
+
+    const updatedUser = {
+
+        ...currentUser,
+        ...userData,
+
+        username:username,
+
+        name:
+            userData?.name ??
+            currentUser?.name ??
+            username,
+
+        saldo:saldo
+
+    };
+
+    localStorage.setItem(
+        "currentUser",
+        JSON.stringify(
+            updatedUser
+        )
+    );
+
+    userBar.style.display = "flex";
+
+    userName.textContent =
+        username;
+
+    userSaldo.textContent =
+        "Rp " +
+        formatIDR(saldo);
+
+    avatarText.textContent =
+        username
+        .charAt(0)
+        .toUpperCase();
+
+}
+
+
+/* =====================================================
+   SENSOR NAMA
+===================================================== */
+
+function censorName(name){
+
+    name =
+        String(name || "")
+        .trim();
+
+    if(!name){
+
+        return "User";
+
+    }
+
+    if(name.length <= 1){
+
+        return "*";
+
+    }
+
+    if(name.length === 2){
+
+        return name.charAt(0) + "*";
+
+    }
+
+    if(name.length === 3){
+
+        return (
+            name.charAt(0) +
+            "*" +
+            name.charAt(2)
+        );
+
+    }
+
+    if(name.length === 4){
+
+        return (
+            name.substring(0,1) +
+            "**" +
+            name.substring(3)
+        );
+
+    }
+
+    const first =
+        name.substring(0,2);
+
+    const last =
+        name.substring(
+            name.length - 2
+        );
+
+    const starCount =
+        Math.max(
+            2,
+            name.length - 4
+        );
+
+    return (
+        first +
+        "*".repeat(starCount) +
+        last
+    );
+
+}
+
+
+/* =====================================================
+   WIN TICKER
+===================================================== */
+
+function getRealWins(){
+
+    try{
+
+        const wins =
+            JSON.parse(
+                localStorage.getItem(
+                    "recentWins"
+                )
+            );
+
+        if(
+            Array.isArray(wins) &&
+            wins.length
+        ){
+
+            return wins;
+
+        }
+
+    }catch(e){}
+
+    return [
+
+        {username:"Andi",amount:250000},
+        {username:"Rizky",amount:175000},
+        {username:"Budi",amount:500000},
+        {username:"Dimas",amount:1250000},
+        {username:"Fajar",amount:850000},
+        {username:"Agus",amount:320000},
+        {username:"Rian",amount:750000},
+        {username:"Bayu",amount:210000},
+        {username:"Reza",amount:1500000},
+        {username:"Ardi",amount:425000},
+        {username:"Doni",amount:675000},
+        {username:"Eko",amount:950000}
+
+    ];
+
+}
+
+
+function buildWinningTicker(){
+
+    const track =
+        document.getElementById(
+            "winTrack"
+        );
+
+    if(!track){
+
+        return;
+
+    }
+
+    const wins =
+        getRealWins();
+
+    let items =
+        wins
+        .slice(0,30)
+        .map(item => {
+
+            const rawName =
+                item.username ||
+                item.name ||
+                item.nama ||
+                "User";
+
+            const name =
+                censorName(rawName);
+
+            const amount =
+                Number(
+                    item.amount ||
+                    item.win ||
+                    item.nominal ||
+                    0
+                );
+
+            return `
+
+                <div class="winItem">
+
+                    <div class="winIcon">
+                        🏆
+                    </div>
+
+                    <span class="winName">
+                        ${escapeHTML(name)}
+                    </span>
+
+                    <span class="winText">
+                        memenangkan
+                    </span>
+
+                    <span class="winAmount">
+                        Rp ${formatLargeNumber(amount)}
+                    </span>
+
+                </div>
+
+            `;
+
+        })
+        .join("");
+
+    track.innerHTML =
+        items + items;
+
+}
+
+
+/* =====================================================
+   RENDER GAME
+===================================================== */
+
+function render(){
+
+    const search =
+        (
+            document.getElementById(
+                "gameSearch"
+            )?.value ||
+            ""
+        )
+        .toLowerCase()
+        .trim();
+
+    const filtered =
+        games.filter(g => {
+
+            const name =
+                String(
+                    g.nama || ""
+                )
+                .toLowerCase();
+
+            const category =
+                normalizeCategory(g);
+
+            return (
+
+                name.includes(search)
+
+                &&
+
+                (
+                    activeCategory === "all"
+                    ||
+                    category === activeCategory
+                )
+
+            );
+
+        });
+
+    let html = "";
+
+    if(!filtered.length){
+
+        html = `
+
+            <div class="noGame">
+
+                <div class="noGameIcon">
+                    🔍
+                </div>
+
+                <div>
+                    Game tidak ditemukan
+                </div>
+
+            </div>
+
+        `;
+
+    }else{
+
+        filtered.forEach(g => {
+
+            const category =
+                normalizeCategory(g);
+
+            const gameName =
+                String(
+                    g.nama || ""
+                )
+                .toLowerCase()
+                .trim();
+
+            const rtp =
+                getRandomRTP(g);
+
+            const isBaccarat =
+                gameName.includes(
+                    "baccarat"
+                );
+
+            const isSpaceman =
+                gameName === "spaceman";
+
+            /* Canonical route: make every MAINKAN button follow the
+               actual game folder, even if localStorage contains an
+               older/stale URL. */
+            let target = g.url || "#";
+
+            const routeMap = {
+                "royal baccarat": "../baccarat/",
+                "royal baccarat 2": "../baccarat2/",
+                "royal baccarat 3": "../baccarat3/",
+                "baccarat idn 1": "../baccarat-idn-1/",
+                "baccarat idn 2": "../baccarat-idn-2/",
+                "baccarat idn 3": "../baccarat-idn-3/",
+                "spaceman": "../spaceman/"
+            };
+
+            if(routeMap[gameName]){
+                target = routeMap[gameName];
+            }
+
+            if(isBaccarat){
+
+                html += `
+
+                    <div class="card liveCard">
+
+                        <div class="baccaratThumb">
+
+                            <img
+                                src="../assets/bannerbc.png"
+                                alt="${escapeHTML(g.nama)}"
+                            >
+
+                            <div class="liveLabel">
+
+                                <span class="liveDot"></span>
+
+                                LIVE
+
+                            </div>
+
+                        </div>
+
+                        <div class="info">
+
+                            <span class="badge liveBadge">
+                                ${escapeHTML(g.badge || "LIVE")}
+                            </span>
+
+                            <h4>
+                                ${escapeHTML(g.nama)}
+                            </h4>
+
+                            <div class="categoryLabel">
+                                🎰 Casino
+                            </div>
+
+                            <div class="rtpv">
+                                RTP ${rtp}%
+                            </div>
+
+                            <button
+                                class="play livePlay"
+                                onclick="openGamePage('${target}')"
+                            >
+                                MAINKAN
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+            if(isSpaceman){
+
+                html += `
+
+                    <div class="card">
+
+                        <div class="thumb">
+
+                            <img
+                                class="gameThumbImg"
+                                src="../assets/spaceman.png"
+                                alt="Spaceman"
+                                onerror="this.style.display='none';this.parentElement.innerHTML='🚀';"
+                            >
+
+                        </div>
+
+                        <div class="info">
+
+                            <span class="badge">
+                                ${escapeHTML(g.badge || "HOT")}
+                            </span>
+
+                            <h4>
+                                Spaceman
+                            </h4>
+
+                            <div class="categoryLabel">
+                                🚀 Crash Game
+                            </div>
+
+                            <div class="rtpv">
+                                RTP ${rtp}%
+                            </div>
+
+                            <button
+                                class="play"
+                                onclick="openGamePage('${target}')"
+                            >
+                                MAINKAN
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+        });
+
+    }
+
+    document.getElementById(
+        "games"
+    ).innerHTML =
+        html;
+
+}
+
+
+/* =====================================================
+   OPEN GAME
+===================================================== */
+
+function openGamePage(page){
+
+    let currentUser = null;
+
+    try{
+
+        currentUser =
+            JSON.parse(
+                localStorage.getItem(
+                    "currentUser"
+                )
+            );
+
+    }catch(e){
+
+        currentUser = null;
+
+    }
+
+    if(!currentUser){
+
+        alert(
+            "Silakan login terlebih dahulu."
+        );
+
+        window.location.href =
+            "../masuk/";
+
+        return;
+
+    }
+
+    if(page && page !== "#"){
+
+        window.location.href =
+            page;
+
+    }
+
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+function filterGames(){
+
+    render();
+
+}
+
+function openGameSearch(event){
+
+    event.preventDefault();
+
+    const section =
+        document.getElementById(
+            "gameSection"
+        );
+
+    if(section){
+
+        section.scrollIntoView({
+
+            behavior:"smooth",
+            block:"start"
+
+        });
+
+    }
+
+    setTimeout(() => {
+
+        const search =
+            document.getElementById(
+                "gameSearch"
+            );
+
+        if(search){
+
+            search.focus();
+
+        }
+
+    },300);
+
+    setNavActive(
+        event.currentTarget
+    );
+
+}
+
+
+/* =====================================================
+   NAV ACTIVE
+===================================================== */
+
+function setNavActive(item){
+
+    document
+        .querySelectorAll(
+            ".bottomNavItem"
+        )
+        .forEach(el => {
+
+            el.classList.remove(
+                "active"
+            );
+
+        });
+
+    if(item){
+
+        item.classList.add(
+            "active"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   CATEGORY
+===================================================== */
+
+function setCategory(
+    category,
+    button
+){
+
+    activeCategory =
+        category;
+
+    document
+        .querySelectorAll(
+            ".categoryBtn"
+        )
+        .forEach(btn => {
+
+            btn.classList.remove(
+                "active"
+            );
+
+        });
+
+    if(button){
+
+        button.classList.add(
+            "active"
+        );
+
+    }
+
+    render();
+
+}
+
+
+/* =====================================================
+   RANDOM STATS
+===================================================== */
+
+function updateStats(){
+
+    /*
+     * Player online
+     */
+
+    const online =
+        randomNumber(
+            15000,
+            25000
+        );
+
+    document.getElementById(
+        "onlineCount"
+    ).innerText =
+        online.toLocaleString(
+            "id-ID"
+        );
+
+
+    /*
+     * Jumlah Win
+     * ratusan juta sampai miliaran
+     */
+
+    const winAmount =
+        randomNumber(
+            100,
+            9999
+        ) * 100000;
+
+    document.getElementById(
+        "winCount"
+    ).innerText =
+        formatLargeNumber(
+            winAmount
+        );
+
+
+    /*
+     * Jackpot ×8000 - ×28000
+     */
+
+    const jackpot =
+        randomNumber(
+            8000,
+            28000
+        );
+
+    document.getElementById(
+        "jackpotCount"
+    ).innerText =
+        "×" +
+        jackpot.toLocaleString(
+            "id-ID"
+        );
+
+}
+
+
+/* =====================================================
+   SYNC
+===================================================== */
+
+function sync(){
+
+    try{
+
+        games =
+            JSON.parse(
+                localStorage.getItem(
+                    "games"
+                )
+            ) || [];
+
+    }catch(e){
+
+        games = [];
+
+    }
+
+    addDefaultGames();
+
+    render();
+
+    loadUser();
+
+    loadLogo();
+
+}
+
+
+/* =====================================================
+   INITIAL
+===================================================== */
+
+addDefaultGames();
+
+loadLogo();
+
+loadUser();
+
+render();
+
+updateStats();
+
+buildWinningTicker();
+
+
+/* =====================================================
+   USER / SALDO SYNC
+===================================================== */
+
+setInterval(
+    function(){
+
+        loadUser();
+
+    },
+    1000
+);
+
+
+/* =====================================================
+   GAME SYNC
+===================================================== */
+
+setInterval(
+    function(){
+
+        sync();
+
+    },
+    3000
+);
+
+
+/* =====================================================
+   STATS RANDOM
+   GANTI SETIAP 5 DETIK
+===================================================== */
+
+setInterval(
+    function(){
+
+        updateStats();
+
+    },
+    5000
+);
+
+
+/* =====================================================
+   RTP REFRESH
+   RTP BERGANTI SETIAP 10 MENIT
+===================================================== */
+
+setInterval(
+    function(){
+
+        render();
+
+    },
+    10 * 60 * 1000
+);
+
+</script>
+
+</body>
+</html>

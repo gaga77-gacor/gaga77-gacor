@@ -1,0 +1,4991 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+
+<title>Baccarat Indonesia 1</title>
+
+<style>
+:root{
+    --bg:#030506;
+    --panel:#090d12;
+    --panel2:#0d131a;
+    --line:rgba(255,255,255,.08);
+
+    --gold:#e8bd61;
+    --gold2:#fff0ad;
+
+    --blue:#2188ff;
+    --blue2:#73bcff;
+
+    --red:#ef3450;
+    --red2:#ff8798;
+
+    --green:#20c987;
+    --green2:#6df0b4;
+
+    --muted:#7b8490;
+}
+
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+    margin:0;
+    min-height:100%;
+    background:#010203;
+    color:#fff;
+    font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+}
+
+body{
+    overflow-x:hidden;
+}
+
+button{
+    font:inherit;
+}
+
+button:focus{
+    outline:none;
+}
+
+.app{
+    width:100%;
+    max-width:500px;
+    min-height:100vh;
+    margin:auto;
+    background:#05070a;
+    box-shadow:0 0 100px rgba(0,0,0,.9);
+}
+
+/* =====================================================
+HEADER
+===================================================== */
+
+.header{
+    height:64px;
+    padding:0 15px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    background:rgba(7,9,13,.98);
+
+    border-bottom:1px solid var(--line);
+
+    position:relative;
+    z-index:20;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.logo-icon{
+    width:38px;
+    height:38px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:12px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fff0aa,
+            #b97d2e
+        );
+
+    color:#171008;
+
+    font-weight:1000;
+    font-size:18px;
+
+    box-shadow:
+        0 5px 25px
+        rgba(241,199,107,.18);
+}
+
+.logo-title{
+    font-size:13px;
+    font-weight:1000;
+    letter-spacing:1px;
+}
+
+.logo-sub{
+    margin-top:2px;
+
+    color:var(--muted);
+
+    font-size:7px;
+    font-weight:800;
+    letter-spacing:1.5px;
+}
+
+.header-right{
+    display:flex;
+    align-items:center;
+    gap:7px;
+}
+
+.live{
+    padding:7px 10px;
+
+    display:flex;
+    align-items:center;
+    gap:6px;
+
+    border:1px solid rgba(255,54,84,.25);
+    border-radius:30px;
+
+    background:rgba(255,54,84,.07);
+
+    color:#ff6178;
+
+    font-size:8px;
+    font-weight:1000;
+}
+
+.live-dot{
+    width:6px;
+    height:6px;
+
+    border-radius:50%;
+
+    background:#ff3654;
+
+    box-shadow:
+        0 0 12px #ff3654;
+
+    animation:livePulse 1s infinite;
+}
+
+@keyframes livePulse{
+    50%{
+        opacity:.25;
+        transform:scale(.6);
+    }
+}
+
+/* =====================================================
+TABLE
+===================================================== */
+
+.table{
+    position:relative;
+
+    height:370px;
+
+    overflow:hidden;
+
+    background:
+        radial-gradient(
+            ellipse at 50% 42%,
+            #18503e 0%,
+            #0d392d 30%,
+            #06241c 58%,
+            #020b08 100%
+        );
+
+    border-bottom:
+        1px solid
+        rgba(232,189,97,.16);
+}
+
+.table:before{
+    content:"";
+
+    position:absolute;
+
+    left:50%;
+    top:95px;
+
+    width:430px;
+    height:230px;
+
+    transform:translateX(-50%);
+
+    border-radius:50%;
+
+    border:
+        2px solid
+        rgba(232,189,97,.12);
+
+    box-shadow:
+        inset 0 0 70px rgba(0,0,0,.35),
+        0 0 50px rgba(0,0,0,.25);
+}
+
+.table:after{
+    content:"";
+
+    position:absolute;
+
+    left:24px;
+    right:24px;
+    bottom:18px;
+
+    height:110px;
+
+    border:
+        1px solid
+        rgba(232,189,97,.12);
+
+    border-radius:
+        50% 50% 18px 18px;
+
+    pointer-events:none;
+}
+
+.table-glow{
+    position:absolute;
+
+    left:50%;
+    top:5px;
+
+    width:390px;
+    height:250px;
+
+    transform:translateX(-50%);
+
+    background:
+        radial-gradient(
+            ellipse,
+            rgba(255,218,119,.08),
+            transparent 68%
+        );
+}
+
+.table-title{
+    position:absolute;
+
+    top:17px;
+    left:50%;
+
+    transform:translateX(-50%);
+
+    text-align:center;
+
+    color:rgba(255,238,176,.72);
+
+    font-size:7px;
+    font-weight:1000;
+
+    letter-spacing:4px;
+
+    z-index:3;
+}
+
+.table-title strong{
+    display:block;
+
+    margin-top:3px;
+
+    color:#f1d38a;
+
+    font-size:19px;
+    letter-spacing:5px;
+
+    text-shadow:
+        0 3px 18px
+        rgba(241,199,107,.18);
+}
+
+.table-number{
+    position:absolute;
+
+    top:20px;
+    right:18px;
+
+    color:rgba(255,255,255,.25);
+
+    font-size:7px;
+    font-weight:1000;
+    letter-spacing:1px;
+}
+
+/* =====================================================
+DEALER
+===================================================== */
+
+.dealer{
+    position:absolute;
+
+    top:55px;
+    left:50%;
+
+    transform:translateX(-50%);
+
+    width:76px;
+    height:76px;
+
+    border-radius:50%;
+
+    border:
+        2px solid
+        rgba(232,189,97,.58);
+
+    background:
+        radial-gradient(
+            circle at 50% 28%,
+            #e7b895 0 12%,
+            transparent 13%
+        ),
+        radial-gradient(
+            circle at 39% 32%,
+            #101010 0 3%,
+            transparent 4%
+        ),
+        radial-gradient(
+            circle at 61% 32%,
+            #101010 0 3%,
+            transparent 4%
+        ),
+        linear-gradient(
+            #171b22 0 53%,
+            #752032 54% 100%
+        );
+
+    box-shadow:
+        0 15px 30px rgba(0,0,0,.6),
+        0 0 30px rgba(232,189,97,.08);
+
+    z-index:4;
+}
+
+.dealer-label{
+    position:absolute;
+
+    left:50%;
+    bottom:-12px;
+
+    transform:translateX(-50%);
+
+    padding:4px 9px;
+
+    border-radius:20px;
+
+    white-space:nowrap;
+
+    background:#090d12;
+
+    border:
+        1px solid
+        rgba(232,189,97,.28);
+
+    color:#e8ca85;
+
+    font-size:6px;
+    font-weight:1000;
+    letter-spacing:1px;
+}
+
+/* =====================================================
+HANDS
+===================================================== */
+
+.hands{
+    position:absolute;
+
+    left:0;
+    right:0;
+    top:163px;
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:20px;
+
+    padding:0 35px;
+
+    z-index:6;
+}
+
+.hand{
+    text-align:center;
+}
+
+.hand-name{
+    margin-bottom:7px;
+
+    color:rgba(255,255,255,.58);
+
+    font-size:8px;
+    font-weight:1000;
+    letter-spacing:1.5px;
+}
+
+.cards{
+    min-height:60px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    gap:5px;
+
+    perspective:900px;
+}
+
+.card{
+    width:40px;
+    height:57px;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:7px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fff,
+            #eef1f3 55%,
+            #d3d9de
+        );
+
+    color:#17191d;
+
+    font-size:14px;
+    font-weight:1000;
+
+    line-height:15px;
+
+    box-shadow:
+        0 10px 18px rgba(0,0,0,.55),
+        inset 0 1px rgba(255,255,255,.9);
+}
+
+.card.red{
+    color:#df2442;
+}
+
+.card span:first-child{
+    font-size:15px;
+}
+
+.card span:last-child{
+    font-size:13px;
+}
+
+.score{
+    height:34px;
+    margin-top:5px;
+
+    font-size:24px;
+    font-weight:1000;
+
+    text-shadow:
+        0 3px 10px
+        rgba(0,0,0,.7);
+}
+
+.score.pop{
+    animation:scorePop .4s ease;
+}
+
+@keyframes scorePop{
+    0%{
+        transform:scale(.5);
+        opacity:.2;
+    }
+
+    60%{
+        transform:scale(1.25);
+        opacity:1;
+    }
+
+    100%{
+        transform:scale(1);
+    }
+}
+
+/* =====================================================
+RESULT
+===================================================== */
+
+.result{
+    position:absolute;
+
+    top:143px;
+    left:50%;
+
+    transform:
+        translate(-50%,-20px)
+        scale(.8);
+
+    min-width:145px;
+
+    padding:8px 15px;
+
+    border:
+        1px solid
+        rgba(232,189,97,.35);
+
+    border-radius:15px;
+
+    background:
+        rgba(5,9,10,.94);
+
+    backdrop-filter:blur(12px);
+
+    text-align:center;
+
+    opacity:0;
+    pointer-events:none;
+
+    transition:.4s cubic-bezier(.2,.8,.2,1);
+
+    z-index:15;
+}
+
+.result.show{
+    opacity:1;
+
+    transform:
+        translate(-50%,0)
+        scale(1);
+}
+
+.result-small{
+    color:#788290;
+
+    font-size:6px;
+    font-weight:900;
+    letter-spacing:1.5px;
+}
+
+.result-winner{
+    margin-top:2px;
+
+    font-size:19px;
+    font-weight:1000;
+}
+
+.result-score{
+    margin-top:2px;
+
+    color:#cbd0d6;
+
+    font-size:8px;
+    font-weight:800;
+}
+
+.result-payout{
+    margin-top:3px;
+
+    color:#50df91;
+
+    font-size:8px;
+    font-weight:1000;
+}
+
+/* =====================================================
+COUNTDOWN
+===================================================== */
+
+.countdown{
+    position:absolute;
+
+    bottom:16px;
+    left:50%;
+
+    transform:translateX(-50%);
+
+    width:65px;
+    height:65px;
+
+    z-index:10;
+}
+
+.count-ring{
+    position:absolute;
+    inset:0;
+
+    border-radius:50%;
+
+    background:
+        conic-gradient(
+            var(--gold) 360deg,
+            rgba(255,255,255,.07) 0
+        );
+}
+
+.count-ring:after{
+    content:"";
+
+    position:absolute;
+
+    inset:4px;
+
+    border-radius:50%;
+
+    background:#06100d;
+}
+
+.count-number{
+    position:absolute;
+    inset:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:24px;
+    font-weight:1000;
+
+    z-index:2;
+}
+
+.count-text{
+    position:absolute;
+
+    top:69px;
+    left:50%;
+
+    transform:translateX(-50%);
+
+    width:120px;
+
+    text-align:center;
+
+    color:#6f7a86;
+
+    font-size:6px;
+    font-weight:900;
+    letter-spacing:1.2px;
+}
+
+/* =====================================================
+STATUS
+===================================================== */
+
+.status{
+    height:40px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    gap:7px;
+
+    background:#0a0e14;
+
+    border-bottom:
+        1px solid
+        var(--line);
+
+    color:#cfd5dc;
+
+    font-size:8px;
+    font-weight:1000;
+    letter-spacing:.7px;
+}
+
+.status-dot{
+    width:7px;
+    height:7px;
+
+    border-radius:50%;
+
+    background:var(--green);
+
+    box-shadow:
+        0 0 12px
+        var(--green);
+}
+
+.status.locked .status-dot{
+    background:#e8aa39;
+
+    box-shadow:
+        0 0 12px
+        #e8aa39;
+}
+
+.status.result .status-dot{
+    background:var(--red);
+
+    box-shadow:
+        0 0 12px
+        var(--red);
+}
+
+/* =====================================================
+ROAD
+===================================================== */
+
+.road-section{
+    padding:11px;
+
+    background:#080c11;
+
+    border-bottom:
+        1px solid
+        var(--line);
+}
+
+.road-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    margin-bottom:7px;
+}
+
+.road-title{
+    font-size:8px;
+    font-weight:1000;
+    letter-spacing:1.2px;
+
+    color:#d7dce2;
+}
+
+.round{
+    color:#737d8b;
+
+    font-size:7px;
+    font-weight:800;
+}
+
+.road{
+    height:82px;
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(20,20px);
+
+    grid-template-rows:
+        repeat(4,20px);
+
+    overflow:hidden;
+
+    border:
+        1px solid
+        rgba(255,255,255,.06);
+
+    border-radius:9px;
+
+    background:
+        linear-gradient(
+            rgba(255,255,255,.035) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(255,255,255,.035) 1px,
+            transparent 1px
+        );
+
+    background-size:20px 20px;
+}
+
+.dot{
+    width:14px;
+    height:14px;
+
+    margin:3px;
+
+    border:3px solid
+        var(--blue2);
+
+    border-radius:50%;
+}
+
+.dot.b{
+    border-color:var(--red2);
+}
+
+.dot.t{
+    border-color:var(--green);
+}
+
+.stats{
+    display:flex;
+    gap:14px;
+
+    margin-top:6px;
+
+    color:#737d89;
+
+    font-size:7px;
+    font-weight:800;
+}
+
+.stats b{
+    color:#fff;
+}
+
+.stats .p{
+    color:var(--blue2);
+}
+
+.stats .b{
+    color:var(--red2);
+}
+
+.stats .t{
+    color:var(--green);
+}
+
+/* =====================================================
+CHIPS
+===================================================== */
+
+.chip-area{
+    padding:12px 10px;
+
+    background:#0b1016;
+}
+
+.chip-title{
+    margin-bottom:9px;
+
+    text-align:center;
+
+    color:#737d8b;
+
+    font-size:7px;
+    font-weight:900;
+
+    letter-spacing:1px;
+}
+
+.chip-title b{
+    color:var(--gold2);
+}
+
+.chips{
+    display:flex;
+
+    justify-content:center;
+
+    gap:10px;
+}
+
+.chip{
+    width:47px;
+    height:47px;
+
+    border:2px dashed
+        rgba(255,255,255,.65);
+
+    border-radius:50%;
+
+    color:#fff;
+
+    font-size:8px;
+    font-weight:1000;
+
+    cursor:pointer;
+
+    transition:
+        .18s
+        cubic-bezier(.2,.8,.2,1);
+
+    box-shadow:
+        inset 0 0 0 3px
+        rgba(255,255,255,.1),
+        0 6px 13px
+        rgba(0,0,0,.5);
+}
+
+.chip:active{
+    transform:scale(.86);
+}
+
+.chip.selected{
+    transform:translateY(-5px);
+
+    box-shadow:
+        0 0 0 2px #fff,
+        0 9px 20px
+        rgba(0,0,0,.6);
+}
+
+.chip-2{
+    background:
+        linear-gradient(
+            145deg,
+            #747d89,
+            #292f37
+        );
+}
+
+.chip-10{
+    background:
+        linear-gradient(
+            145deg,
+            #48a4ff,
+            #1451a2
+        );
+}
+
+.chip-20{
+    background:
+        linear-gradient(
+            145deg,
+            #ff4b65,
+            #8b1428
+        );
+}
+
+.chip-50{
+    background:
+        linear-gradient(
+            145deg,
+            #35cc81,
+            #08623e
+        );
+}
+
+.chip-100{
+    background:
+        linear-gradient(
+            145deg,
+            #f1c568,
+            #855817
+        );
+}
+
+/* =====================================================
+BETS
+===================================================== */
+
+.bets{
+    padding:10px;
+
+    background:#06090d;
+}
+
+.bet-grid{
+    display:grid;
+
+    grid-template-columns:
+        1fr .72fr 1fr;
+
+    gap:7px;
+}
+
+.bet{
+    position:relative;
+
+    height:160px;
+
+    overflow:hidden;
+
+    border-radius:15px;
+
+    cursor:pointer;
+
+    border:
+        1px solid
+        rgba(255,255,255,.12);
+
+    box-shadow:
+        inset 0 1px
+        rgba(255,255,255,.13),
+        0 9px 20px
+        rgba(0,0,0,.4);
+
+    transition:
+        transform .15s,
+        filter .2s;
+}
+
+.bet:active{
+    transform:scale(.965);
+}
+
+.bet.disabled{
+    opacity:.48;
+
+    filter:saturate(.5);
+
+    cursor:not-allowed;
+}
+
+.bet-player{
+    background:
+        linear-gradient(
+            145deg,
+            #2187ed,
+            #073b91
+        );
+}
+
+.bet-tie{
+    background:
+        linear-gradient(
+            145deg,
+            #16ae6d,
+            #075c3c
+        );
+}
+
+.bet-banker{
+    background:
+        linear-gradient(
+            145deg,
+            #e2324b,
+            #771322
+        );
+}
+
+.bet:before{
+    content:"";
+
+    position:absolute;
+    inset:0;
+
+    background:
+        radial-gradient(
+            circle at 50% 0,
+            rgba(255,255,255,.18),
+            transparent 55%
+        );
+
+    pointer-events:none;
+}
+
+.bet-name{
+    position:absolute;
+
+    top:11px;
+    left:11px;
+
+    font-size:15px;
+    font-weight:1000;
+
+    z-index:2;
+}
+
+.bet-rate{
+    position:absolute;
+
+    top:33px;
+    left:11px;
+
+    color:rgba(255,255,255,.6);
+
+    font-size:7px;
+    font-weight:800;
+}
+
+.bet-users{
+    position:absolute;
+
+    top:9px;
+    right:9px;
+
+    text-align:right;
+
+    z-index:2;
+}
+
+.bet-users b{
+    display:block;
+
+    font-size:14px;
+    line-height:14px;
+}
+
+.bet-users small{
+    color:rgba(255,255,255,.5);
+
+    font-size:5px;
+    font-weight:900;
+}
+
+.bet-info{
+    position:absolute;
+
+    left:11px;
+    right:11px;
+    bottom:58px;
+
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+
+    z-index:2;
+}
+
+.bet-money{
+    font-size:8px;
+    font-weight:1000;
+}
+
+.bet-percent{
+    color:rgba(255,255,255,.55);
+
+    text-align:right;
+
+    font-size:5px;
+    font-weight:900;
+}
+
+.bet-percent b{
+    display:block;
+
+    color:#fff;
+
+    font-size:12px;
+}
+
+.progress{
+    position:absolute;
+
+    left:11px;
+    right:11px;
+    bottom:43px;
+
+    height:4px;
+
+    overflow:hidden;
+
+    border-radius:10px;
+
+    background:rgba(0,0,0,.25);
+}
+
+.progress span{
+    display:block;
+
+    width:0;
+    height:100%;
+
+    border-radius:10px;
+
+    background:
+        rgba(255,255,255,.85);
+
+    transition:
+        width .5s ease;
+}
+
+/* =====================================================
+MY BET
+===================================================== */
+
+.my-bet{
+    position:absolute;
+
+    left:8px;
+    right:8px;
+    bottom:7px;
+
+    min-height:28px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    gap:3px;
+
+    border-top:
+        1px solid
+        rgba(255,255,255,.15);
+}
+
+.my-bet.empty{
+    display:none;
+}
+
+.my-chip{
+    width:24px;
+    height:24px;
+
+    flex:0 0 auto;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border:2px dashed
+        rgba(255,255,255,.8);
+
+    border-radius:50%;
+
+    color:#fff;
+
+    font-size:5px;
+    font-weight:1000;
+
+    box-shadow:
+        0 3px 7px
+        rgba(0,0,0,.5);
+
+    animation:
+        chipIn .28s
+        cubic-bezier(.2,.8,.2,1);
+}
+
+.my-chip.c2{
+    background:
+        linear-gradient(
+            145deg,
+            #747d89,
+            #292f37
+        );
+}
+
+.my-chip.c10{
+    background:
+        linear-gradient(
+            145deg,
+            #48a4ff,
+            #1451a2
+        );
+}
+
+.my-chip.c20{
+    background:
+        linear-gradient(
+            145deg,
+            #ff4b65,
+            #8b1428
+        );
+}
+
+.my-chip.c50{
+    background:
+        linear-gradient(
+            145deg,
+            #35cc81,
+            #08623e
+        );
+}
+
+.my-chip.c100{
+    background:
+        linear-gradient(
+            145deg,
+            #f1c568,
+            #855817
+        );
+}
+
+.my-chip.extra{
+    width:24px;
+    height:24px;
+
+    background:rgba(0,0,0,.4);
+
+    border:
+        1px solid
+        rgba(255,255,255,.3);
+
+    font-size:6px;
+}
+
+.my-total{
+    margin-left:3px;
+
+    padding:3px 6px;
+
+    border-radius:7px;
+
+    background:rgba(0,0,0,.35);
+
+    font-size:6px;
+    font-weight:1000;
+
+    white-space:nowrap;
+}
+
+@keyframes chipIn{
+    0%{
+        opacity:0;
+
+        transform:
+            translateY(10px)
+            scale(.3)
+            rotate(-30deg);
+    }
+
+    70%{
+        transform:
+            translateY(-2px)
+            scale(1.1);
+    }
+
+    100%{
+        opacity:1;
+
+        transform:
+            translateY(0)
+            scale(1)
+            rotate(0);
+    }
+}
+
+/* =====================================================
+CONTROLS
+===================================================== */
+
+.controls{
+    display:grid;
+
+    grid-template-columns:
+        1fr 1fr 1fr;
+
+    gap:7px;
+
+    padding:0 10px 10px;
+
+    background:#06090d;
+}
+
+.control{
+    height:38px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.07);
+
+    border-radius:9px;
+
+    background:
+        linear-gradient(
+            #151b23,
+            #0c1117
+        );
+
+    color:#cbd1d8;
+
+    font-size:8px;
+    font-weight:1000;
+
+    cursor:pointer;
+}
+
+.control:active{
+    transform:scale(.97);
+}
+
+/* =====================================================
+WALLET
+===================================================== */
+
+.wallet{
+    padding:13px 15px 17px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #0d131b,
+            #080b10
+        );
+
+    border-top:
+        1px solid
+        var(--line);
+}
+
+.wallet-row{
+    display:flex;
+
+    justify-content:space-between;
+    align-items:flex-end;
+}
+
+.wallet-label{
+    color:#697481;
+
+    font-size:7px;
+    font-weight:900;
+
+    letter-spacing:1px;
+}
+
+.wallet-value{
+    margin-top:2px;
+
+    font-size:18px;
+    font-weight:1000;
+}
+
+.wallet-right{
+    text-align:right;
+}
+
+.wallet-right .wallet-value{
+    color:var(--gold2);
+}
+
+/* =====================================================
+LOADING
+===================================================== */
+
+.loading{
+    position:fixed;
+    inset:0;
+
+    z-index:9999;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#05070a;
+
+    transition:
+        opacity .35s ease,
+        visibility .35s ease;
+}
+
+.loading.hide{
+    opacity:0;
+    visibility:hidden;
+}
+
+.loader-box{
+    text-align:center;
+}
+
+.loader-logo{
+    width:54px;
+    height:54px;
+
+    margin:auto;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:15px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fff0b0,
+            #b87c2d
+        );
+
+    color:#15100a;
+
+    font-size:24px;
+    font-weight:1000;
+
+    animation:
+        loaderPulse 1s infinite;
+}
+
+.loader-text{
+    margin-top:13px;
+
+    color:#e8cf91;
+
+    font-size:9px;
+    font-weight:1000;
+
+    letter-spacing:2px;
+}
+
+.loader-line{
+    width:80px;
+    height:2px;
+
+    margin:9px auto 0;
+
+    overflow:hidden;
+
+    border-radius:10px;
+
+    background:rgba(255,255,255,.08);
+}
+
+.loader-line span{
+    display:block;
+
+    width:35%;
+    height:100%;
+
+    background:var(--gold);
+
+    animation:
+        loadingLine 1s
+        infinite ease-in-out;
+}
+
+@keyframes loaderPulse{
+    50%{
+        transform:scale(.9);
+
+        box-shadow:
+            0 0 25px
+            rgba(241,199,107,.25);
+    }
+}
+
+@keyframes loadingLine{
+    0%{
+        transform:translateX(-120%);
+    }
+
+    100%{
+        transform:translateX(350%);
+    }
+}
+
+/* =====================================================
+TOAST
+===================================================== */
+
+.toast{
+    position:fixed;
+
+    left:50%;
+    bottom:22px;
+
+    z-index:10000;
+
+    transform:
+        translate(-50%,20px);
+
+    padding:10px 17px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.1);
+
+    border-radius:30px;
+
+    background:
+        rgba(10,13,18,.96);
+
+    box-shadow:
+        0 10px 35px
+        rgba(0,0,0,.6);
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:.25s;
+
+    font-size:9px;
+    font-weight:900;
+
+    white-space:nowrap;
+}
+
+.toast.show{
+    opacity:1;
+
+    transform:
+        translate(-50%,0);
+}
+
+/* =====================================================
+RESPONSIVE
+===================================================== */
+
+@media(max-width:370px){
+
+    .table{
+        height:355px;
+    }
+
+    .hands{
+        padding:0 20px;
+        gap:10px;
+    }
+
+    .bet{
+        height:150px;
+    }
+
+    .chip{
+        width:43px;
+        height:43px;
+    }
+
+    .my-chip{
+        width:21px;
+        height:21px;
+
+        font-size:4px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+LOADING
+===================================================== -->
+
+<div id="loading" class="loading">
+
+    <div class="loader-box">
+
+        <div class="loader-logo">
+            B
+        </div>
+
+        <div class="loader-text">
+            BACCARAT INDONESIA 1
+        </div>
+
+        <div class="loader-line">
+            <span></span>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="app">
+
+<!-- =====================================================
+HEADER
+===================================================== -->
+
+<header class="header">
+
+    <div class="logo">
+
+        <div class="logo-icon">
+            B
+        </div>
+
+        <div>
+
+            <div class="logo-title">
+                BACCARAT INDONESIA 1
+            </div>
+
+            <div class="logo-sub">
+                PREMIUM LIVE TABLE
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="header-right">
+
+        <div class="live">
+
+            <span class="live-dot"></span>
+
+            LIVE
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =====================================================
+TABLE
+===================================================== -->
+
+<section class="table">
+
+    <div class="table-glow"></div>
+
+    <div class="table-title">
+
+        INDONESIA
+
+        <strong>
+            BACCARAT 1
+        </strong>
+
+    </div>
+
+    <div class="table-number">
+        TABLE IDN-01
+    </div>
+
+
+    <div class="dealer">
+
+        <div class="dealer-label">
+            LIVE DEALER
+        </div>
+
+    </div>
+
+
+    <div class="hands">
+
+        <div class="hand">
+
+            <div class="hand-name">
+                PEMAIN
+            </div>
+
+            <div
+                id="playerCards"
+                class="cards">
+            </div>
+
+            <div
+                id="playerScore"
+                class="score">
+                0
+            </div>
+
+        </div>
+
+
+        <div class="hand">
+
+            <div class="hand-name">
+                BANKIR
+            </div>
+
+            <div
+                id="bankerCards"
+                class="cards">
+            </div>
+
+            <div
+                id="bankerScore"
+                class="score">
+                0
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div id="result" class="result">
+
+        <div class="result-small">
+            HASIL RONDE
+        </div>
+
+        <div
+            id="resultWinner"
+            class="result-winner">
+            PEMAIN
+        </div>
+
+        <div
+            id="resultScore"
+            class="result-score">
+            PEMAIN 8 — BANKIR 6
+        </div>
+
+        <div
+            id="resultPayout"
+            class="result-payout">
+            +Rp 40.000
+        </div>
+
+    </div>
+
+
+    <div class="countdown">
+
+        <div
+            id="countRing"
+            class="count-ring">
+        </div>
+
+        <div
+            id="countNumber"
+            class="count-number">
+            8
+        </div>
+
+        <div class="count-text">
+            WAKTU TARUHAN
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+STATUS
+===================================================== -->
+
+<div id="status" class="status">
+
+    <span class="status-dot"></span>
+
+    <span id="statusText">
+        TARUHAN DIBUKA
+    </span>
+
+</div>
+
+
+<!-- =====================================================
+ROAD
+===================================================== -->
+
+<section class="road-section">
+
+    <div class="road-top">
+
+        <div class="road-title">
+            BACCARAT ROAD
+        </div>
+
+        <div class="round">
+
+            ROUND #
+
+            <span id="round">
+                1
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="road"
+        class="road">
+    </div>
+
+
+    <div class="stats">
+
+        <span class="p">
+
+            P
+            <b id="playerWins">0</b>
+
+        </span>
+
+        <span class="b">
+
+            B
+            <b id="bankerWins">0</b>
+
+        </span>
+
+        <span class="t">
+
+            T
+            <b id="tieWins">0</b>
+
+        </span>
+
+        <span>
+            LIVE
+        </span>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+CHIPS
+===================================================== -->
+
+<section class="chip-area">
+
+    <div class="chip-title">
+
+        PILIH KEPING • Rp
+
+        <b id="selectedCoin">
+            20.000
+        </b>
+
+    </div>
+
+
+    <div class="chips">
+
+        <button
+            class="chip chip-2"
+            onclick="selectCoin(2000,this)">
+            2K
+        </button>
+
+        <button
+            class="chip chip-10"
+            onclick="selectCoin(10000,this)">
+            10K
+        </button>
+
+        <button
+            class="chip chip-20 selected"
+            onclick="selectCoin(20000,this)">
+            20K
+        </button>
+
+        <button
+            class="chip chip-50"
+            onclick="selectCoin(50000,this)">
+            50K
+        </button>
+
+        <button
+            class="chip chip-100"
+            onclick="selectCoin(100000,this)">
+            100K
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+BET
+===================================================== -->
+
+<section class="bets">
+
+    <div class="bet-grid">
+
+        <!-- PLAYER -->
+
+        <div
+            id="betPlayer"
+            class="bet bet-player"
+            onclick="placeBet('player')">
+
+            <div class="bet-name">
+                PEMAIN
+            </div>
+
+            <div class="bet-rate">
+                PAYS 1:1
+            </div>
+
+            <div class="bet-users">
+
+                <b id="playerUsers">
+                    0
+                </b>
+
+                <small>
+                    PEMAIN
+                </small>
+
+            </div>
+
+
+            <div class="bet-info">
+
+                <div class="bet-money">
+
+                    Rp
+
+                    <span id="playerAmount">
+                        0
+                    </span>
+
+                </div>
+
+                <div class="bet-percent">
+
+                    <b id="playerPercent">
+                        0%
+                    </b>
+
+                    SHARE
+
+                </div>
+
+            </div>
+
+
+            <div class="progress">
+
+                <span id="playerProgress"></span>
+
+            </div>
+
+
+            <div
+                id="playerMyBet"
+                class="my-bet empty">
+            </div>
+
+        </div>
+
+
+        <!-- TIE -->
+
+        <div
+            id="betTie"
+            class="bet bet-tie"
+            onclick="placeBet('tie')">
+
+            <div class="bet-name">
+                SERI
+            </div>
+
+            <div class="bet-rate">
+                PAYS 8:1
+            </div>
+
+            <div class="bet-users">
+
+                <b id="tieUsers">
+                    0
+                </b>
+
+                <small>
+                    PEMAIN
+                </small>
+
+            </div>
+
+
+            <div class="bet-info">
+
+                <div class="bet-money">
+
+                    Rp
+
+                    <span id="tieAmount">
+                        0
+                    </span>
+
+                </div>
+
+                <div class="bet-percent">
+
+                    <b id="tiePercent">
+                        0%
+                    </b>
+
+                    SHARE
+
+                </div>
+
+            </div>
+
+
+            <div class="progress">
+
+                <span id="tieProgress"></span>
+
+            </div>
+
+
+            <div
+                id="tieMyBet"
+                class="my-bet empty">
+            </div>
+
+        </div>
+
+
+        <!-- BANKER -->
+
+        <div
+            id="betBanker"
+            class="bet bet-banker"
+            onclick="placeBet('banker')">
+
+            <div class="bet-name">
+                BANKIR
+            </div>
+
+            <div class="bet-rate">
+                PAYS 0.95:1
+            </div>
+
+            <div class="bet-users">
+
+                <b id="bankerUsers">
+                    0
+                </b>
+
+                <small>
+                    PEMAIN
+                </small>
+
+            </div>
+
+
+            <div class="bet-info">
+
+                <div class="bet-money">
+
+                    Rp
+
+                    <span id="bankerAmount">
+                        0
+                    </span>
+
+                </div>
+
+                <div class="bet-percent">
+
+                    <b id="bankerPercent">
+                        0%
+                    </b>
+
+                    SHARE
+
+                </div>
+
+            </div>
+
+
+            <div class="progress">
+
+                <span id="bankerProgress"></span>
+
+            </div>
+
+
+            <div
+                id="bankerMyBet"
+                class="my-bet empty">
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+CONTROLS
+===================================================== -->
+
+<div class="controls">
+
+    <button
+        class="control"
+        onclick="undoBet()">
+        ↶ UNDO
+    </button>
+
+    <button
+        class="control"
+        onclick="repeatBet()">
+        ↻ ULANG
+    </button>
+
+    <button
+        class="control"
+        onclick="clearBets()">
+        × HAPUS
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+WALLET
+===================================================== -->
+
+<section class="wallet">
+
+    <div class="wallet-row">
+
+        <div>
+
+            <div class="wallet-label">
+                SALDO ANDA
+            </div>
+
+            <div
+                id="balance"
+                class="wallet-value">
+                Rp 0
+            </div>
+
+        </div>
+
+
+        <div class="wallet-right">
+
+            <div class="wallet-label">
+                TOTAL TARUHAN
+            </div>
+
+            <div
+                id="totalBet"
+                class="wallet-value">
+                Rp 0
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+</div>
+
+
+<!-- =====================================================
+TOAST
+===================================================== -->
+
+<div
+    id="toast"
+    class="toast">
+</div>
+
+
+<script>
+
+/* =====================================================
+CONFIG
+===================================================== */
+
+const CONFIG = {
+
+    bettingTime:8,
+
+    nextRound:3000,
+
+    bankerPayout:.95,
+
+    tiePayout:8
+
+};
+
+
+/* =====================================================
+HELPER
+===================================================== */
+
+const $ = id =>
+    document.getElementById(id);
+
+
+/* =====================================================
+ACCOUNT
+===================================================== */
+
+function getCurrentUser(){
+
+    try{
+
+        return JSON.parse(
+            localStorage.getItem("currentUser")
+        );
+
+    }catch(e){
+
+        return null;
+
+    }
+
+}
+
+
+function getPlayers(){
+
+    try{
+
+        return JSON.parse(
+            localStorage.getItem("players")
+        ) || [];
+
+    }catch(e){
+
+        return [];
+
+    }
+
+}
+
+
+function getAccountBalance(){
+
+    const user =
+        getCurrentUser();
+
+    if(!user)
+        return 0;
+
+
+    const players =
+        getPlayers();
+
+    const username =
+        String(user.name || "")
+        .toLowerCase();
+
+
+    const player =
+        players.find(
+            p =>
+                String(p.name || "")
+                .toLowerCase()
+                === username
+        );
+
+
+    if(player){
+
+        return Number(
+            player.saldo || 0
+        );
+
+    }
+
+
+    return Number(
+        user.saldo || 0
+    );
+
+}
+
+
+function saveAccountBalance(balance){
+
+    const user =
+        getCurrentUser();
+
+    if(!user)
+        return false;
+
+
+    balance =
+        Math.max(
+            0,
+            Number(balance) || 0
+        );
+
+
+    user.saldo =
+        balance;
+
+
+    localStorage.setItem(
+        "currentUser",
+        JSON.stringify(user)
+    );
+
+
+    const players =
+        getPlayers();
+
+
+    const username =
+        String(user.name || "")
+        .toLowerCase();
+
+
+    let found = false;
+
+
+    const updated =
+        players.map(
+            player => {
+
+                if(
+                    String(
+                        player.name || ""
+                    ).toLowerCase()
+                    === username
+                ){
+
+                    found = true;
+
+                    return {
+
+                        ...player,
+
+                        saldo:balance
+
+                    };
+
+                }
+
+                return player;
+
+            }
+        );
+
+
+    if(!found){
+
+        updated.push({
+
+            ...user,
+
+            saldo:balance
+
+        });
+
+    }
+
+
+    localStorage.setItem(
+        "players",
+        JSON.stringify(updated)
+    );
+
+
+    return true;
+
+}
+
+
+/* =====================================================
+GAME STATE
+===================================================== */
+
+const game = {
+
+    balance:0,
+
+    selectedCoin:20000,
+
+    round:1,
+
+    phase:"BETTING",
+
+    timer:8,
+
+
+    bets:{
+        player:0,
+        tie:0,
+        banker:0
+    },
+
+
+    lastBets:{
+        player:0,
+        tie:0,
+        banker:0
+    },
+
+
+    myChips:{
+        player:[],
+        tie:[],
+        banker:[]
+    },
+
+
+    otherPlayers:{
+
+        player:{
+            users:35,
+            amount:1500000
+        },
+
+        tie:{
+            users:5,
+            amount:150000
+        },
+
+        banker:{
+            users:42,
+            amount:1800000
+        }
+
+    },
+
+
+    history:[
+        "P","B","B","P","B",
+        "P","B","P","B","B",
+        "P","P","B","P","B",
+        "B","P","B","P","P",
+        "B","B","P","B","P"
+    ],
+
+
+    playerWins:19,
+
+    bankerWins:15,
+
+    tieWins:2,
+
+
+    betHistory:[],
+
+    deck:[],
+
+
+    timerID:null,
+
+    liveID:null
+
+};
+
+
+/* =====================================================
+FORMAT
+===================================================== */
+
+function money(value){
+
+    return Number(value)
+        .toLocaleString("id-ID");
+
+}
+
+
+function chipClass(value){
+
+    if(value === 2000)
+        return "c2";
+
+    if(value === 10000)
+        return "c10";
+
+    if(value === 20000)
+        return "c20";
+
+    if(value === 50000)
+        return "c50";
+
+    return "c100";
+
+}
+
+
+function shortMoney(value){
+
+    return (
+        value / 1000
+    ) + "K";
+
+}
+
+
+/* =====================================================
+TOAST
+===================================================== */
+
+let toastTimer = null;
+
+
+function showToast(text){
+
+    const toast =
+        $("toast");
+
+
+    toast.textContent =
+        text;
+
+
+    toast.classList.add(
+        "show"
+    );
+
+
+    clearTimeout(
+        toastTimer
+    );
+
+
+    toastTimer =
+        setTimeout(
+            () => {
+
+                toast.classList.remove(
+                    "show"
+                );
+
+            },
+            1400
+        );
+
+}
+
+
+/* =====================================================
+SELECT COIN
+===================================================== */
+
+function selectCoin(
+    value,
+    button
+){
+
+    if(
+        game.phase !== "BETTING"
+    ){
+
+        showToast(
+            "Taruhan sudah ditutup"
+        );
+
+        return;
+
+    }
+
+
+    game.selectedCoin =
+        value;
+
+
+    document
+        .querySelectorAll(".chip")
+        .forEach(
+            chip =>
+                chip.classList.remove(
+                    "selected"
+                )
+        );
+
+
+    button.classList.add(
+        "selected"
+    );
+
+
+    $("selectedCoin")
+        .textContent =
+        money(value);
+
+}
+
+
+/* =====================================================
+PLACE BET
+===================================================== */
+
+function placeBet(type){
+
+    if(
+        game.phase !== "BETTING"
+    ){
+
+        showToast(
+            "Taruhan sudah ditutup"
+        );
+
+        return;
+
+    }
+
+
+    const user =
+        getCurrentUser();
+
+
+    if(!user){
+
+        showToast(
+            "Silakan login terlebih dahulu"
+        );
+
+
+        setTimeout(
+            () => {
+
+                location.href =
+                    "../masuk/";
+
+            },
+            700
+        );
+
+
+        return;
+
+    }
+
+
+    game.balance =
+        getAccountBalance();
+
+
+    const amount =
+        game.selectedCoin;
+
+
+    if(
+        amount > game.balance
+    ){
+
+        showToast(
+            "Saldo tidak mencukupi"
+        );
+
+        return;
+
+    }
+
+
+    game.balance -=
+        amount;
+
+
+    saveAccountBalance(
+        game.balance
+    );
+
+
+    game.bets[type] +=
+        amount;
+
+
+    game.myChips[type]
+        .push(amount);
+
+
+    game.betHistory.push({
+
+        type:type,
+
+        amount:amount
+
+    });
+
+
+    render();
+
+}
+
+
+/* =====================================================
+UNDO
+===================================================== */
+
+function undoBet(){
+
+    if(
+        game.phase !== "BETTING"
+    ){
+
+        showToast(
+            "Taruhan sudah ditutup"
+        );
+
+        return;
+
+    }
+
+
+    const last =
+        game.betHistory.pop();
+
+
+    if(!last){
+
+        showToast(
+            "Belum ada taruhan"
+        );
+
+        return;
+
+    }
+
+
+    game.bets[
+        last.type
+    ] -= last.amount;
+
+
+    game.balance +=
+        last.amount;
+
+
+    saveAccountBalance(
+        game.balance
+    );
+
+
+    const chips =
+        game.myChips[
+            last.type
+        ];
+
+
+    const index =
+        chips.lastIndexOf(
+            last.amount
+        );
+
+
+    if(index !== -1){
+
+        chips.splice(
+            index,
+            1
+        );
+
+    }
+
+
+    render();
+
+}
+
+
+/* =====================================================
+CLEAR BETS
+===================================================== */
+
+function clearBets(){
+
+    if(
+        game.phase !== "BETTING"
+    ){
+
+        showToast(
+            "Taruhan sudah ditutup"
+        );
+
+        return;
+
+    }
+
+
+    const total =
+        game.bets.player +
+        game.bets.tie +
+        game.bets.banker;
+
+
+    if(total <= 0){
+
+        showToast(
+            "Belum ada taruhan"
+        );
+
+        return;
+
+    }
+
+
+    game.balance +=
+        total;
+
+
+    saveAccountBalance(
+        game.balance
+    );
+
+
+    game.bets = {
+
+        player:0,
+        tie:0,
+        banker:0
+
+    };
+
+
+    game.myChips = {
+
+        player:[],
+        tie:[],
+        banker:[]
+
+    };
+
+
+    game.betHistory = [];
+
+
+    render();
+
+}
+
+
+/* =====================================================
+REPEAT BET
+===================================================== */
+
+function repeatBet(){
+
+    if(
+        game.phase !== "BETTING"
+    ){
+
+        showToast(
+            "Taruhan sudah ditutup"
+        );
+
+        return;
+
+    }
+
+
+    const total =
+        game.lastBets.player +
+        game.lastBets.tie +
+        game.lastBets.banker;
+
+
+    if(total <= 0){
+
+        showToast(
+            "Belum ada taruhan sebelumnya"
+        );
+
+        return;
+
+    }
+
+
+    game.balance =
+        getAccountBalance();
+
+
+    if(
+        total > game.balance
+    ){
+
+        showToast(
+            "Saldo tidak mencukupi"
+        );
+
+        return;
+
+    }
+
+
+    game.balance -=
+        total;
+
+
+    saveAccountBalance(
+        game.balance
+    );
+
+
+    game.bets = {
+
+        ...game.lastBets
+
+    };
+
+
+    game.myChips = {
+
+        player:
+            buildChips(
+                game.lastBets.player
+            ),
+
+        tie:
+            buildChips(
+                game.lastBets.tie
+            ),
+
+        banker:
+            buildChips(
+                game.lastBets.banker
+            )
+
+    };
+
+
+    game.betHistory = [];
+
+
+    render();
+
+}
+
+
+/* =====================================================
+BUILD CHIPS
+===================================================== */
+
+function buildChips(amount){
+
+    const values = [
+
+        100000,
+        50000,
+        20000,
+        10000,
+        2000
+
+    ];
+
+
+    const result = [];
+
+    let remaining =
+        amount;
+
+
+    for(
+        const value of values
+    ){
+
+        while(
+            remaining >= value
+        ){
+
+            result.push(
+                value
+            );
+
+            remaining -=
+                value;
+
+        }
+
+    }
+
+
+    return result;
+
+}
+
+
+/* =====================================================
+RENDER MY CHIPS
+===================================================== */
+
+function renderMyChips(type){
+
+    const box =
+        $(type + "MyBet");
+
+
+    const chips =
+        game.myChips[type];
+
+
+    box.innerHTML = "";
+
+
+    if(!chips.length){
+
+        box.classList.add(
+            "empty"
+        );
+
+        return;
+
+    }
+
+
+    box.classList.remove(
+        "empty"
+    );
+
+
+    chips
+        .slice(-6)
+        .forEach(
+            value => {
+
+                const el =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                el.className =
+                    "my-chip " +
+                    chipClass(value);
+
+
+                el.textContent =
+                    shortMoney(value);
+
+
+                box.appendChild(
+                    el
+                );
+
+            }
+        );
+
+
+    if(chips.length > 6){
+
+        const extra =
+            document.createElement(
+                "div"
+            );
+
+
+        extra.className =
+            "my-chip extra";
+
+
+        extra.textContent =
+            "+" +
+            (
+                chips.length - 6
+            );
+
+
+        box.appendChild(
+            extra
+        );
+
+    }
+
+
+    const total =
+        chips.reduce(
+            (
+                sum,
+                value
+            ) =>
+                sum + value,
+            0
+        );
+
+
+    const totalEl =
+        document.createElement(
+            "div"
+        );
+
+
+    totalEl.className =
+        "my-total";
+
+
+    totalEl.textContent =
+        "Rp " +
+        money(total);
+
+
+    box.appendChild(
+        totalEl
+    );
+
+}
+
+
+/* =====================================================
+RANDOM DATA
+===================================================== */
+
+function randomInt(
+    min,
+    max
+){
+
+    return Math.floor(
+        Math.random() *
+        (
+            max - min + 1
+        )
+    ) + min;
+
+}
+
+
+function randomMoney(
+    min,
+    max
+){
+
+    return (
+        Math.floor(
+            Math.random() *
+            (
+                Math.floor(
+                    max / 2000
+                )
+                -
+                Math.ceil(
+                    min / 2000
+                )
+                + 1
+            )
+        )
+        *
+        2000
+    )
+    +
+    Math.ceil(
+        min / 2000
+    ) * 2000;
+
+}
+
+
+function randomizeOtherPlayers(){
+
+    game.otherPlayers.player = {
+
+        users:
+            randomInt(28,58),
+
+        amount:
+            randomMoney(
+                700000,
+                3500000
+            )
+
+    };
+
+
+    game.otherPlayers.banker = {
+
+        users:
+            randomInt(30,64),
+
+        amount:
+            randomMoney(
+                800000,
+                4000000
+            )
+
+    };
+
+
+    game.otherPlayers.tie = {
+
+        users:
+            randomInt(2,7),
+
+        amount:
+            randomMoney(
+                30000,
+                250000
+            )
+
+    };
+
+
+    renderOther();
+
+}
+
+
+function updateOtherPlayers(){
+
+    if(
+        game.phase !== "BETTING"
+    )
+        return;
+
+
+    const p =
+        game.otherPlayers.player;
+
+    const b =
+        game.otherPlayers.banker;
+
+    const t =
+        game.otherPlayers.tie;
+
+
+    p.users =
+        Math.max(
+            10,
+            p.users +
+            randomInt(-2,4)
+        );
+
+
+    p.amount =
+        Math.max(
+            200000,
+            p.amount +
+            randomMoney(
+                -50000,
+                120000
+            )
+        );
+
+
+    b.users =
+        Math.max(
+            10,
+            b.users +
+            randomInt(-2,5)
+        );
+
+
+    b.amount =
+        Math.max(
+            200000,
+            b.amount +
+            randomMoney(
+                -60000,
+                140000
+            )
+        );
+
+
+    if(
+        Math.random() < .25
+    ){
+
+        t.users =
+            Math.max(
+                1,
+                t.users +
+                randomInt(-1,2)
+            );
+
+
+        t.amount =
+            Math.max(
+                10000,
+                t.amount +
+                randomMoney(
+                    -10000,
+                    30000
+                )
+            );
+
+    }
+
+
+    renderOther();
+
+}
+
+
+/* =====================================================
+RENDER OTHER
+===================================================== */
+
+function renderOther(){
+
+    const p =
+        game.otherPlayers.player;
+
+    const t =
+        game.otherPlayers.tie;
+
+    const b =
+        game.otherPlayers.banker;
+
+
+    const pAmount =
+        p.amount +
+        game.bets.player;
+
+
+    const tAmount =
+        t.amount +
+        game.bets.tie;
+
+
+    const bAmount =
+        b.amount +
+        game.bets.banker;
+
+
+    const totalMoney =
+        pAmount +
+        tAmount +
+        bAmount;
+
+
+    const pUsers =
+        p.users +
+        (
+            game.bets.player > 0
+            ? 1
+            : 0
+        );
+
+
+    const tUsers =
+        t.users +
+        (
+            game.bets.tie > 0
+            ? 1
+            : 0
+        );
+
+
+    const bUsers =
+        b.users +
+        (
+            game.bets.banker > 0
+            ? 1
+            : 0
+        );
+
+
+    const totalUsers =
+        pUsers +
+        tUsers +
+        bUsers;
+
+
+    $("playerUsers")
+        .textContent =
+        pUsers;
+
+
+    $("tieUsers")
+        .textContent =
+        tUsers;
+
+
+    $("bankerUsers")
+        .textContent =
+        bUsers;
+
+
+    $("playerAmount")
+        .textContent =
+        money(pAmount);
+
+
+    $("tieAmount")
+        .textContent =
+        money(tAmount);
+
+
+    $("bankerAmount")
+        .textContent =
+        money(bAmount);
+
+
+    const pPercent =
+        totalUsers
+        ? pUsers /
+          totalUsers *
+          100
+        : 0;
+
+
+    const tPercent =
+        totalUsers
+        ? tUsers /
+          totalUsers *
+          100
+        : 0;
+
+
+    const bPercent =
+        totalUsers
+        ? bUsers /
+          totalUsers *
+          100
+        : 0;
+
+
+    const pMoney =
+        totalMoney
+        ? pAmount /
+          totalMoney *
+          100
+        : 0;
+
+
+    const tMoney =
+        totalMoney
+        ? tAmount /
+          totalMoney *
+          100
+        : 0;
+
+
+    const bMoney =
+        totalMoney
+        ? bAmount /
+          totalMoney *
+          100
+        : 0;
+
+
+    $("playerPercent")
+        .textContent =
+        pPercent.toFixed(1) +
+        "%";
+
+
+    $("tiePercent")
+        .textContent =
+        tPercent.toFixed(1) +
+        "%";
+
+
+    $("bankerPercent")
+        .textContent =
+        bPercent.toFixed(1) +
+        "%";
+
+
+    $("playerProgress")
+        .style.width =
+        pMoney + "%";
+
+
+    $("tieProgress")
+        .style.width =
+        tMoney + "%";
+
+
+    $("bankerProgress")
+        .style.width =
+        bMoney + "%";
+
+}
+
+
+/* =====================================================
+RENDER
+===================================================== */
+
+function render(){
+
+    $("balance")
+        .textContent =
+        "Rp " +
+        money(
+            game.balance
+        );
+
+
+    const total =
+        game.bets.player +
+        game.bets.tie +
+        game.bets.banker;
+
+
+    $("totalBet")
+        .textContent =
+        "Rp " +
+        money(total);
+
+
+    renderMyChips(
+        "player"
+    );
+
+    renderMyChips(
+        "tie"
+    );
+
+    renderMyChips(
+        "banker"
+    );
+
+
+    renderOther();
+
+}
+
+
+/* =====================================================
+BACCARAT DECK
+===================================================== */
+
+const suits = [
+
+    ["♠",false],
+
+    ["♥",true],
+
+    ["♦",true],
+
+    ["♣",false]
+
+];
+
+
+const ranks = [
+
+    ["A",1],
+
+    ["2",2],
+
+    ["3",3],
+
+    ["4",4],
+
+    ["5",5],
+
+    ["6",6],
+
+    ["7",7],
+
+    ["8",8],
+
+    ["9",9],
+
+    ["10",0],
+
+    ["J",0],
+
+    ["Q",0],
+
+    ["K",0]
+
+];
+
+
+function createDeck(){
+
+    game.deck = [];
+
+
+    for(
+        let d = 0;
+        d < 8;
+        d++
+    ){
+
+        for(
+            const suit of suits
+        ){
+
+            for(
+                const rank of ranks
+            ){
+
+                game.deck.push({
+
+                    name:rank[0],
+
+                    value:rank[1],
+
+                    suit:suit[0],
+
+                    red:suit[1]
+
+                });
+
+            }
+
+        }
+
+    }
+
+
+    shuffle(
+        game.deck
+    );
+
+}
+
+
+function shuffle(array){
+
+    for(
+        let i =
+            array.length - 1;
+        i > 0;
+        i--
+    ){
+
+        const j =
+            Math.floor(
+                Math.random() *
+                (i + 1)
+            );
+
+
+        [
+            array[i],
+            array[j]
+        ] = [
+            array[j],
+            array[i]
+        ];
+
+    }
+
+}
+
+
+function draw(){
+
+    if(
+        game.deck.length < 20
+    ){
+
+        createDeck();
+
+    }
+
+
+    return game.deck.pop();
+
+}
+
+
+/* =====================================================
+BACCARAT ENGINE
+===================================================== */
+
+function handTotal(hand){
+
+    return hand.reduce(
+        (
+            sum,
+            card
+        ) =>
+            sum + card.value,
+        0
+    ) % 10;
+
+}
+
+
+function bankerShouldDraw(
+    total,
+    third
+){
+
+    if(third === null){
+
+        return total <= 5;
+
+    }
+
+
+    if(total <= 2)
+        return true;
+
+
+    if(
+        total === 3 &&
+        third !== 8
+    )
+        return true;
+
+
+    if(
+        total === 4 &&
+        third >= 2 &&
+        third <= 7
+    )
+        return true;
+
+
+    if(
+        total === 5 &&
+        third >= 4 &&
+        third <= 7
+    )
+        return true;
+
+
+    if(
+        total === 6 &&
+        (
+            third === 6 ||
+            third === 7
+        )
+    )
+        return true;
+
+
+    return false;
+
+}
+
+
+function playBaccarat(){
+
+    const player = [
+
+        draw(),
+        draw()
+
+    ];
+
+
+    const banker = [
+
+        draw(),
+        draw()
+
+    ];
+
+
+    let p =
+        handTotal(
+            player
+        );
+
+
+    let b =
+        handTotal(
+            banker
+        );
+
+
+    if(
+        p >= 8 ||
+        b >= 8
+    ){
+
+        return resultObject(
+            player,
+            banker
+        );
+
+    }
+
+
+    if(
+        p <= 5
+    ){
+
+        player.push(
+            draw()
+        );
+
+    }
+
+
+    p =
+        handTotal(
+            player
+        );
+
+
+    const third =
+        player.length === 3
+        ? player[2].value
+        : null;
+
+
+    b =
+        handTotal(
+            banker
+        );
+
+
+    if(
+        bankerShouldDraw(
+            b,
+            third
+        )
+    ){
+
+        banker.push(
+            draw()
+        );
+
+    }
+
+
+    return resultObject(
+        player,
+        banker
+    );
+
+}
+
+
+function resultObject(
+    player,
+    banker
+){
+
+    const p =
+        handTotal(
+            player
+        );
+
+    const b =
+        handTotal(
+            banker
+        );
+
+
+    let winner =
+        "T";
+
+
+    if(p > b)
+        winner = "P";
+
+
+    if(b > p)
+        winner = "B";
+
+
+    return {
+
+        player,
+
+        banker,
+
+        p,
+
+        b,
+
+        winner
+
+    };
+
+}
+
+
+/* =====================================================
+CARD
+===================================================== */
+
+function makeCard(card){
+
+    const el =
+        document.createElement(
+            "div"
+        );
+
+
+    el.className =
+        "card";
+
+
+    if(card.red){
+
+        el.classList.add(
+            "red"
+        );
+
+    }
+
+
+    el.innerHTML = `
+
+        <span>
+            ${card.name}
+        </span>
+
+        <span>
+            ${card.suit}
+        </span>
+
+    `;
+
+
+    return el;
+
+}
+
+
+function addCard(
+    side,
+    card,
+    hand
+){
+
+    const container =
+        side === "player"
+        ? $("playerCards")
+        : $("bankerCards");
+
+
+    const score =
+        side === "player"
+        ? $("playerScore")
+        : $("bankerScore");
+
+
+    const element =
+        makeCard(card);
+
+
+    element.style.opacity =
+        "0";
+
+
+    element.style.transform =
+        "translateY(-35px) rotateY(90deg) scale(.7)";
+
+
+    element.style.transition =
+        "all .5s cubic-bezier(.2,.8,.2,1)";
+
+
+    container.appendChild(
+        element
+    );
+
+
+    requestAnimationFrame(
+        () => {
+
+            requestAnimationFrame(
+                () => {
+
+                    element.style.opacity =
+                        "1";
+
+
+                    element.style.transform =
+                        "translateY(0) rotateY(0) scale(1)";
+
+                }
+            );
+
+        }
+    );
+
+
+    setTimeout(
+        () => {
+
+            animateScore(
+                score,
+                handTotal(hand)
+            );
+
+        },
+        200
+    );
+
+}
+
+
+function animateScore(
+    element,
+    target
+){
+
+    element.textContent =
+        target;
+
+
+    element.classList.remove(
+        "pop"
+    );
+
+
+    void element.offsetWidth;
+
+
+    element.classList.add(
+        "pop"
+    );
+
+}
+
+
+/* =====================================================
+CLEAR CARDS
+===================================================== */
+
+function clearCards(){
+
+    $("playerCards")
+        .innerHTML = "";
+
+
+    $("bankerCards")
+        .innerHTML = "";
+
+
+    $("playerScore")
+        .textContent = "0";
+
+
+    $("bankerScore")
+        .textContent = "0";
+
+
+    $("result")
+        .classList.remove(
+            "show"
+        );
+
+}
+
+
+/* =====================================================
+STATUS
+===================================================== */
+
+function setStatus(
+    text,
+    type = ""
+){
+
+    $("statusText")
+        .textContent =
+        text;
+
+
+    $("status").className =
+        "status " +
+        type;
+
+}
+
+
+/* =====================================================
+ENABLE BET
+===================================================== */
+
+function setBetEnabled(
+    enabled
+){
+
+    document
+        .querySelectorAll(".bet")
+        .forEach(
+            el => {
+
+                el.classList.toggle(
+                    "disabled",
+                    !enabled
+                );
+
+            }
+        );
+
+}
+
+
+/* =====================================================
+COUNTDOWN
+===================================================== */
+
+function updateCountdown(){
+
+    $("countNumber")
+        .textContent =
+        game.timer;
+
+
+    const deg =
+        (
+            game.timer /
+            CONFIG.bettingTime
+        ) * 360;
+
+
+    $("countRing")
+        .style.background =
+        `conic-gradient(
+            var(--gold) ${deg}deg,
+            rgba(255,255,255,.07) ${deg}deg
+        )`;
+
+}
+
+
+/* =====================================================
+START BETTING
+===================================================== */
+
+function startBetting(){
+
+    clearInterval(
+        game.timerID
+    );
+
+
+    clearInterval(
+        game.liveID
+    );
+
+
+    game.phase =
+        "BETTING";
+
+
+    game.timer =
+        CONFIG.bettingTime;
+
+
+    setBetEnabled(
+        true
+    );
+
+
+    setStatus(
+        "TARUHAN DIBUKA"
+    );
+
+
+    updateCountdown();
+
+
+    game.balance =
+        getAccountBalance();
+
+
+    render();
+
+
+    randomizeOtherPlayers();
+
+
+    game.liveID =
+        setInterval(
+            updateOtherPlayers,
+            850
+        );
+
+
+    game.timerID =
+        setInterval(
+            () => {
+
+                game.timer--;
+
+                updateCountdown();
+
+
+                if(
+                    game.timer <= 0
+                ){
+
+                    clearInterval(
+                        game.timerID
+                    );
+
+
+                    clearInterval(
+                        game.liveID
+                    );
+
+
+                    lockBetting();
+
+                }
+
+            },
+            1000
+        );
+
+}
+
+
+/* =====================================================
+LOCK BETTING
+===================================================== */
+
+function lockBetting(){
+
+    game.phase =
+        "LOCKED";
+
+
+    setBetEnabled(
+        false
+    );
+
+
+    setStatus(
+        "TARUHAN DITUTUP • MENUNGGU KARTU",
+        "locked"
+    );
+
+
+    game.lastBets = {
+
+        ...game.bets
+
+    };
+
+
+    setTimeout(
+        dealRound,
+        850
+    );
+
+}
+
+
+/* =====================================================
+DEAL ROUND
+===================================================== */
+
+function dealRound(){
+
+    game.phase =
+        "DEALING";
+
+
+    clearCards();
+
+
+    setStatus(
+        "KARTU SEDANG DIBAGIKAN",
+        "locked"
+    );
+
+
+    const result =
+        playBaccarat();
+
+
+    const playerHand = [];
+
+    const bankerHand = [];
+
+
+    const sequence = [
+
+        {
+            side:"player",
+            card:result.player[0],
+            hand:playerHand
+        },
+
+        {
+            side:"banker",
+            card:result.banker[0],
+            hand:bankerHand
+        },
+
+        {
+            side:"player",
+            card:result.player[1],
+            hand:playerHand
+        },
+
+        {
+            side:"banker",
+            card:result.banker[1],
+            hand:bankerHand
+        }
+
+    ];
+
+
+    if(
+        result.player.length === 3
+    ){
+
+        sequence.push({
+
+            side:"player",
+
+            card:
+                result.player[2],
+
+            hand:
+                playerHand
+
+        });
+
+    }
+
+
+    if(
+        result.banker.length === 3
+    ){
+
+        sequence.push({
+
+            side:"banker",
+
+            card:
+                result.banker[2],
+
+            hand:
+                bankerHand
+
+        });
+
+    }
+
+
+    const delay = 750;
+
+
+    sequence.forEach(
+        (
+            item,
+            index
+        ) => {
+
+            setTimeout(
+                () => {
+
+                    item.hand.push(
+                        item.card
+                    );
+
+
+                    addCard(
+                        item.side,
+                        item.card,
+                        item.hand
+                    );
+
+
+                    setStatus(
+                        item.side === "player"
+                        ? "PEMAIN MENERIMA KARTU"
+                        : "BANKIR MENERIMA KARTU",
+                        "locked"
+                    );
+
+                },
+                index * delay
+            );
+
+        }
+    );
+
+
+    setTimeout(
+        () => {
+
+            settle(
+                result
+            );
+
+        },
+        sequence.length *
+        delay +
+        600
+    );
+
+}
+
+
+/* =====================================================
+SETTLE
+===================================================== */
+
+function settle(result){
+
+    game.phase =
+        "RESULT";
+
+
+    let payout = 0;
+
+
+    if(
+        result.winner === "P"
+    ){
+
+        payout =
+            game.bets.player * 2;
+
+    }
+
+
+    if(
+        result.winner === "B"
+    ){
+
+        payout =
+            game.bets.banker +
+            Math.floor(
+                game.bets.banker *
+                CONFIG.bankerPayout
+            );
+
+    }
+
+
+    if(
+        result.winner === "T"
+    ){
+
+        payout =
+            game.bets.tie *
+            (
+                CONFIG.tiePayout + 1
+            );
+
+
+        payout +=
+            game.bets.player +
+            game.bets.banker;
+
+    }
+
+
+    game.balance +=
+        payout;
+
+
+    saveAccountBalance(
+        game.balance
+    );
+
+
+    if(
+        result.winner === "P"
+    )
+        game.playerWins++;
+
+
+    if(
+        result.winner === "B"
+    )
+        game.bankerWins++;
+
+
+    if(
+        result.winner === "T"
+    )
+        game.tieWins++;
+
+
+    game.history.push(
+        result.winner
+    );
+
+
+    if(
+        game.history.length > 80
+    ){
+
+        game.history.shift();
+
+    }
+
+
+    const winner =
+        result.winner === "P"
+        ? "PEMAIN"
+        :
+        result.winner === "B"
+        ? "BANKIR"
+        :
+        "SERI";
+
+
+    setStatus(
+        "HASIL: " + winner,
+        "result"
+    );
+
+
+    showResult(
+        winner,
+        result,
+        payout
+    );
+
+
+    game.round++;
+
+
+    renderRoad();
+
+
+    game.bets = {
+
+        player:0,
+        tie:0,
+        banker:0
+
+    };
+
+
+    game.myChips = {
+
+        player:[],
+        tie:[],
+        banker:[]
+
+    };
+
+
+    game.betHistory = [];
+
+
+    render();
+
+
+    setTimeout(
+        () => {
+
+            clearCards();
+
+            startBetting();
+
+        },
+        CONFIG.nextRound
+    );
+
+}
+
+
+/* =====================================================
+SHOW RESULT
+===================================================== */
+
+function showResult(
+    winner,
+    result,
+    payout
+){
+
+    const box =
+        $("result");
+
+
+    const winnerEl =
+        $("resultWinner");
+
+
+    winnerEl.textContent =
+        winner;
+
+
+    if(
+        winner === "PEMAIN"
+    ){
+
+        winnerEl.style.color =
+            "var(--blue2)";
+
+    }
+    else if(
+        winner === "BANKIR"
+    ){
+
+        winnerEl.style.color =
+            "var(--red2)";
+
+    }
+    else{
+
+        winnerEl.style.color =
+            "var(--green)";
+
+    }
+
+
+    $("resultScore")
+        .textContent =
+        "PEMAIN " +
+        result.p +
+        " — BANKIR " +
+        result.b;
+
+
+    $("resultPayout")
+        .textContent =
+        payout > 0
+        ? "+Rp " +
+          money(payout)
+        : "Tidak ada payout";
+
+
+    box.classList.remove(
+        "show"
+    );
+
+
+    void box.offsetWidth;
+
+
+    box.classList.add(
+        "show"
+    );
+
+
+    setTimeout(
+        () => {
+
+            box.classList.remove(
+                "show"
+            );
+
+        },
+        2600
+    );
+
+}
+
+
+/* =====================================================
+ROAD
+===================================================== */
+
+function renderRoad(){
+
+    const road =
+        $("road");
+
+
+    road.innerHTML = "";
+
+
+    const history =
+        game.history.slice(-60);
+
+
+    history.forEach(
+        (
+            result,
+            index
+        ) => {
+
+            const dot =
+                document.createElement(
+                    "div"
+                );
+
+
+            dot.className =
+                "dot";
+
+
+            if(
+                result === "B"
+            ){
+
+                dot.classList.add(
+                    "b"
+                );
+
+            }
+
+
+            if(
+                result === "T"
+            ){
+
+                dot.classList.add(
+                    "t"
+                );
+
+            }
+
+
+            dot.style.gridColumn =
+                Math.floor(
+                    index / 4
+                ) + 1;
+
+
+            dot.style.gridRow =
+                (
+                    index % 4
+                ) + 1;
+
+
+            road.appendChild(
+                dot
+            );
+
+        }
+    );
+
+
+    $("playerWins")
+        .textContent =
+        game.playerWins;
+
+
+    $("bankerWins")
+        .textContent =
+        game.bankerWins;
+
+
+    $("tieWins")
+        .textContent =
+        game.tieWins;
+
+
+    $("round")
+        .textContent =
+        game.round;
+
+}
+
+
+/* =====================================================
+KEYBOARD
+===================================================== */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        const key =
+            event.key.toLowerCase();
+
+
+        if(key === "p")
+            placeBet("player");
+
+
+        if(key === "b")
+            placeBet("banker");
+
+
+        if(key === "t")
+            placeBet("tie");
+
+
+        if(key === "u")
+            undoBet();
+
+    }
+);
+
+
+/* =====================================================
+STORAGE SYNC
+===================================================== */
+
+window.addEventListener(
+    "storage",
+    event => {
+
+        if(
+            event.key === "currentUser" ||
+            event.key === "players"
+        ){
+
+            if(
+                game.phase === "BETTING" &&
+                game.betHistory.length === 0 &&
+                game.bets.player === 0 &&
+                game.bets.tie === 0 &&
+                game.bets.banker === 0
+            ){
+
+                game.balance =
+                    getAccountBalance();
+
+                render();
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+BALANCE AUTO SYNC
+===================================================== */
+
+setInterval(
+    () => {
+
+        if(
+            game.phase === "BETTING" &&
+            game.betHistory.length === 0 &&
+            game.bets.player === 0 &&
+            game.bets.tie === 0 &&
+            game.bets.banker === 0
+        ){
+
+            const latest =
+                getAccountBalance();
+
+
+            if(
+                latest !== game.balance
+            ){
+
+                game.balance =
+                    latest;
+
+                render();
+
+            }
+
+        }
+
+    },
+    1000
+);
+
+
+/* =====================================================
+INIT
+===================================================== */
+
+createDeck();
+
+renderRoad();
+
+
+const user =
+    getCurrentUser();
+
+
+if(!user){
+
+    game.balance = 0;
+
+    render();
+
+
+    setTimeout(
+        () => {
+
+            showToast(
+                "Silakan login terlebih dahulu"
+            );
+
+
+            setTimeout(
+                () => {
+
+                    location.href =
+                        "../masuk/";
+
+                },
+                700
+            );
+
+        },
+        700
+    );
+
+}
+else{
+
+    game.balance =
+        getAccountBalance();
+
+    render();
+
+}
+
+
+startBetting();
+
+
+window.addEventListener(
+    "load",
+    () => {
+
+        setTimeout(
+            () => {
+
+                $("loading")
+                    .classList.add(
+                        "hide"
+                    );
+
+            },
+            600
+        );
+
+    }
+);
+
+</script>
+
+</body>
+</html>

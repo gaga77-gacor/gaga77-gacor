@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Akun</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#08131f;
+    color:#fff;
+    padding-bottom:85px;
+    min-height:100vh;
+}
+
+/* ================= HEADER ================= */
+
+header{
+    background:#0d1c2d;
+    padding:16px;
+    text-align:center;
+    position:sticky;
+    top:0;
+    z-index:100;
+    border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+.logo{
+    font-size:24px;
+    font-weight:bold;
+    color:#69b9ff;
+}
+
+/* ================= PROFILE ================= */
+
+.profile{
+    margin:15px;
+    padding:18px;
+
+    background:linear-gradient(
+        135deg,
+        #10233a,
+        #0d1b2e
+    );
+
+    border-radius:18px;
+
+    border:1px solid rgba(255,255,255,.07);
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,.25);
+
+    display:flex;
+    align-items:center;
+}
+
+.avatar{
+    width:60px;
+    height:60px;
+    min-width:60px;
+
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:linear-gradient(
+        135deg,
+        #00c6ff,
+        #6a00ff
+    );
+
+    font-size:24px;
+    font-weight:bold;
+
+    box-shadow:
+        0 5px 20px rgba(106,0,255,.3);
+}
+
+.profileInfo{
+    margin-left:13px;
+    flex:1;
+    min-width:0;
+}
+
+.profileInfo h2{
+    font-size:18px;
+    margin-bottom:5px;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.profileInfo p{
+    font-size:12px;
+    color:#8d98a8;
+}
+
+/* ================= SALDO ================= */
+
+.balance{
+    margin:15px;
+    padding:18px;
+
+    background:linear-gradient(
+        135deg,
+        #101f34,
+        #122942
+    );
+
+    border-radius:16px;
+
+    border:1px solid rgba(255,255,255,.06);
+
+    box-shadow:
+        0 5px 20px rgba(0,0,0,.15);
+}
+
+.balanceLabel{
+    font-size:12px;
+    color:#8995a5;
+    margin-bottom:7px;
+}
+
+.balanceValue{
+    font-size:25px;
+    font-weight:bold;
+
+    background:linear-gradient(
+        90deg,
+        #00ff88,
+        #00c6ff
+    );
+
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+/* ================= QUICK ================= */
+
+.quick{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+    padding:0 15px;
+    margin-bottom:15px;
+}
+
+.quick a{
+    text-decoration:none;
+    color:#fff;
+
+    background:#11243b;
+
+    padding:13px 5px;
+
+    border-radius:13px;
+
+    text-align:center;
+
+    font-size:11px;
+
+    border:1px solid rgba(255,255,255,.05);
+
+    transition:.2s;
+}
+
+.quick a:hover{
+    transform:translateY(-2px);
+    background:#172d49;
+}
+
+.quickIcon{
+    font-size:22px;
+    display:block;
+    margin-bottom:5px;
+}
+
+/* ================= MENU ================= */
+
+.menu{
+    margin:15px;
+
+    background:#0d1c2d;
+
+    border-radius:16px;
+
+    overflow:hidden;
+
+    border:1px solid rgba(255,255,255,.06);
+}
+
+.menuTitle{
+    padding:14px;
+
+    font-size:14px;
+    font-weight:bold;
+
+    border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.menuItem{
+    display:flex;
+    align-items:center;
+
+    padding:15px;
+
+    text-decoration:none;
+    color:#fff;
+
+    border-bottom:1px solid rgba(255,255,255,.05);
+
+    transition:.2s;
+}
+
+.menuItem:last-child{
+    border-bottom:none;
+}
+
+.menuItem:hover{
+    background:#11243b;
+}
+
+.menuIcon{
+    width:38px;
+    height:38px;
+
+    border-radius:10px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#162b45;
+
+    font-size:18px;
+
+    margin-right:12px;
+}
+
+.menuText{
+    flex:1;
+}
+
+.menuText b{
+    font-size:13px;
+    display:block;
+    margin-bottom:3px;
+}
+
+.menuText span{
+    font-size:10px;
+    color:#7f8b9c;
+}
+
+.arrow{
+    color:#718096;
+    font-size:18px;
+}
+
+/* ================= LOGOUT ================= */
+
+.logout{
+    margin:15px;
+
+    width:calc(100% - 30px);
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:13px;
+
+    background:linear-gradient(
+        135deg,
+        #ff4d4d,
+        #ff7659
+    );
+
+    color:#fff;
+
+    font-size:13px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 5px 18px rgba(255,77,77,.22);
+
+    transition:.2s;
+}
+
+.logout:hover{
+    transform:translateY(-2px);
+}
+
+.logout:active{
+    transform:scale(.98);
+}
+
+/* ================= HISTORY ================= */
+
+.history{
+    margin:15px;
+
+    background:#0d1c2d;
+
+    border-radius:16px;
+
+    overflow:hidden;
+
+    border:1px solid rgba(255,255,255,.06);
+
+    animation:fadeUp .35s ease;
+}
+
+.historyHeader{
+    padding:15px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.historyHeaderTitle{
+    font-size:14px;
+    font-weight:bold;
+}
+
+.historyHeaderSub{
+    font-size:10px;
+    color:#718096;
+    margin-top:3px;
+}
+
+.refreshHistory{
+    border:none;
+
+    background:#162b45;
+
+    color:#69b9ff;
+
+    width:34px;
+    height:34px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    font-size:16px;
+
+    transition:.2s;
+}
+
+.refreshHistory:hover{
+    background:#1d3858;
+}
+
+.refreshHistory.loading{
+    opacity:.5;
+    pointer-events:none;
+}
+
+.historyList{
+    padding:5px 0;
+}
+
+.historyItem{
+    display:flex;
+    align-items:center;
+
+    padding:13px 15px;
+
+    border-bottom:1px solid rgba(255,255,255,.045);
+
+    transition:.2s;
+}
+
+.historyItem:last-child{
+    border-bottom:none;
+}
+
+.historyItem:hover{
+    background:#11243b;
+}
+
+.historyIcon{
+    width:40px;
+    height:40px;
+    min-width:40px;
+
+    border-radius:11px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:18px;
+
+    margin-right:12px;
+}
+
+.depositIcon{
+    background:rgba(0,200,83,.12);
+    color:#00e676;
+}
+
+.withdrawIcon{
+    background:rgba(255,77,77,.12);
+    color:#ff6b6b;
+}
+
+.historyInfo{
+    flex:1;
+    min-width:0;
+}
+
+.historyInfo b{
+    display:block;
+    font-size:12px;
+    margin-bottom:4px;
+}
+
+.historyInfo span{
+    display:block;
+
+    font-size:10px;
+    color:#718096;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.historyRight{
+    text-align:right;
+    margin-left:8px;
+}
+
+.historyAmount{
+    font-size:12px;
+    font-weight:bold;
+    margin-bottom:5px;
+}
+
+.depositAmount{
+    color:#00e676;
+}
+
+.withdrawAmount{
+    color:#ff6b6b;
+}
+
+.status{
+    display:inline-block;
+
+    padding:3px 7px;
+
+    border-radius:7px;
+
+    font-size:9px;
+
+    font-weight:bold;
+}
+
+.statusSuccess{
+    background:rgba(0,200,83,.15);
+    color:#00e676;
+}
+
+.statusPending{
+    background:rgba(255,193,7,.15);
+    color:#ffc107;
+}
+
+.statusReject{
+    background:rgba(255,77,77,.15);
+    color:#ff6b6b;
+}
+
+.emptyHistory{
+    padding:30px 15px;
+    text-align:center;
+    color:#718096;
+    font-size:12px;
+}
+
+.emptyIcon{
+    font-size:30px;
+    margin-bottom:8px;
+}
+
+/* ================= NAV ================= */
+
+nav{
+    position:fixed;
+
+    bottom:0;
+    left:0;
+
+    width:100%;
+    height:68px;
+
+    background:rgba(13,28,45,.97);
+
+    backdrop-filter:blur(15px);
+
+    display:flex;
+
+    justify-content:space-around;
+    align-items:center;
+
+    padding:5px 8px;
+
+    z-index:200;
+
+    border-top:1px solid rgba(255,255,255,.08);
+
+    box-shadow:
+        0 -5px 20px rgba(0,0,0,.25);
+}
+
+.bottomNavItem{
+    flex:1;
+
+    height:58px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+    justify-content:center;
+
+    gap:3px;
+
+    color:#8d98a8;
+
+    text-decoration:none;
+
+    font-size:10px;
+
+    border-radius:12px;
+
+    transition:.2s;
+}
+
+.bottomNavItem .navIcon{
+    font-size:21px;
+    line-height:22px;
+}
+
+.bottomNavItem.active{
+    color:#69b9ff;
+    background:rgba(105,185,255,.06);
+}
+
+/* ================= ANIMATION ================= */
+
+@keyframes fadeUp{
+
+    from{
+        opacity:0;
+        transform:translateY(8px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:500px){
+
+    .profile{
+        margin:10px;
+        padding:14px;
+    }
+
+    .avatar{
+        width:52px;
+        height:52px;
+        min-width:52px;
+        font-size:21px;
+    }
+
+    .profileInfo h2{
+        font-size:16px;
+    }
+
+    .balance{
+        margin:10px;
+    }
+
+    .quick{
+        padding:0 10px;
+        gap:7px;
+    }
+
+    .menu{
+        margin:10px;
+    }
+
+    .logout{
+        width:calc(100% - 20px);
+        margin:10px;
+    }
+
+    .history{
+        margin:10px;
+    }
+
+    .historyItem{
+        padding:12px 10px;
+    }
+
+    .historyIcon{
+        width:36px;
+        height:36px;
+        min-width:36px;
+        font-size:16px;
+        margin-right:9px;
+    }
+
+    .historyInfo b{
+        font-size:11px;
+    }
+
+    .historyInfo span{
+        font-size:9px;
+    }
+
+    .historyAmount{
+        font-size:11px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+
+<header>
+
+    <div class="logo">
+        AKUN
+    </div>
+
+</header>
+
+
+<!-- ================= PROFILE ================= -->
+
+<div class="profile">
+
+    <div
+        class="avatar"
+        id="avatar"
+    >
+        U
+    </div>
+
+    <div class="profileInfo">
+
+        <h2 id="username">
+            Memuat...
+        </h2>
+
+        <p id="memberStatus">
+            Mengambil data akun...
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- ================= SALDO ================= -->
+
+<div class="balance">
+
+    <div class="balanceLabel">
+        Saldo Anda
+    </div>
+
+    <div
+        class="balanceValue"
+        id="saldo"
+    >
+        Rp 0,00
+    </div>
+
+</div>
+
+
+<!-- ================= QUICK ACTION ================= -->
+
+<div class="quick">
+
+    <a href="../deposit/">
+
+        <span class="quickIcon">
+            💳
+        </span>
+
+        Tambah Dana
+
+    </a>
+
+    <a href="../withdraw/">
+
+        <span class="quickIcon">
+            💸
+        </span>
+
+        Withdraw
+
+    </a>
+
+    <a href="../livechat/">
+
+        <span class="quickIcon">
+            💬
+        </span>
+
+        Live Chat
+
+    </a>
+
+</div>
+
+
+<!-- ================= MENU ================= -->
+
+<div class="menu">
+
+    <div class="menuTitle">
+        Menu Akun
+    </div>
+
+
+    <a
+        href="../home/"
+        class="menuItem"
+    >
+
+        <div class="menuIcon">
+            🏠
+        </div>
+
+        <div class="menuText">
+
+            <b>
+                Beranda
+            </b>
+
+            <span>
+                Kembali ke halaman utama
+            </span>
+
+        </div>
+
+        <div class="arrow">
+            ›
+        </div>
+
+    </a>
+
+
+    <a
+        href="../deposit/"
+        class="menuItem"
+    >
+
+        <div class="menuIcon">
+            💳
+        </div>
+
+        <div class="menuText">
+
+            <b>
+                Tambah Dana
+            </b>
+
+            <span>
+                Isi saldo akun
+            </span>
+
+        </div>
+
+        <div class="arrow">
+            ›
+        </div>
+
+    </a>
+
+
+    <a
+        href="../withdraw/"
+        class="menuItem"
+    >
+
+        <div class="menuIcon">
+            💸
+        </div>
+
+        <div class="menuText">
+
+            <b>
+                Withdraw
+            </b>
+
+            <span>
+                Tarik saldo Anda
+            </span>
+
+        </div>
+
+        <div class="arrow">
+            ›
+        </div>
+
+    </a>
+
+
+    <a
+        href="../livechat/"
+        class="menuItem"
+    >
+
+        <div class="menuIcon">
+            💬
+        </div>
+
+        <div class="menuText">
+
+            <b>
+                Live Chat
+            </b>
+
+            <span>
+                Hubungi customer service
+            </span>
+
+        </div>
+
+        <div class="arrow">
+            ›
+        </div>
+
+    </a>
+
+</div>
+
+
+<!-- ================= LOGOUT ================= -->
+
+<button
+    class="logout"
+    onclick="logout()"
+>
+
+    🚪 Keluar
+
+</button>
+
+
+<!-- ================= HISTORY ================= -->
+
+<div class="history">
+
+    <div class="historyHeader">
+
+        <div>
+
+            <div class="historyHeaderTitle">
+                📋 Riwayat Transaksi
+            </div>
+
+            <div class="historyHeaderSub">
+                Deposit dan withdraw terbaru
+            </div>
+
+        </div>
+
+        <button
+            class="refreshHistory"
+            id="refreshButton"
+            onclick="loadAllData()"
+            title="Refresh"
+        >
+            ↻
+        </button>
+
+    </div>
+
+
+    <div
+        class="historyList"
+        id="historyList"
+    >
+
+        <div class="emptyHistory">
+
+            <div class="emptyIcon">
+                ⏳
+            </div>
+
+            Memuat transaksi...
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= BOTTOM NAV ================= -->
+
+<nav>
+
+    <a
+        href="../home/"
+        class="bottomNavItem"
+    >
+
+        <span class="navIcon">
+            🏠
+        </span>
+
+        <span>
+            Home
+        </span>
+
+    </a>
+
+
+    <a
+        href="../home/#gameSection"
+        class="bottomNavItem"
+    >
+
+        <span class="navIcon">
+            🔎
+        </span>
+
+        <span>
+            Cari Game
+        </span>
+
+    </a>
+
+
+    <a
+        href="../deposit/"
+        class="bottomNavItem"
+    >
+
+        <span class="navIcon">
+            💳
+        </span>
+
+        <span>
+            Tambah Dana
+        </span>
+
+    </a>
+
+
+    <a
+        href="../akun/"
+        class="bottomNavItem active"
+    >
+
+        <span class="navIcon">
+            👤
+        </span>
+
+        <span>
+            Akun
+        </span>
+
+    </a>
+
+</nav>
+
+
+<script>
+
+/* =====================================================
+   FORMAT IDR
+   SAMA DENGAN HOME.HTML
+===================================================== */
+
+function formatIDR(num){
+
+    return new Intl.NumberFormat(
+        "id-ID",
+        {
+            minimumFractionDigits:2,
+            maximumFractionDigits:2
+        }
+    ).format(
+        Number(num) || 0
+    );
+
+}
+
+
+/* =====================================================
+   AMBIL CURRENT USER
+===================================================== */
+
+function getCurrentUser(){
+
+    try{
+
+        return JSON.parse(
+            localStorage.getItem(
+                "currentUser"
+            )
+        );
+
+    }catch(e){
+
+        return null;
+
+    }
+
+}
+
+
+/* =====================================================
+   AMBIL PLAYERS
+===================================================== */
+
+function getPlayers(){
+
+    try{
+
+        return JSON.parse(
+            localStorage.getItem(
+                "players"
+            )
+        ) || [];
+
+    }catch(e){
+
+        return [];
+
+    }
+
+}
+
+
+/* =====================================================
+   USERNAME
+   SAMA DENGAN HOME.HTML
+===================================================== */
+
+function getUsername(user){
+
+    return String(
+        user?.username ??
+        user?.name ??
+        user?.nama ??
+        user?.user ??
+        ""
+    ).trim();
+
+}
+
+
+/* =====================================================
+   NORMALISASI SALDO
+   SAMA DENGAN HOME.HTML
+===================================================== */
+
+function getSaldo(user){
+
+    let saldo =
+        user?.saldo ??
+        user?.balance ??
+        user?.saldoUser ??
+        user?.wallet ??
+        0;
+
+
+    if(
+        typeof saldo === "string"
+    ){
+
+        saldo =
+            saldo.replace(
+                /[^\d.-]/g,
+                ""
+            );
+
+    }
+
+
+    saldo =
+        Number(saldo);
+
+
+    if(
+        !Number.isFinite(saldo)
+    ){
+
+        saldo = 0;
+
+    }
+
+
+    return saldo;
+
+}
+
+
+/* =====================================================
+   LOAD USER
+   LOGIKA SAMA DENGAN HOME.HTML
+===================================================== */
+
+function loadUser(){
+
+    const currentUser =
+        getCurrentUser();
+
+
+    const players =
+        getPlayers();
+
+
+    /* =========================
+       BELUM LOGIN
+    ========================= */
+
+    if(!currentUser){
+
+        document.getElementById(
+            "username"
+        ).innerText =
+            "Guest";
+
+        document.getElementById(
+            "memberStatus"
+        ).innerText =
+            "Silakan login terlebih dahulu";
+
+        document.getElementById(
+            "saldo"
+        ).innerText =
+            "Rp 0,00";
+
+        document.getElementById(
+            "avatar"
+        ).innerText =
+            "G";
+
+        return;
+
+    }
+
+
+    const currentUsername =
+        getUsername(
+            currentUser
+        );
+
+
+    let matchedPlayer =
+        null;
+
+
+    /* =================================================
+       1. CARI BERDASARKAN ID
+       SAMA DENGAN HOME.HTML
+    ================================================= */
+
+    if(
+        currentUser.id !== undefined &&
+        currentUser.id !== null
+    ){
+
+        matchedPlayer =
+            players.find(
+                player =>
+                    player.id !== undefined &&
+                    String(player.id) ===
+                    String(currentUser.id)
+            );
+
+    }
+
+
+    /* =================================================
+       2. JIKA TIDAK KETEMU,
+          CARI BERDASARKAN USERNAME
+    ================================================= */
+
+    if(
+        !matchedPlayer &&
+        currentUsername
+    ){
+
+        matchedPlayer =
+            players.find(
+                player =>
+                    getUsername(player)
+                    .toLowerCase()
+                    ===
+                    currentUsername
+                    .toLowerCase()
+            );
+
+    }
+
+
+    /* =================================================
+       3. GUNAKAN DATA PLAYER
+          ATAU CURRENT USER
+    ================================================= */
+
+    const userData =
+        matchedPlayer ||
+        currentUser;
+
+
+    const username =
+        getUsername(userData) ||
+        currentUsername ||
+        "User";
+
+
+    /* =================================================
+       4. AMBIL SALDO
+       PRIORITAS SAMA DENGAN HOME.HTML
+    ================================================= */
+
+    let saldo =
+        userData?.saldo ??
+        userData?.balance ??
+        userData?.saldoUser ??
+        userData?.wallet ??
+        currentUser?.saldo ??
+        currentUser?.balance ??
+        0;
+
+
+    /* =================================================
+       5. NORMALISASI SALDO
+    ================================================= */
+
+    if(
+        typeof saldo === "string"
+    ){
+
+        saldo =
+            saldo.replace(
+                /[^\d.-]/g,
+                ""
+            );
+
+    }
+
+
+    saldo =
+        Number(saldo);
+
+
+    if(
+        !Number.isFinite(saldo)
+    ){
+
+        saldo = 0;
+
+    }
+
+
+    /* =================================================
+       TAMPILKAN DATA
+    ================================================= */
+
+    document.getElementById(
+        "username"
+    ).innerText =
+        username;
+
+
+    document.getElementById(
+        "memberStatus"
+    ).innerText =
+        "Member";
+
+
+    document.getElementById(
+        "saldo"
+    ).innerText =
+        "Rp " +
+        formatIDR(
+            saldo
+        );
+
+
+    document.getElementById(
+        "avatar"
+    ).innerText =
+        username
+        .charAt(0)
+        .toUpperCase();
+
+
+    /* =================================================
+       UPDATE CURRENT USER
+
+       Saldo juga disamakan dengan data yang sedang
+       dipakai oleh HOME.
+    ================================================= */
+
+    const updatedUser = {
+
+        ...currentUser,
+        ...userData,
+
+        username:
+            username,
+
+        name:
+            userData?.name ??
+            currentUser?.name ??
+            username,
+
+        saldo:
+            saldo
+
+    };
+
+
+    localStorage.setItem(
+        "currentUser",
+        JSON.stringify(
+            updatedUser
+        )
+    );
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHTML(text){
+
+    return String(
+        text ?? ""
+    )
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+/* =====================================================
+   STATUS CLASS
+===================================================== */
+
+function getStatusClass(status){
+
+    const s =
+        String(
+            status || "Pending"
+        ).toLowerCase();
+
+
+    if(
+
+        s === "success" ||
+        s === "approved" ||
+        s === "berhasil" ||
+        s === "completed"
+
+    ){
+
+        return "statusSuccess";
+
+    }
+
+
+    if(
+
+        s === "reject" ||
+        s === "rejected" ||
+        s === "ditolak" ||
+        s === "failed"
+
+    ){
+
+        return "statusReject";
+
+    }
+
+
+    return "statusPending";
+
+}
+
+
+/* =====================================================
+   STATUS TEXT
+===================================================== */
+
+function getStatusText(status){
+
+    const s =
+        String(
+            status || "Pending"
+        ).toLowerCase();
+
+
+    if(
+
+        s === "success" ||
+        s === "approved" ||
+        s === "berhasil" ||
+        s === "completed"
+
+    ){
+
+        return "BERHASIL";
+
+    }
+
+
+    if(
+
+        s === "reject" ||
+        s === "rejected" ||
+        s === "ditolak" ||
+        s === "failed"
+
+    ){
+
+        return "DITOLAK";
+
+    }
+
+
+    return "PENDING";
+
+}
+
+
+/* =====================================================
+   WAKTU TRANSAKSI
+===================================================== */
+
+function getTransactionTime(data){
+
+    return (
+
+        data.time ||
+        data.createdAt ||
+        data.created_at ||
+        data.date ||
+        data.processedAt ||
+        data.processed_at ||
+        ""
+
+    );
+
+}
+
+
+/* =====================================================
+   LOAD TRANSAKSI
+===================================================== */
+
+async function loadTransactions(){
+
+    const historyList =
+        document.getElementById(
+            "historyList"
+        );
+
+
+    const currentUser =
+        getCurrentUser();
+
+
+    const username =
+        getUsername(
+            currentUser
+        );
+
+
+    if(!username){
+
+        historyList.innerHTML = `
+
+            <div class="emptyHistory">
+
+                <div class="emptyIcon">
+                    🔐
+                </div>
+
+                Silakan login untuk melihat
+                riwayat transaksi.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    /*
+     * Transaksi tetap mengambil dari server
+     * jika endpoint tersedia.
+     */
+
+    try{
+
+        const response =
+            await fetch(
+
+                "https://game-login-api.orkutstok64.workers.dev" +
+                "/transactions?username=" +
+                encodeURIComponent(
+                    username
+                ),
+
+                {
+                    method:"GET",
+
+                    headers:{
+                        "Accept":
+                            "application/json"
+                    },
+
+                    cache:"no-store"
+                }
+
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if(
+            !response.ok ||
+            !result.success
+        ){
+
+            throw new Error(
+                result.message ||
+                "Gagal mengambil transaksi"
+            );
+
+        }
+
+
+        let transactions =
+            result.transactions ||
+            result.data ||
+            [];
+
+
+        if(
+            !Array.isArray(
+                transactions
+            )
+        ){
+
+            transactions = [];
+
+        }
+
+
+        transactions.sort(
+            function(a,b){
+
+                const dateA =
+                    new Date(
+                        getTransactionTime(a)
+                    ).getTime() || 0;
+
+
+                const dateB =
+                    new Date(
+                        getTransactionTime(b)
+                    ).getTime() || 0;
+
+
+                return dateB - dateA;
+
+            }
+        );
+
+
+        if(
+            transactions.length === 0
+        ){
+
+            historyList.innerHTML = `
+
+                <div class="emptyHistory">
+
+                    <div class="emptyIcon">
+                        📭
+                    </div>
+
+                    Belum ada transaksi
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        let html = "";
+
+
+        transactions.forEach(
+            function(t){
+
+                const type =
+                    String(
+                        t.type ||
+                        t.transactionType ||
+                        t.jenis ||
+                        ""
+                    ).toLowerCase();
+
+
+                const isDeposit =
+                    type === "deposit" ||
+                    type === "depo" ||
+                    type === "deposit_request";
+
+
+                const icon =
+                    isDeposit
+                    ? "💳"
+                    : "💸";
+
+
+                const title =
+                    isDeposit
+                    ? "Deposit"
+                    : "Withdraw";
+
+
+                const amount =
+                    Number(
+                        t.nominal ??
+                        t.amount ??
+                        t.jumlah ??
+                        0
+                    );
+
+
+                const amountClass =
+                    isDeposit
+                    ? "depositAmount"
+                    : "withdrawAmount";
+
+
+                const sign =
+                    isDeposit
+                    ? "+"
+                    : "-";
+
+
+                const status =
+                    t.status ||
+                    "Pending";
+
+
+                const statusClass =
+                    getStatusClass(
+                        status
+                    );
+
+
+                const statusText =
+                    getStatusText(
+                        status
+                    );
+
+
+                const time =
+                    getTransactionTime(
+                        t
+                    );
+
+
+                html += `
+
+                    <div class="historyItem">
+
+                        <div
+                            class="historyIcon ${
+                                isDeposit
+                                ? "depositIcon"
+                                : "withdrawIcon"
+                            }"
+                        >
+                            ${icon}
+                        </div>
+
+                        <div class="historyInfo">
+
+                            <b>
+                                ${title}
+                            </b>
+
+                            <span>
+                                ${
+                                    escapeHTML(
+                                        time ||
+                                        "Waktu tidak tersedia"
+                                    )
+                                }
+                            </span>
+
+                        </div>
+
+                        <div class="historyRight">
+
+                            <div
+                                class="historyAmount ${amountClass}"
+                            >
+
+                                ${sign}
+                                Rp ${formatIDR(amount)}
+
+                            </div>
+
+                            <span
+                                class="status ${statusClass}"
+                            >
+                                ${statusText}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        );
+
+
+        historyList.innerHTML =
+            html;
+
+
+    }catch(error){
+
+        console.error(
+            "Gagal mengambil transaksi:",
+            error
+        );
+
+
+        historyList.innerHTML = `
+
+            <div class="emptyHistory">
+
+                <div class="emptyIcon">
+                    ⚠️
+                </div>
+
+                Gagal mengambil riwayat
+
+                <div
+                    style="
+                    font-size:10px;
+                    margin-top:5px;
+                    color:#566477;
+                    margin-top:6px;
+                    "
+                >
+                    Server tidak dapat dihubungi.
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =====================================================
+   LOAD SEMUA DATA
+===================================================== */
+
+async function loadAllData(){
+
+    const button =
+        document.getElementById(
+            "refreshButton"
+        );
+
+
+    button.classList.add(
+        "loading"
+    );
+
+
+    try{
+
+        /*
+         * Saldo langsung dari sumber yang sama
+         * dengan home.html.
+         */
+
+        loadUser();
+
+
+        /*
+         * Riwayat tetap dari server.
+         */
+
+        await loadTransactions();
+
+    }finally{
+
+        button.classList.remove(
+            "loading"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+function logout(){
+
+    const yakin =
+        confirm(
+            "Apakah Anda yakin ingin keluar?"
+        );
+
+
+    if(!yakin){
+
+        return;
+
+    }
+
+
+    localStorage.removeItem(
+        "currentUser"
+    );
+
+
+    window.location.href =
+        "../masuk/";
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+loadAllData();
+
+
+/* =====================================================
+   SALDO SYNC
+   SAMA DENGAN HOME
+===================================================== */
+
+setInterval(
+    function(){
+
+        loadUser();
+
+    },
+    1000
+);
+
+
+/* =====================================================
+   TRANSAKSI SYNC
+===================================================== */
+
+setInterval(
+    function(){
+
+        loadTransactions();
+
+    },
+    5000
+);
+
+</script>
+
+</body>
+
+</html>

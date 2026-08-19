@@ -1,0 +1,4528 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Spaceman</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#13002f;
+    color:#fff;
+}
+
+body{
+    position:relative;
+}
+
+button,input{
+    font-family:inherit;
+}
+
+button{
+    cursor:pointer;
+}
+
+/* =========================
+   LOADING SCREEN
+========================= */
+
+#loadingScreen{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    background:
+        radial-gradient(
+            circle at 50% 40%,
+            rgba(123,35,255,.35),
+            transparent 35%
+        ),
+        linear-gradient(
+            180deg,
+            #100027 0%,
+            #210052 55%,
+            #12002f 100%
+        );
+
+    color:#fff;
+
+    transition:
+        opacity .5s ease,
+        visibility .5s ease;
+}
+
+#loadingScreen.hide{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+}
+
+.loading-rocket{
+    font-size:70px;
+
+    animation:
+        loadingRocket 1s ease-in-out infinite alternate;
+}
+
+@keyframes loadingRocket{
+    from{
+        transform:translateY(8px) rotate(-5deg);
+    }
+
+    to{
+        transform:translateY(-8px) rotate(5deg);
+    }
+}
+
+.loading-title{
+    margin-top:18px;
+
+    font-size:25px;
+    font-weight:900;
+
+    letter-spacing:1px;
+
+    text-shadow:
+        0 0 12px rgba(170,80,255,.8);
+}
+
+.loading-text{
+    margin-top:8px;
+
+    color:#c9bdd5;
+
+    font-size:13px;
+}
+
+.loading-bar{
+    width:220px;
+    height:7px;
+
+    margin-top:25px;
+
+    overflow:hidden;
+
+    border-radius:10px;
+
+    background:rgba(255,255,255,.15);
+}
+
+.loading-progress{
+    width:0%;
+    height:100%;
+
+    border-radius:10px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #7c2cff,
+            #d36cff,
+            #16e879
+        );
+
+    animation:
+        loadingProgress 2.2s ease forwards;
+}
+
+@keyframes loadingProgress{
+    0%{
+        width:0%;
+    }
+
+    30%{
+        width:35%;
+    }
+
+    70%{
+        width:72%;
+    }
+
+    100%{
+        width:100%;
+    }
+}
+
+.loading-percent{
+    margin-top:9px;
+
+    color:#a995b8;
+
+    font-size:11px;
+}
+
+/* =========================
+   GAME
+========================= */
+
+.game{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+
+    background:
+        radial-gradient(circle at 50% 12%,rgba(123,35,255,.28),transparent 24%),
+        radial-gradient(circle at 20% 70%,rgba(66,35,255,.35),transparent 35%),
+        linear-gradient(180deg,#12002c 0%,#21005b 48%,#35108a 100%);
+
+    transition:.35s;
+}
+
+.game.crashed{
+    background:
+        radial-gradient(circle at 50% 30%,rgba(255,0,30,.30),transparent 30%),
+        radial-gradient(circle at 20% 70%,rgba(160,0,20,.40),transparent 40%),
+        linear-gradient(180deg,#25000c 0%,#520016 50%,#76001f 100%);
+}
+
+.stars{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    opacity:.7;
+
+    background-image:
+        radial-gradient(circle,rgba(255,255,255,.8) 1px,transparent 1.5px),
+        radial-gradient(circle,rgba(150,210,255,.7) 1px,transparent 1.5px),
+        radial-gradient(circle,rgba(255,255,255,.6) 1px,transparent 1.5px);
+
+    background-size:
+        90px 110px,
+        150px 170px,
+        230px 200px;
+
+    background-position:
+        10px 20px,
+        50px 70px,
+        100px 20px;
+
+    animation:stars 18s linear infinite;
+}
+
+@keyframes stars{
+    from{
+        background-position:
+            10px 20px,
+            50px 70px,
+            100px 20px;
+    }
+
+    to{
+        background-position:
+            10px 160px,
+            50px 240px,
+            100px 280px;
+    }
+}
+
+.planet{
+    position:absolute;
+    border-radius:50%;
+    pointer-events:none;
+}
+
+.planet.one{
+    width:95px;
+    height:95px;
+    left:-18px;
+    top:38%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #6278e8,
+            #1a377e 45%,
+            #081642 80%
+        );
+
+    box-shadow:inset -15px -15px 25px rgba(0,0,0,.45);
+}
+
+.planet.two{
+    width:110px;
+    height:110px;
+    right:-42px;
+    top:25%;
+
+    background:
+        radial-gradient(
+            circle at 35% 35%,
+            #ffe5b7,
+            #c57a58 50%,
+            #572343 80%
+        );
+
+    box-shadow:inset -20px -15px 25px rgba(0,0,0,.4);
+}
+
+.planet.three{
+    width:70px;
+    height:70px;
+    right:18px;
+    top:4%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            #eee5ff,
+            #8d73a9 45%,
+            #34234f
+        );
+}
+
+.planet.three:after{
+    content:"";
+    position:absolute;
+    width:105px;
+    height:22px;
+    border:5px solid rgba(220,190,255,.45);
+    border-radius:50%;
+    left:-18px;
+    top:26px;
+    transform:rotate(-15deg);
+}
+
+.chat{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:24px;
+
+    z-index:30;
+
+    display:flex;
+    align-items:center;
+
+    padding:0 6px;
+
+    overflow:hidden;
+    white-space:nowrap;
+
+    background:rgba(0,0,0,.72);
+
+    font-size:11px;
+}
+
+.chat b{
+    color:#aaa;
+    margin-right:5px;
+}
+
+.top{
+    position:absolute;
+    top:25px;
+    left:0;
+    width:100%;
+    height:65px;
+
+    z-index:20;
+
+    padding:10px 14px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.crown{
+    width:50px;
+    height:50px;
+
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:rgba(50,8,105,.75);
+
+    font-size:27px;
+}
+
+.menu{
+    width:52px;
+    height:52px;
+
+    border:0;
+    border-radius:50%;
+
+    background:rgba(35,4,66,.8);
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+
+    gap:5px;
+}
+
+.menu span{
+    width:29px;
+    height:4px;
+    border-radius:4px;
+    background:#fff;
+}
+
+.flight{
+    position:absolute;
+
+    top:82px;
+    left:0;
+
+    width:100%;
+    height:500px;
+
+    z-index:5;
+}
+
+.multiplier{
+    position:absolute;
+
+    top:0;
+    left:50%;
+
+    transform:translateX(-50%);
+
+    color:#ffd21c;
+
+    font-size:36px;
+    font-weight:900;
+
+    text-shadow:
+        0 0 10px rgba(255,210,0,.5),
+        0 3px 0 rgba(70,0,80,.7);
+
+    white-space:nowrap;
+}
+
+.game.crashed .multiplier{
+    color:#ff304f;
+
+    text-shadow:
+        0 0 12px rgba(255,0,40,.8),
+        0 0 30px rgba(255,0,40,.4);
+}
+
+.status{
+    position:absolute;
+
+    top:50px;
+    left:50%;
+
+    transform:translateX(-50%);
+
+    font-size:14px;
+    font-weight:800;
+
+    white-space:nowrap;
+
+    text-shadow:0 2px 4px #000;
+}
+
+.game.crashed .status{
+    color:#ff3653;
+}
+
+.rocket{
+    position:absolute;
+
+    left:50%;
+    top:100px;
+
+    width:70px;
+    height:110px;
+
+    transform:translateX(-50%);
+
+    transition:
+        left .12s linear,
+        top .12s linear,
+        transform .12s linear;
+}
+
+.astronaut{
+    position:absolute;
+
+    left:50%;
+    top:0;
+
+    width:54px;
+    height:78px;
+
+    transform:translateX(-50%);
+}
+
+.head{
+    position:absolute;
+
+    left:11px;
+    top:0;
+
+    width:32px;
+    height:32px;
+
+    border-radius:50%;
+
+    background:linear-gradient(145deg,#fff,#cfd4df);
+
+    border:2px solid #a8afc0;
+}
+
+.head:after{
+    content:"";
+
+    position:absolute;
+
+    left:5px;
+    top:6px;
+
+    width:20px;
+    height:14px;
+
+    border-radius:9px;
+
+    background:linear-gradient(135deg,#61ddff,#173a9b);
+}
+
+.body{
+    position:absolute;
+
+    left:13px;
+    top:28px;
+
+    width:28px;
+    height:32px;
+
+    border-radius:10px 10px 12px 12px;
+
+    background:linear-gradient(90deg,#eee,#fff,#c9cdd6);
+}
+
+.body:after{
+    content:"";
+
+    position:absolute;
+
+    width:9px;
+    height:9px;
+
+    border-radius:50%;
+
+    background:#ff465c;
+
+    left:9px;
+    top:11px;
+}
+
+.arm{
+    position:absolute;
+
+    top:32px;
+
+    width:9px;
+    height:27px;
+
+    border-radius:8px;
+
+    background:#dddfe5;
+}
+
+.arm.left{
+    left:4px;
+    transform:rotate(24deg);
+}
+
+.arm.right{
+    right:4px;
+    transform:rotate(-24deg);
+}
+
+.leg{
+    position:absolute;
+
+    top:56px;
+
+    width:10px;
+    height:22px;
+
+    border-radius:8px;
+
+    background:#dfe1e6;
+}
+
+.leg.left{
+    left:14px;
+    transform:rotate(12deg);
+}
+
+.leg.right{
+    right:14px;
+    transform:rotate(-12deg);
+}
+
+.flame{
+    position:absolute;
+
+    left:50%;
+    top:76px;
+
+    width:13px;
+    height:30px;
+
+    transform:translateX(-50%);
+
+    border-radius:50%;
+
+    background:linear-gradient(#fff,#ffd51d,#ff3b00);
+
+    animation:flame .12s infinite alternate;
+}
+
+@keyframes flame{
+    from{
+        height:23px;
+        opacity:.7;
+    }
+
+    to{
+        height:37px;
+        opacity:1;
+    }
+}
+
+.panel{
+    position:absolute;
+
+    z-index:15;
+
+    left:7px;
+    right:7px;
+    bottom:4px;
+
+    padding:10px 9px 8px;
+
+    border-radius:23px 23px 15px 15px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(96,15,170,.9),
+            rgba(53,5,103,.97)
+        );
+
+    border:1px solid rgba(202,113,255,.4);
+
+    box-shadow:
+        0 -5px 25px rgba(90,0,180,.35),
+        inset 0 1px 0 rgba(255,255,255,.12);
+
+    backdrop-filter:blur(8px);
+}
+
+.account-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    height:28px;
+
+    padding:0 8px 5px;
+
+    font-size:11px;
+
+    color:#c9bdd5;
+}
+
+.account-name{
+    color:#fff;
+    font-weight:800;
+}
+
+.account-balance{
+    color:#16e879;
+    font-weight:900;
+}
+
+.auto-row{
+    display:grid;
+
+    grid-template-columns:1fr 112px;
+
+    gap:6px;
+
+    margin-bottom:6px;
+}
+
+.auto{
+    height:50px;
+
+    border-radius:17px;
+
+    background:rgba(103,45,158,.6);
+
+    display:flex;
+    align-items:center;
+
+    gap:10px;
+
+    padding:5px 9px;
+
+    color:#c9bdd5;
+
+    font-size:14px;
+    font-weight:700;
+}
+
+.switch{
+    width:50px;
+    height:29px;
+
+    border-radius:30px;
+
+    background:#665875;
+
+    position:relative;
+
+    flex:none;
+
+    transition:.2s;
+}
+
+.switch:after{
+    content:"";
+
+    position:absolute;
+
+    left:3px;
+    top:3px;
+
+    width:23px;
+    height:23px;
+
+    border-radius:50%;
+
+    background:#ddd9e5;
+
+    transition:.2s;
+}
+
+.switch.on{
+    background:#11b96a;
+}
+
+.switch.on:after{
+    left:24px;
+    background:#fff;
+}
+
+.auto.locked{
+    opacity:.5;
+    pointer-events:none;
+}
+
+.auto-value{
+    height:50px;
+
+    border-radius:16px;
+
+    background:rgba(160,80,215,.48);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:18px;
+    font-weight:800;
+}
+
+.auto-value button{
+    border:0;
+    background:none;
+    color:#fff;
+
+    font-size:25px;
+
+    width:32px;
+}
+
+.auto-value.locked{
+    opacity:.5;
+    pointer-events:none;
+}
+
+.players{
+    height:39px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    gap:8px;
+
+    font-size:13px;
+}
+
+.count{
+    font-weight:800;
+}
+
+.bet-number{
+    color:#15d977;
+    font-weight:900;
+}
+
+.approved{
+    background:#14c86e;
+
+    padding:5px 8px;
+
+    border-radius:8px;
+
+    font-size:10px;
+    font-weight:900;
+}
+
+.total{
+    color:#ffc400;
+    font-weight:900;
+}
+
+.chips{
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:7px;
+
+    margin-top:4px;
+}
+
+.chip{
+    position:relative;
+
+    height:54px;
+
+    border:0;
+
+    border-radius:27px;
+
+    color:#fff;
+
+    font-size:18px;
+    font-weight:900;
+
+    background:
+        linear-gradient(
+            180deg,
+            #7028e8,
+            #4810a5
+        );
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.25),
+        0 4px 8px rgba(0,0,0,.25);
+}
+
+.chip:active{
+    transform:scale(.95);
+}
+
+.plus{
+    position:absolute;
+
+    left:0;
+    top:-8px;
+
+    width:25px;
+    height:25px;
+
+    border-radius:50%;
+
+    background:#0fd46e;
+
+    font-size:20px;
+    line-height:24px;
+}
+
+.bet-control{
+    height:61px;
+
+    margin-top:9px;
+
+    display:grid;
+
+    grid-template-columns:50px 1fr 50px;
+}
+
+.bet-arrow{
+    height:57px;
+
+    border:0;
+
+    background:rgba(180,105,238,.43);
+
+    color:#fff;
+
+    font-size:40px;
+}
+
+.bet-arrow:first-child{
+    border-radius:28px 0 0 28px;
+}
+
+.bet-arrow:last-child{
+    border-radius:0 28px 28px 0;
+}
+
+.bet-info{
+    height:57px;
+
+    background:rgba(170,87,227,.36);
+
+    text-align:center;
+
+    padding-top:4px;
+}
+
+.bet-info small{
+    display:block;
+
+    color:#c9aeda;
+
+    font-size:12px;
+}
+
+.bet-input{
+    width:100%;
+
+    border:0;
+    outline:0;
+
+    background:transparent;
+
+    color:#ffb900;
+
+    text-align:center;
+
+    font-size:22px;
+    font-weight:900;
+}
+
+.action{
+    margin-top:9px;
+
+    width:100%;
+    height:60px;
+
+    border-radius:30px;
+
+    border:2px solid #0ee678;
+
+    background:
+        linear-gradient(
+            180deg,
+            #15c96b,
+            #087d45
+        );
+
+    color:#fff;
+
+    font-size:17px;
+    font-weight:900;
+
+    box-shadow:
+        0 0 18px rgba(0,255,120,.25),
+        inset 0 1px 0 rgba(255,255,255,.25);
+}
+
+.action.cancel{
+    background:
+        linear-gradient(
+            180deg,
+            #ff4965,
+            #b90f34
+        );
+
+    border-color:#ff6680;
+}
+
+.action.disabled{
+    opacity:.65;
+
+    border-color:#777;
+
+    background:
+        linear-gradient(
+            180deg,
+            #5d5365,
+            #352d3c
+        );
+}
+
+.action.running{
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:4px;
+
+    padding:4px;
+
+    height:64px;
+
+    background:rgba(40,8,75,.95);
+
+    border-color:rgba(255,255,255,.15);
+}
+
+.action-part{
+    height:54px;
+
+    border:0;
+
+    border-radius:27px;
+
+    color:#fff;
+
+    font-size:14px;
+
+    font-weight:900;
+
+    background:
+        linear-gradient(
+            180deg,
+            #11d874,
+            #078146
+        );
+}
+
+.action-part.half{
+    background:
+        linear-gradient(
+            180deg,
+            #ffc928,
+            #d57b00
+        );
+}
+
+.action-part.disabled{
+    opacity:.45;
+    pointer-events:none;
+}
+
+.action-part small{
+    display:block;
+
+    font-size:9px;
+
+    opacity:.85;
+
+    margin-bottom:2px;
+}
+
+.action-part strong{
+    display:block;
+
+    font-size:14px;
+}
+
+.history{
+    margin-top:7px;
+
+    height:36px;
+
+    display:flex;
+
+    gap:4px;
+
+    align-items:center;
+
+    overflow:hidden;
+}
+
+.history-label{
+    flex:none;
+
+    height:30px;
+
+    padding:7px 7px;
+
+    border-radius:15px;
+
+    background:#ffd900;
+
+    color:#111;
+
+    font-size:9px;
+    font-weight:900;
+}
+
+#historyStrip{
+    display:flex;
+    gap:4px;
+
+    overflow:hidden;
+}
+
+.result{
+    flex:none;
+
+    min-width:65px;
+    height:30px;
+
+    border-radius:15px;
+
+    display:flex;
+
+    justify-content:center;
+    align-items:center;
+
+    font-size:13px;
+    font-weight:800;
+
+    background:#123d8f;
+}
+
+.result.gray{
+    background:linear-gradient(90deg,#777,#4e4e4e);
+}
+
+.result.blue{
+    background:linear-gradient(90deg,#123c91,#071d5b);
+}
+
+.result.purple{
+    background:linear-gradient(90deg,#7020d6,#431080);
+}
+
+.result.pink{
+    background:linear-gradient(90deg,#ff3c9d,#c70e67);
+}
+
+.result.end{
+    background:linear-gradient(90deg,#ffe600,#f49a00);
+    color:#171000;
+}
+
+.footer{
+    height:22px;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:space-between;
+
+    color:#a899b6;
+
+    font-size:10px;
+}
+
+.footer b{
+    color:#fff;
+}
+
+.win-right b{
+    color:#18e57c;
+    font-size:12px;
+}
+
+.toast{
+    position:fixed;
+
+    z-index:200;
+
+    left:50%;
+    bottom:245px;
+
+    transform:translate(-50%,20px);
+
+    opacity:0;
+
+    pointer-events:none;
+
+    min-width:220px;
+
+    padding:12px 16px;
+
+    border-radius:14px;
+
+    background:rgba(15,5,30,.94);
+
+    border:1px solid rgba(255,255,255,.15);
+
+    text-align:center;
+
+    font-size:13px;
+    font-weight:800;
+
+    transition:.3s;
+}
+
+.toast.show{
+    opacity:1;
+    transform:translate(-50%,0);
+}
+
+.toast.win{
+    color:#18e57c;
+}
+
+.toast.loss{
+    color:#ff4968;
+}
+
+.toast.info{
+    color:#fff;
+}
+
+.history-modal{
+    position:fixed;
+
+    z-index:100;
+
+    inset:0;
+
+    display:none;
+
+    background:rgba(5,0,15,.6);
+
+    backdrop-filter:blur(5px);
+}
+
+.history-modal.show{
+    display:block;
+}
+
+.history-box{
+    position:absolute;
+
+    left:0;
+    right:0;
+    bottom:0;
+
+    max-height:76%;
+
+    padding:18px 14px 25px;
+
+    border-radius:27px 27px 0 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            #39017b,
+            #21004c
+        );
+}
+
+.history-title{
+    display:flex;
+
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:15px;
+}
+
+.history-title h2{
+    font-size:22px;
+}
+
+.close{
+    width:44px;
+    height:44px;
+
+    border:0;
+
+    border-radius:50%;
+
+    background:rgba(180,100,240,.35);
+
+    color:#fff;
+
+    font-size:27px;
+}
+
+.history-grid{
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:7px;
+
+    max-height:58vh;
+
+    overflow-y:auto;
+}
+
+.history-grid .result{
+    width:100%;
+    min-width:0;
+}
+
+@media(max-width:390px){
+
+    .auto{
+        font-size:12px;
+    }
+
+    .auto-row{
+        grid-template-columns:1fr 100px;
+    }
+
+    .auto-value{
+        font-size:16px;
+    }
+
+    .chip{
+        font-size:16px;
+    }
+
+    .players{
+        font-size:12px;
+    }
+
+    .bet-input{
+        font-size:20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     LOADING SCREEN
+========================= -->
+
+<div id="loadingScreen">
+
+    <div class="loading-rocket">
+        🚀
+    </div>
+
+    <div class="loading-title">
+        SPACEMAN
+    </div>
+
+    <div class="loading-text">
+        Memuat permainan...
+    </div>
+
+    <div class="loading-bar">
+        <div class="loading-progress"></div>
+    </div>
+
+    <div
+        id="loadingPercent"
+        class="loading-percent">
+        0%
+    </div>
+
+</div>
+
+<div id="game" class="game">
+
+    <div class="stars"></div>
+
+    <div class="planet one"></div>
+    <div class="planet two"></div>
+    <div class="planet three"></div>
+
+    <div class="chat">
+        <b id="chatName">Spaceman:</b>
+        <span>Semoga hoki hari ini 🚀</span>
+    </div>
+
+    <div class="top">
+
+        <div class="crown">♛</div>
+
+        <button
+            class="menu"
+            onclick="openHistory()">
+
+            <span></span>
+            <span></span>
+            <span></span>
+
+        </button>
+
+    </div>
+
+    <div class="flight">
+
+        <div
+            id="multiplier"
+            class="multiplier">
+            1.00x
+        </div>
+
+        <div
+            id="status"
+            class="status">
+            TARUHAN DIBUKA
+        </div>
+
+        <div
+            id="rocket"
+            class="rocket">
+
+            <div class="astronaut">
+
+                <div class="head"></div>
+                <div class="body"></div>
+
+                <div class="arm left"></div>
+                <div class="arm right"></div>
+
+                <div class="leg left"></div>
+                <div class="leg right"></div>
+
+            </div>
+
+            <div class="flame"></div>
+
+        </div>
+
+    </div>
+
+    <div class="panel">
+
+        <div class="account-bar">
+
+            <span>
+                Akun:
+                <b
+                    id="accountName"
+                    class="account-name">
+                    Guest
+                </b>
+            </span>
+
+            <span>
+                Saldo:
+                <b
+                    id="gameBalance"
+                    class="account-balance">
+                    Rp 0
+                </b>
+            </span>
+
+        </div>
+
+        <div class="auto-row">
+
+            <div
+                id="autoFullBox"
+                class="auto">
+
+                <div
+                    id="autoSwitch"
+                    class="switch"
+                    onclick="toggleAuto()">
+                </div>
+
+                <span>
+                    Cairkan Otomatis
+                </span>
+
+            </div>
+
+            <div
+                id="autoFullValueBox"
+                class="auto-value">
+
+                <button onclick="changeAuto(-.1)">
+                    ‹
+                </button>
+
+                <span id="autoValue">
+                    2.00x
+                </span>
+
+                <button onclick="changeAuto(.1)">
+                    ›
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="auto-row">
+
+            <div
+                id="autoHalfBox"
+                class="auto">
+
+                <div
+                    id="autoHalfSwitch"
+                    class="switch"
+                    onclick="toggleAutoHalf()">
+                </div>
+
+                <span>
+                    Cairkan Otomatis 50%
+                </span>
+
+            </div>
+
+            <div
+                id="autoHalfValueBox"
+                class="auto-value">
+
+                <button onclick="changeAutoHalf(-.1)">
+                    ‹
+                </button>
+
+                <span id="autoHalfValue">
+                    1.50x
+                </span>
+
+                <button onclick="changeAutoHalf(.1)">
+                    ›
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="players">
+
+            <span class="count">
+                👤 <span id="peopleCount">0</span>
+            </span>
+
+            <span class="bet-number">
+                <span id="betPeople">0</span>
+            </span>
+
+            <span class="approved">
+                DICAIRKAN
+            </span>
+
+            <span
+                id="totalWin"
+                class="total">
+                Rp 0
+            </span>
+
+        </div>
+
+        <div class="chips">
+
+            <button
+                class="chip"
+                onclick="addBet(2000)">
+                <span class="plus">+</span>
+                Rp2K
+            </button>
+
+            <button
+                class="chip"
+                onclick="addBet(10000)">
+                <span class="plus">+</span>
+                Rp10K
+            </button>
+
+            <button
+                class="chip"
+                onclick="addBet(50000)">
+                <span class="plus">+</span>
+                Rp50K
+            </button>
+
+            <button
+                class="chip"
+                onclick="addBet(200000)">
+                <span class="plus">+</span>
+                Rp200K
+            </button>
+
+        </div>
+
+        <div class="bet-control">
+
+            <button
+                class="bet-arrow"
+                onclick="changeBet(-2000)">
+                ‹
+            </button>
+
+            <div class="bet-info">
+
+                <small>
+                    Taruhan • Minimal Rp2.000
+                </small>
+
+                <input
+                    id="betAmount"
+                    class="bet-input"
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    value="Rp 2.000">
+
+            </div>
+
+            <button
+                class="bet-arrow"
+                onclick="changeBet(2000)">
+                ›
+            </button>
+
+        </div>
+
+        <button
+            id="mainAction"
+            class="action"
+            onclick="mainAction()">
+
+            PASANG TARUHAN
+
+        </button>
+
+        <div class="history">
+
+            <div class="history-label">
+                DIMAINKAN
+            </div>
+
+            <div id="historyStrip"></div>
+
+        </div>
+
+        <div class="footer">
+
+            <div>
+                Sld.
+                <b id="balanceText">
+                    Rp 0
+                </b>
+            </div>
+
+            <div class="win-right">
+                Menang
+                <b id="footerWin">
+                    Rp 0
+                </b>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div
+    id="historyModal"
+    class="history-modal"
+    onclick="closeHistory(event)">
+
+    <div
+        class="history-box"
+        onclick="event.stopPropagation()">
+
+        <div class="history-title">
+
+            <h2>
+                HASIL TERAKHIR
+            </h2>
+
+            <button
+                class="close"
+                onclick="closeHistory()">
+                ×
+            </button>
+
+        </div>
+
+        <div
+            id="historyGrid"
+            class="history-grid">
+        </div>
+
+    </div>
+
+</div>
+
+<div
+    id="toast"
+    class="toast">
+</div>
+
+<script>
+"use strict";
+
+/*
+=========================================================
+ SPACEMAN - INTEGRASI DENGAN AKUN.HTML
+=========================================================
+*/
+
+
+/* =====================================================
+   STORAGE KEY
+===================================================== */
+
+const CURRENT_USER_KEY = "currentUser";
+const PLAYERS_KEY = "players";
+
+const HISTORY_KEY =
+    "spaceman_history_v4";
+
+
+/* =====================================================
+   GAME STATE
+===================================================== */
+
+const round = {
+
+    phase:"betting",
+
+    running:false,
+
+    multiplier:1,
+
+    crash:0,
+
+    startedAt:0,
+
+    animation:null,
+
+    countdown:null,
+
+    people:0,
+
+    betPeople:0,
+
+    cashedPeople:0,
+
+    cashedTotal:0
+};
+
+
+/* =====================================================
+   USER BET
+===================================================== */
+
+const bet = {
+
+    amount:2000,
+
+    placed:false,
+
+    active:false,
+
+    halfTaken:false,
+
+    fullTaken:false,
+
+    original:0,
+
+    currentAmount:0,
+
+    profit:0
+};
+
+
+/* =====================================================
+   AUTO
+===================================================== */
+
+const auto = {
+
+    enabled:false,
+
+    value:2,
+
+    halfEnabled:false,
+
+    halfValue:1.5
+};
+
+
+/* =====================================================
+   PROFILE
+===================================================== */
+
+let cashoutProfile = {
+
+    seed:1,
+
+    curve:1,
+
+    speed:1,
+
+    noise:1,
+
+    base:1
+};
+
+
+let history =
+    loadHistory();
+
+
+let statsTimer = null;
+
+
+/* =====================================================
+   FORMAT
+===================================================== */
+
+function money(value){
+
+    return "Rp " +
+        Math.floor(
+            Number(value) || 0
+        ).toLocaleString(
+            "id-ID"
+        );
+}
+
+
+/* =====================================================
+   CURRENT USER
+===================================================== */
+
+function getCurrentUser(){
+
+    try{
+
+        return JSON.parse(
+            localStorage.getItem(
+                CURRENT_USER_KEY
+            )
+        );
+
+    }catch{
+
+        return null;
+    }
+}
+
+
+function getPlayers(){
+
+    try{
+
+        const data =
+            JSON.parse(
+                localStorage.getItem(
+                    PLAYERS_KEY
+                )
+            );
+
+        return Array.isArray(data)
+            ? data
+            : [];
+
+    }catch{
+
+        return [];
+    }
+}
+
+
+/* =====================================================
+   FIND CURRENT PLAYER
+===================================================== */
+
+function getCurrentPlayer(){
+
+    const user =
+        getCurrentUser();
+
+    if(!user){
+        return null;
+    }
+
+
+    const players =
+        getPlayers();
+
+
+    if(
+        user.id !== undefined &&
+        user.id !== null
+    ){
+
+        const byId =
+            players.find(
+                p =>
+                    String(p.id) ===
+                    String(user.id)
+            );
+
+        if(byId){
+            return byId;
+        }
+    }
+
+
+    return players.find(
+        p =>
+            String(
+                p.name || ""
+            ).toLowerCase()
+            ===
+            String(
+                user.name || ""
+            ).toLowerCase()
+    ) || null;
+}
+
+
+/* =====================================================
+   GET BALANCE
+===================================================== */
+
+function getBalance(){
+
+    const player =
+        getCurrentPlayer();
+
+    const user =
+        getCurrentUser();
+
+
+    if(player){
+
+        return Number(
+            player.saldo || 0
+        );
+    }
+
+
+    if(user){
+
+        return Number(
+            user.saldo || 0
+        );
+    }
+
+
+    return 0;
+}
+
+
+/* =====================================================
+   SET BALANCE
+===================================================== */
+
+function setBalance(value){
+
+    const user =
+        getCurrentUser();
+
+
+    if(!user){
+
+        toast(
+            "Silakan login terlebih dahulu",
+            "loss"
+        );
+
+        return false;
+    }
+
+
+    value =
+        Math.max(
+            0,
+            Math.floor(
+                Number(value) || 0
+            )
+        );
+
+
+    const players =
+        getPlayers();
+
+
+    let player = null;
+
+
+    if(
+        user.id !== undefined &&
+        user.id !== null
+    ){
+
+        player =
+            players.find(
+                p =>
+                    String(p.id) ===
+                    String(user.id)
+            );
+    }
+
+
+    if(!player){
+
+        player =
+            players.find(
+                p =>
+                    String(
+                        p.name || ""
+                    ).toLowerCase()
+                    ===
+                    String(
+                        user.name || ""
+                    ).toLowerCase()
+            );
+    }
+
+
+    if(player){
+
+        player.saldo =
+            value;
+
+        localStorage.setItem(
+            PLAYERS_KEY,
+            JSON.stringify(
+                players
+            )
+        );
+    }
+
+
+    user.saldo =
+        value;
+
+
+    localStorage.setItem(
+        CURRENT_USER_KEY,
+        JSON.stringify(
+            user
+        )
+    );
+
+
+    updateBalanceUI();
+
+    return true;
+}
+
+
+/* =====================================================
+   BALANCE UI
+===================================================== */
+
+function updateBalanceUI(){
+
+    const balance =
+        getBalance();
+
+
+    document.getElementById(
+        "balanceText"
+    ).textContent =
+        money(
+            balance
+        );
+
+
+    document.getElementById(
+        "gameBalance"
+    ).textContent =
+        money(
+            balance
+        );
+
+
+    const user =
+        getCurrentUser();
+
+
+    const name =
+        user &&
+        user.name
+            ? user.name
+            : "Guest";
+
+
+    document.getElementById(
+        "accountName"
+    ).textContent =
+        name;
+
+
+    document.getElementById(
+        "chatName"
+    ).textContent =
+        name + ":";
+
+
+    if(!user){
+
+        document.getElementById(
+            "mainAction"
+        ).className =
+            "action disabled";
+
+
+        document.getElementById(
+            "mainAction"
+        ).textContent =
+            "SILAKAN LOGIN";
+
+    }
+}
+
+
+/* =====================================================
+   CHECK LOGIN
+===================================================== */
+
+function isLoggedIn(){
+
+    return !!getCurrentUser();
+}
+
+
+/* =====================================================
+   BET INPUT
+===================================================== */
+
+function normalizeBet(value){
+
+    value =
+        Math.floor(
+            Number(value) || 0
+        );
+
+    return Math.max(
+        2000,
+        value
+    );
+}
+
+
+function setBetAmount(value){
+
+    bet.amount =
+        normalizeBet(value);
+
+
+    const input =
+        document.getElementById(
+            "betAmount"
+        );
+
+
+    if(
+        document.activeElement !==
+        input
+    ){
+
+        input.value =
+            money(
+                bet.amount
+            );
+    }
+}
+
+
+function parseMoney(value){
+
+    const digits =
+        String(value)
+        .replace(
+            /[^\d]/g,
+            ""
+        );
+
+
+    return digits
+        ? Number(digits)
+        : 0;
+}
+
+
+function finishBetInput(){
+
+    const input =
+        document.getElementById(
+            "betAmount"
+        );
+
+
+    let amount =
+        parseMoney(
+            input.value
+        );
+
+
+    if(
+        !amount ||
+        amount < 2000
+    ){
+
+        amount = 2000;
+    }
+
+
+    bet.amount =
+        Math.floor(
+            amount
+        );
+
+
+    input.value =
+        money(
+            bet.amount
+        );
+}
+
+
+const betInput =
+    document.getElementById(
+        "betAmount"
+    );
+
+
+betInput.addEventListener(
+    "input",
+    function(){
+
+        const value =
+            parseMoney(
+                this.value
+            );
+
+
+        if(value > 0){
+
+            bet.amount =
+                Math.max(
+                    2000,
+                    value
+                );
+        }
+
+    }
+);
+
+
+betInput.addEventListener(
+    "blur",
+    finishBetInput
+);
+
+
+betInput.addEventListener(
+    "keydown",
+    function(e){
+
+        if(
+            e.key ===
+            "Enter"
+        ){
+
+            e.preventDefault();
+
+            finishBetInput();
+
+            this.blur();
+        }
+
+    }
+);
+
+
+/* =====================================================
+   CHIP
+===================================================== */
+
+function addBet(value){
+
+    if(
+        !isLoggedIn()
+    ){
+
+        toast(
+            "Silakan login terlebih dahulu",
+            "loss"
+        );
+
+        return;
+    }
+
+
+    if(
+        round.phase !==
+        "betting"
+    ){
+
+        toast(
+            "Tunggu taruhan berikutnya",
+            "info"
+        );
+
+        return;
+    }
+
+
+    setBetAmount(
+        bet.amount +
+        value
+    );
+}
+
+
+function changeBet(value){
+
+    if(
+        !isLoggedIn()
+    ){
+        return;
+    }
+
+
+    if(
+        round.phase !==
+        "betting"
+    ){
+        return;
+    }
+
+
+    setBetAmount(
+        bet.amount +
+        value
+    );
+}
+
+
+/* =====================================================
+   HISTORY
+===================================================== */
+
+function loadHistory(){
+
+    try{
+
+        const data =
+            JSON.parse(
+                localStorage.getItem(
+                    HISTORY_KEY
+                )
+            );
+
+
+        return Array.isArray(
+            data
+        )
+            ? data
+            : [];
+
+    }catch{
+
+        return [];
+    }
+}
+
+
+function saveHistory(){
+
+    localStorage.setItem(
+        HISTORY_KEY,
+        JSON.stringify(
+            history.slice(
+                0,
+                100
+            )
+        )
+    );
+}
+
+
+function addHistory(value){
+
+    history.unshift({
+
+        value:Number(
+            Number(value)
+            .toFixed(2)
+        ),
+
+        time:Date.now()
+
+    });
+
+
+    history =
+        history.slice(
+            0,
+            100
+        );
+
+
+    saveHistory();
+
+    renderHistory();
+}
+
+
+function historyClass(value){
+
+    value =
+        Number(value);
+
+
+    if(
+        value >= 5000
+    )
+        return "end";
+
+
+    if(
+        value === 1
+    )
+        return "gray";
+
+
+    if(
+        value < 2
+    )
+        return "blue";
+
+
+    if(
+        value < 5
+    )
+        return "purple";
+
+
+    return "pink";
+}
+
+
+function createHistoryItem(value){
+
+    const el =
+        document.createElement(
+            "div"
+        );
+
+
+    el.className =
+        "result " +
+        historyClass(
+            value
+        );
+
+
+    el.textContent =
+        Number(value).toFixed(
+            2
+        ) +
+        "x";
+
+
+    return el;
+}
+
+
+function renderHistory(){
+
+    const strip =
+        document.getElementById(
+            "historyStrip"
+        );
+
+
+    const grid =
+        document.getElementById(
+            "historyGrid"
+        );
+
+
+    strip.innerHTML = "";
+
+    grid.innerHTML = "";
+
+
+    history
+        .slice(
+            0,
+            8
+        )
+        .forEach(
+            item=>{
+
+                strip.appendChild(
+                    createHistoryItem(
+                        item.value
+                    )
+                );
+
+            }
+        );
+
+
+    history.forEach(
+        item=>{
+
+            grid.appendChild(
+                createHistoryItem(
+                    item.value
+                )
+            );
+
+        }
+    );
+}
+
+
+/* =====================================================
+   PROFILE
+===================================================== */
+
+function createCashoutProfile(){
+
+    cashoutProfile = {
+
+        seed:
+            Math.random() *
+            999999999,
+
+        curve:
+            .82 +
+            Math.random() *
+            .42,
+
+        speed:
+            .88 +
+            Math.random() *
+            .28,
+
+        noise:
+            .82 +
+            Math.random() *
+            .36,
+
+        base:
+            .82 +
+            Math.random() *
+            .36
+    };
+}
+
+
+function seededRandom(seed){
+
+    const x =
+        Math.sin(
+            seed *
+            12.9898
+        ) *
+        43758.5453;
+
+
+    return x -
+        Math.floor(x);
+}
+
+
+/* =====================================================
+   CASHOUT TOTAL
+===================================================== */
+
+function calculateCashoutTotal(){
+
+    const multiplier =
+        Math.max(
+            1,
+            round.multiplier
+        );
+
+
+    let value;
+
+
+    if(
+        multiplier < 1.5
+    ){
+
+        value =
+            .03 +
+            multiplier *
+            .07;
+
+    }else if(
+        multiplier < 2
+    ){
+
+        const p =
+            multiplier -
+            1.5;
+
+
+        value =
+            .20 +
+            p *
+            1.6;
+
+    }else if(
+        multiplier < 3
+    ){
+
+        const p =
+            multiplier -
+            2;
+
+
+        value =
+            1.0 +
+            Math.pow(
+                p,
+                1.35
+            ) *
+            3.0;
+
+    }else if(
+        multiplier < 5
+    ){
+
+        const p =
+            multiplier -
+            3;
+
+
+        value =
+            4.0 +
+            Math.pow(
+                p,
+                1.45
+            ) *
+            2.5;
+
+    }else if(
+        multiplier < 6
+    ){
+
+        const p =
+            multiplier -
+            5;
+
+
+        value =
+            9.0 +
+            Math.pow(
+                p,
+                1.55
+            ) *
+            11.0;
+
+    }else if(
+        multiplier < 9
+    ){
+
+        const p =
+            multiplier -
+            6;
+
+
+        value =
+            20.0 +
+            Math.pow(
+                p,
+                1.42
+            ) *
+            7.3;
+
+    }else{
+
+        const p =
+            multiplier -
+            9;
+
+
+        value =
+            42.0 +
+            Math.pow(
+                p + 1,
+                1.72
+            ) *
+            6.2;
+    }
+
+
+    const random =
+        seededRandom(
+            cashoutProfile.seed +
+            Math.floor(
+                multiplier *
+                10
+            )
+        );
+
+
+    const variation =
+        (
+            .84 +
+            random *
+            .32
+        ) *
+        cashoutProfile.noise;
+
+
+    value *=
+        cashoutProfile.base *
+        variation;
+
+
+    if(
+        multiplier >= 15
+    ){
+
+        const extra =
+            multiplier -
+            15;
+
+
+        value +=
+            Math.pow(
+                extra + 1,
+                1.65
+            ) *
+            18;
+    }
+
+
+    if(
+        multiplier >= 30
+    ){
+
+        const extra =
+            multiplier -
+            30;
+
+
+        value +=
+            Math.pow(
+                extra + 1,
+                1.8
+            ) *
+            35;
+    }
+
+
+    return Math.floor(
+        Math.max(
+            0,
+            value *
+            1000000
+        )
+    );
+}
+
+
+/* =====================================================
+   LIVE STATS
+===================================================== */
+
+function updateStats(){
+
+    document.getElementById(
+        "peopleCount"
+    ).textContent =
+        round.people.toLocaleString(
+            "id-ID"
+        );
+
+
+    document.getElementById(
+        "betPeople"
+    ).textContent =
+        round.betPeople.toLocaleString(
+            "id-ID"
+        );
+
+
+    document.getElementById(
+        "totalWin"
+    ).textContent =
+        money(
+            round.cashedTotal
+        );
+}
+
+
+function startStats(){
+
+    stopStats();
+
+
+    createCashoutProfile();
+
+
+    round.cashedPeople = 0;
+
+    round.cashedTotal = 0;
+
+
+    round.people =
+        Math.floor(
+            850 +
+            Math.random() *
+            2150
+        );
+
+
+    round.betPeople =
+        Math.floor(
+            round.people *
+            (
+                .30 +
+                Math.random() *
+                .35
+            )
+        );
+
+
+    updateStats();
+
+
+    statsTimer =
+        setInterval(
+            ()=>{
+
+                if(
+                    round.phase ===
+                    "betting"
+                ){
+
+                    round.cashedTotal = 0;
+
+                    round.cashedPeople = 0;
+
+                    updateStats();
+
+                    return;
+                }
+
+
+                if(
+                    round.phase ===
+                    "running"
+                ){
+
+                    const target =
+                        calculateCashoutTotal();
+
+
+                    const jitter =
+                        .94 +
+                        Math.random() *
+                        .12;
+
+
+                    const nextValue =
+                        Math.floor(
+                            target *
+                            jitter
+                        );
+
+
+                    round.cashedTotal =
+                        Math.max(
+                            round.cashedTotal,
+                            nextValue
+                        );
+
+
+                    const playerProgress =
+                        Math.min(
+                            .985,
+                            .10 +
+                            round.multiplier /
+                            14
+                        );
+
+
+                    const playerBase =
+                        Math.floor(
+                            round.betPeople *
+                            playerProgress
+                        );
+
+
+                    const playerRandom =
+                        Math.floor(
+                            Math.random() *
+                            8
+                        );
+
+
+                    round.cashedPeople =
+                        Math.max(
+                            round.cashedPeople,
+                            playerBase +
+                            playerRandom
+                        );
+
+
+                    updateStats();
+                }
+
+            },
+            420
+        );
+}
+
+
+function stopStats(){
+
+    if(statsTimer){
+
+        clearInterval(
+            statsTimer
+        );
+
+        statsTimer = null;
+    }
+}
+
+
+/* =====================================================
+   AUTO LOCK
+===================================================== */
+
+function setAutoLocked(locked){
+
+    const boxes = [
+
+        document.getElementById(
+            "autoFullBox"
+        ),
+
+        document.getElementById(
+            "autoFullValueBox"
+        ),
+
+        document.getElementById(
+            "autoHalfBox"
+        ),
+
+        document.getElementById(
+            "autoHalfValueBox"
+        )
+
+    ];
+
+
+    boxes.forEach(
+        el=>{
+
+            if(el){
+
+                el.classList.toggle(
+                    "locked",
+                    locked
+                );
+            }
+
+        }
+    );
+}
+
+
+function canChangeAuto(){
+
+    return (
+        round.phase ===
+        "betting"
+    );
+}
+
+
+/* =====================================================
+   AUTO FULL
+===================================================== */
+
+function toggleAuto(){
+
+    if(
+        !canChangeAuto()
+    ){
+
+        toast(
+            "Cairkan otomatis hanya bisa diatur sebelum permainan dimulai",
+            "info"
+        );
+
+        return;
+    }
+
+
+    auto.enabled =
+        !auto.enabled;
+
+
+    document.getElementById(
+        "autoSwitch"
+    ).classList.toggle(
+        "on",
+        auto.enabled
+    );
+}
+
+
+function changeAuto(value){
+
+    if(
+        !canChangeAuto()
+    ){
+
+        toast(
+            "Target otomatis hanya bisa diubah sebelum permainan dimulai",
+            "info"
+        );
+
+        return;
+    }
+
+
+    auto.value =
+        Math.max(
+            1.1,
+            Math.min(
+                20,
+                Number(
+                    (
+                        auto.value +
+                        value
+                    ).toFixed(1)
+                )
+            )
+        );
+
+
+    document.getElementById(
+        "autoValue"
+    ).textContent =
+        auto.value.toFixed(
+            2
+        ) +
+        "x";
+}
+
+
+/* =====================================================
+   AUTO HALF
+===================================================== */
+
+function toggleAutoHalf(){
+
+    if(
+        !canChangeAuto()
+    ){
+
+        toast(
+            "Cairkan otomatis 50% hanya bisa diatur sebelum permainan dimulai",
+            "info"
+        );
+
+        return;
+    }
+
+
+    auto.halfEnabled =
+        !auto.halfEnabled;
+
+
+    document.getElementById(
+        "autoHalfSwitch"
+    ).classList.toggle(
+        "on",
+        auto.halfEnabled
+    );
+}
+
+
+function changeAutoHalf(value){
+
+    if(
+        !canChangeAuto()
+    ){
+
+        toast(
+            "Target otomatis hanya bisa diubah sebelum permainan dimulai",
+            "info"
+        );
+
+        return;
+    }
+
+
+    auto.halfValue =
+        Math.max(
+            1.1,
+            Math.min(
+                20,
+                Number(
+                    (
+                        auto.halfValue +
+                        value
+                    ).toFixed(1)
+                )
+            )
+        );
+
+
+    document.getElementById(
+        "autoHalfValue"
+    ).textContent =
+        auto.halfValue.toFixed(
+            2
+        ) +
+        "x";
+}
+
+
+/* =====================================================
+   MAIN ACTION
+===================================================== */
+
+function mainAction(){
+
+    if(
+        !isLoggedIn()
+    ){
+
+        toast(
+            "Silakan login terlebih dahulu",
+            "loss"
+        );
+
+        return;
+    }
+
+
+    if(
+        round.phase !==
+        "betting"
+    ){
+        return;
+    }
+
+
+    if(bet.placed){
+
+        cancelBet();
+
+        return;
+    }
+
+
+    finishBetInput();
+
+
+    const amount =
+        bet.amount;
+
+
+    if(
+        amount < 2000
+    ){
+
+        toast(
+            "Minimal taruhan Rp2.000",
+            "loss"
+        );
+
+        setBetAmount(
+            2000
+        );
+
+        return;
+    }
+
+
+    const balance =
+        getBalance();
+
+
+    if(
+        amount > balance
+    ){
+
+        toast(
+            "Saldo tidak cukup",
+            "loss"
+        );
+
+        return;
+    }
+
+
+    const success =
+        setBalance(
+            balance -
+            amount
+        );
+
+
+    if(!success){
+        return;
+    }
+
+
+    bet.placed = true;
+
+    bet.active = false;
+
+    bet.halfTaken = false;
+
+    bet.fullTaken = false;
+
+    bet.original =
+        amount;
+
+    bet.currentAmount =
+        amount;
+
+    bet.profit = 0;
+
+
+    renderCancelButton();
+
+
+    toast(
+        "Taruhan diterima • " +
+        money(
+            amount
+        ),
+        "win"
+    );
+}
+
+
+/* =====================================================
+   CANCEL
+===================================================== */
+
+function renderCancelButton(){
+
+    const btn =
+        document.getElementById(
+            "mainAction"
+        );
+
+
+    btn.className =
+        "action cancel";
+
+
+    btn.textContent =
+        "BATALKAN TARUHAN";
+}
+
+
+function cancelBet(){
+
+    if(
+        round.phase !==
+        "betting" ||
+        !bet.placed
+    ){
+        return;
+    }
+
+
+    const refund =
+        bet.original;
+
+
+    setBalance(
+        getBalance() +
+        refund
+    );
+
+
+    resetUserBet();
+
+    renderBetButton();
+
+
+    toast(
+        "Taruhan dibatalkan • " +
+        money(
+            refund
+        ) +
+        " dikembalikan",
+        "win"
+    );
+}
+
+
+function resetUserBet(){
+
+    bet.placed = false;
+
+    bet.active = false;
+
+    bet.halfTaken = false;
+
+    bet.fullTaken = false;
+
+    bet.original = 0;
+
+    bet.currentAmount = 0;
+
+    bet.profit = 0;
+}
+
+
+function renderBetButton(){
+
+    const btn =
+        document.getElementById(
+            "mainAction"
+        );
+
+
+    btn.className =
+        "action";
+
+
+    btn.textContent =
+        "PASANG TARUHAN";
+}
+
+
+/* =====================================================
+   CRASH
+===================================================== */
+
+function generateCrash(){
+
+    const r =
+        Math.random();
+
+
+    let value;
+
+
+    if(
+        r < .12
+    ){
+
+        value =
+            1.00 +
+            Math.random() *
+            .18;
+
+    }else if(
+        r < .40
+    ){
+
+        value =
+            1.18 +
+            Math.random() *
+            .82;
+
+    }else if(
+        r < .72
+    ){
+
+        value =
+            2.00 +
+            Math.random() *
+            3;
+
+    }else if(
+        r < .91
+    ){
+
+        value =
+            5 +
+            Math.random() *
+            7;
+
+    }else if(
+        r < .999
+    ){
+
+        value =
+            12 +
+            Math.random() *
+            38;
+
+    }else{
+
+        value =
+            5000;
+    }
+
+
+    return Number(
+        value.toFixed(2)
+    );
+}
+
+
+/* =====================================================
+   START BETTING
+===================================================== */
+
+function startBetting(){
+
+    stopStats();
+
+
+    if(
+        round.countdown
+    ){
+
+        clearInterval(
+            round.countdown
+        );
+
+        round.countdown =
+            null;
+    }
+
+
+    round.phase =
+        "betting";
+
+
+    round.running =
+        false;
+
+
+    round.multiplier = 1;
+
+    round.crash = 0;
+
+
+    resetUserBet();
+
+    renderBetButton();
+
+
+    round.cashedPeople = 0;
+
+    round.cashedTotal = 0;
+
+
+    setAutoLocked(
+        false
+    );
+
+
+    document.getElementById(
+        "game"
+    ).classList.remove(
+        "crashed"
+    );
+
+
+    const rocket =
+        document.getElementById(
+            "rocket"
+        );
+
+
+    rocket.style.left =
+        "50%";
+
+    rocket.style.top =
+        "100px";
+
+    rocket.style.transform =
+        "translateX(-50%)";
+
+
+    setMultiplier(
+        1
+    );
+
+
+    let seconds = 8;
+
+
+    setStatus(
+        "TARUHAN DIBUKA • " +
+        seconds +
+        " DETIK"
+    );
+
+
+    startStats();
+
+
+    round.countdown =
+        setInterval(
+            ()=>{
+
+                if(
+                    round.phase !==
+                    "betting"
+                ){
+
+                    clearInterval(
+                        round.countdown
+                    );
+
+                    return;
+                }
+
+
+                seconds--;
+
+
+                if(
+                    seconds > 0
+                ){
+
+                    setStatus(
+                        "TARUHAN DIBUKA • " +
+                        seconds +
+                        " DETIK"
+                    );
+
+                }else{
+
+                    clearInterval(
+                        round.countdown
+                    );
+
+                    round.countdown =
+                        null;
+
+                    beginFlight();
+                }
+
+            },
+            1000
+        );
+}
+
+
+/* =====================================================
+   BEGIN FLIGHT
+===================================================== */
+
+function beginFlight(){
+
+    stopStats();
+
+
+    round.phase =
+        "running";
+
+
+    round.running =
+        true;
+
+
+    round.multiplier =
+        1;
+
+
+    round.crash =
+        generateCrash();
+
+
+    round.startedAt =
+        performance.now();
+
+
+    setAutoLocked(
+        true
+    );
+
+
+    round.cashedPeople = 0;
+
+    round.cashedTotal = 0;
+
+
+    if(bet.placed){
+
+        bet.active = true;
+
+        renderCashoutButtons();
+
+    }else{
+
+        renderWaitingButton();
+    }
+
+
+    setStatus(
+        "PERMAINAN BERJALAN"
+    );
+
+
+    if(
+        round.animation
+    ){
+
+        cancelAnimationFrame(
+            round.animation
+        );
+
+        round.animation = null;
+    }
+
+
+    startRunningStats();
+
+
+    round.animation =
+        requestAnimationFrame(
+            animateFlight
+        );
+}
+
+
+/* =====================================================
+   RUNNING STATS
+===================================================== */
+
+function startRunningStats(){
+
+    stopStats();
+
+
+    statsTimer =
+        setInterval(
+            ()=>{
+
+                if(
+                    round.phase !==
+                    "running"
+                ){
+                    return;
+                }
+
+
+                const target =
+                    calculateCashoutTotal();
+
+
+                const jitter =
+                    .94 +
+                    Math.random() *
+                    .12;
+
+
+                const nextValue =
+                    Math.floor(
+                        target *
+                        jitter
+                    );
+
+
+                round.cashedTotal =
+                    Math.max(
+                        round.cashedTotal,
+                        nextValue
+                    );
+
+
+                const playerProgress =
+                    Math.min(
+                        .985,
+                        .10 +
+                        round.multiplier /
+                        14
+                    );
+
+
+                const playerBase =
+                    Math.floor(
+                        round.betPeople *
+                        playerProgress
+                    );
+
+
+                const playerRandom =
+                    Math.floor(
+                        Math.random() *
+                        8
+                    );
+
+
+                round.cashedPeople =
+                    Math.max(
+                        round.cashedPeople,
+                        playerBase +
+                        playerRandom
+                    );
+
+
+                updateStats();
+
+            },
+            420
+        );
+}
+
+
+/* =====================================================
+   WAITING BUTTON
+===================================================== */
+
+function renderWaitingButton(){
+
+    const btn =
+        document.getElementById(
+            "mainAction"
+        );
+
+
+    btn.className =
+        "action disabled";
+
+
+    btn.textContent =
+        "TUNGGU TARUHAN BERIKUTNYA";
+}
+
+
+/* =====================================================
+   CASHOUT BUTTONS
+===================================================== */
+
+function renderCashoutButtons(){
+
+    const btn =
+        document.getElementById(
+            "mainAction"
+        );
+
+
+    btn.className =
+        "action running";
+
+
+    btn.innerHTML = `
+
+        <button
+            type="button"
+            class="action-part"
+            onclick="cashFull()">
+
+            <small>
+                TARIK FULL
+            </small>
+
+            <strong id="fullProfit">
+                Rp0
+            </strong>
+
+        </button>
+
+        <button
+            type="button"
+            class="action-part half"
+            onclick="cashHalf()">
+
+            <small>
+                TARIK 50%
+            </small>
+
+            <strong id="halfProfit">
+                Rp0
+            </strong>
+
+        </button>
+    `;
+
+
+    updateCashoutButtons();
+}
+
+
+/* =====================================================
+   UPDATE CASHOUT
+===================================================== */
+
+function updateCashoutButtons(){
+
+    const full =
+        document.getElementById(
+            "fullProfit"
+        );
+
+
+    const half =
+        document.getElementById(
+            "halfProfit"
+        );
+
+
+    if(
+        !full ||
+        !half
+    ){
+        return;
+    }
+
+
+    if(
+        !bet.placed ||
+        !bet.active
+    ){
+
+        full.textContent =
+            bet.fullTaken
+                ? "SUDAH DICAIRKAN"
+                : "Rp0";
+
+
+        half.textContent =
+            bet.halfTaken
+                ? "SUDAH DICAIRKAN"
+                : "Rp0";
+
+
+        return;
+    }
+
+
+    const fullPayout =
+        bet.currentAmount *
+        round.multiplier;
+
+
+    const halfPayout =
+        fullPayout *
+        .5;
+
+
+    full.textContent =
+        money(
+            fullPayout
+        );
+
+
+    half.textContent =
+        bet.halfTaken
+            ? "SUDAH DICAIRKAN"
+            : money(
+                halfPayout
+            );
+
+
+    const halfButton =
+        document.querySelector(
+            ".action-part.half"
+        );
+
+
+    if(halfButton){
+
+        halfButton.classList.toggle(
+            "disabled",
+            bet.halfTaken
+        );
+    }
+}
+
+
+/* =====================================================
+   ANIMATE
+===================================================== */
+
+function animateFlight(){
+
+    if(
+        !round.running
+    ){
+        return;
+    }
+
+
+    const now =
+        performance.now();
+
+
+    const elapsed =
+        (
+            now -
+            round.startedAt
+        ) / 1000;
+
+
+    round.multiplier =
+        Number(
+            Math.exp(
+                elapsed *
+                .135
+            ).toFixed(2)
+        );
+
+
+    if(
+        round.multiplier >=
+        round.crash
+    ){
+
+        round.multiplier =
+            round.crash;
+
+
+        setMultiplier(
+            round.crash
+        );
+
+
+        crashRound();
+
+        return;
+    }
+
+
+    setMultiplier(
+        round.multiplier
+    );
+
+
+    const progress =
+        Math.min(
+            1,
+            elapsed /
+            24
+        );
+
+
+    const x =
+        50 +
+        Math.sin(
+            progress *
+            1.2
+        ) *
+        26;
+
+
+    const y =
+        100 -
+        progress *
+        100;
+
+
+    const scale =
+        1 +
+        progress *
+        .25;
+
+
+    const rocket =
+        document.getElementById(
+            "rocket"
+        );
+
+
+    rocket.style.left =
+        x + "%";
+
+
+    rocket.style.top =
+        y + "px";
+
+
+    rocket.style.transform =
+        "translateX(-50%) " +
+        "rotate(" +
+        (
+            -8 -
+            progress *
+            12
+        ) +
+        "deg) scale(" +
+        scale +
+        ")";
+
+
+    updateCashoutButtons();
+
+
+    if(
+        bet.active &&
+        auto.enabled &&
+        round.multiplier >=
+        auto.value
+    ){
+
+        cashFull(true);
+    }
+
+
+    if(
+        bet.active &&
+        !bet.halfTaken &&
+        auto.halfEnabled &&
+        round.multiplier >=
+        auto.halfValue
+    ){
+
+        cashHalf(true);
+    }
+
+
+    if(
+        round.running
+    ){
+
+        round.animation =
+            requestAnimationFrame(
+                animateFlight
+            );
+    }
+}
+
+
+/* =====================================================
+   CASH HALF
+===================================================== */
+
+function cashHalf(
+    isAuto=false
+){
+
+    if(
+        !round.running ||
+        !bet.active ||
+        bet.halfTaken
+    ){
+
+        if(
+            !isAuto
+        ){
+
+            toast(
+                "Tarik 50% tidak tersedia",
+                "loss"
+            );
+        }
+
+        return;
+    }
+
+
+    const payout =
+        bet.currentAmount *
+        round.multiplier;
+
+
+    const amount =
+        payout *
+        .5;
+
+
+    setBalance(
+        getBalance() +
+        amount
+    );
+
+
+    bet.profit +=
+        amount;
+
+
+    bet.currentAmount =
+        bet.currentAmount *
+        .5;
+
+
+    bet.halfTaken =
+        true;
+
+
+    document.getElementById(
+        "footerWin"
+    ).textContent =
+        money(
+            bet.profit
+        );
+
+
+    toast(
+        (
+            isAuto
+                ? "Auto 50%"
+                : "Tarik 50%"
+        ) +
+        " • " +
+        money(
+            amount
+        ) +
+        " • " +
+        round.multiplier.toFixed(
+            2
+        ) +
+        "x",
+        "win"
+    );
+
+
+    updateCashoutButtons();
+}
+
+
+/* =====================================================
+   CASH FULL
+===================================================== */
+
+function cashFull(
+    isAuto=false
+){
+
+    if(
+        !round.running ||
+        !bet.active
+    ){
+
+        if(
+            !isAuto
+        ){
+
+            toast(
+                "Tarik Full tidak tersedia",
+                "loss"
+            );
+        }
+
+        return;
+    }
+
+
+    const payout =
+        bet.currentAmount *
+        round.multiplier;
+
+
+    setBalance(
+        getBalance() +
+        payout
+    );
+
+
+    bet.profit +=
+        payout;
+
+
+    bet.active =
+        false;
+
+
+    bet.fullTaken =
+        true;
+
+
+    document.getElementById(
+        "footerWin"
+    ).textContent =
+        money(
+            bet.profit
+        );
+
+
+    toast(
+        (
+            isAuto
+                ? "Auto Cairkan"
+                : "Tarik Full"
+        ) +
+        " • " +
+        money(
+            payout
+        ) +
+        " • " +
+        round.multiplier.toFixed(
+            2
+        ) +
+        "x",
+        "win"
+    );
+
+
+    updateCashoutButtons();
+}
+
+
+/* =====================================================
+   CRASH
+===================================================== */
+
+function crashRound(){
+
+    if(
+        round.phase ===
+        "crashed"
+    ){
+        return;
+    }
+
+
+    round.running =
+        false;
+
+
+    round.phase =
+        "crashed";
+
+
+    stopStats();
+
+
+    if(
+        round.animation
+    ){
+
+        cancelAnimationFrame(
+            round.animation
+        );
+
+        round.animation =
+            null;
+    }
+
+
+    document.getElementById(
+        "game"
+    ).classList.add(
+        "crashed"
+    );
+
+
+    setMultiplier(
+        round.crash
+    );
+
+
+    setStatus(
+        round.crash >= 5000
+            ? "TAMAT • 5000.00x"
+            : "CRASH • " +
+              round.crash.toFixed(
+                  2
+              ) +
+              "x"
+    );
+
+
+    const rocket =
+        document.getElementById(
+            "rocket"
+        );
+
+
+    rocket.style.transform =
+        "translateX(-50%) " +
+        "rotate(38deg) " +
+        "scale(.85)";
+
+
+    if(
+        bet.active
+    ){
+
+        bet.active =
+            false;
+
+
+        toast(
+            "CRASH! " +
+            round.crash.toFixed(
+                2
+            ) +
+            "x • Taruhan hangus",
+            "loss"
+        );
+
+    }else if(
+        bet.placed
+    ){
+
+        toast(
+            "CRASH • " +
+            round.crash.toFixed(
+                2
+            ) +
+            "x",
+            "info"
+        );
+    }
+
+
+    addHistory(
+        round.crash
+    );
+
+
+    setTimeout(
+        startBetting,
+        2500
+    );
+}
+
+
+/* =====================================================
+   UI
+===================================================== */
+
+function setMultiplier(value){
+
+    document.getElementById(
+        "multiplier"
+    ).textContent =
+        Number(
+            value
+        ).toFixed(
+            2
+        ) +
+        "x";
+}
+
+
+function setStatus(text){
+
+    document.getElementById(
+        "status"
+    ).textContent =
+        text;
+}
+
+
+/* =====================================================
+   HISTORY MODAL
+===================================================== */
+
+function openHistory(){
+
+    renderHistory();
+
+    document.getElementById(
+        "historyModal"
+    ).classList.add(
+        "show"
+    );
+}
+
+
+function closeHistory(event){
+
+    const modal =
+        document.getElementById(
+            "historyModal"
+        );
+
+
+    if(
+        event &&
+        event.target !== modal
+    ){
+        return;
+    }
+
+
+    modal.classList.remove(
+        "show"
+    );
+}
+
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+let toastTimer = null;
+
+
+function toast(
+    text,
+    type
+){
+
+    const el =
+        document.getElementById(
+            "toast"
+        );
+
+
+    el.textContent =
+        text;
+
+
+    el.className =
+        "toast show " +
+        (
+            type ||
+            "info"
+        );
+
+
+    clearTimeout(
+        toastTimer
+    );
+
+
+    toastTimer =
+        setTimeout(
+            ()=>{
+
+                el.classList.remove(
+                    "show"
+                );
+
+            },
+            2300
+        );
+}
+
+
+/* =====================================================
+   SYNC DARI AKUN.HTML
+===================================================== */
+
+window.addEventListener(
+    "storage",
+    function(event){
+
+        if(
+            event.key ===
+            PLAYERS_KEY ||
+            event.key ===
+            CURRENT_USER_KEY
+        ){
+
+            updateBalanceUI();
+        }
+
+    }
+);
+
+
+document.addEventListener(
+    "visibilitychange",
+    function(){
+
+        if(
+            !document.hidden
+        ){
+
+            updateBalanceUI();
+        }
+
+    }
+);
+
+
+/* =====================================================
+   LOADING SCREEN
+===================================================== */
+
+function startLoading(){
+
+    const loadingScreen =
+        document.getElementById(
+            "loadingScreen"
+        );
+
+    const loadingPercent =
+        document.getElementById(
+            "loadingPercent"
+        );
+
+    let percent = 0;
+
+
+    const timer =
+        setInterval(
+            ()=>{
+
+                percent +=
+                    Math.floor(
+                        Math.random() * 8
+                    ) + 3;
+
+
+                if(
+                    percent >= 100
+                ){
+
+                    percent = 100;
+
+
+                    clearInterval(
+                        timer
+                    );
+
+
+                    loadingPercent.textContent =
+                        "100%";
+
+
+                    setTimeout(
+                        ()=>{
+
+                            loadingScreen.classList.add(
+                                "hide"
+                            );
+
+                        },
+                        300
+                    );
+
+
+                    return;
+                }
+
+
+                loadingPercent.textContent =
+                    percent + "%";
+
+            },
+            100
+        );
+}
+
+
+/* =====================================================
+   INITIAL
+===================================================== */
+
+updateBalanceUI();
+
+setBetAmount(
+    2000
+);
+
+renderHistory();
+
+startLoading();
+
+startBetting();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1997 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Daftar Akun</title>
+
+<style>
+
+/* =========================================================
+   RESET
+========================================================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+
+/* =========================================================
+   BODY
+========================================================= */
+
+body{
+
+    min-height:100vh;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    padding:25px 15px;
+
+    background:
+        radial-gradient(
+            circle at 20% 10%,
+            rgba(52,130,246,.20),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 85% 90%,
+            rgba(139,92,246,.18),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #050b18,
+            #08131f 50%,
+            #0b1729
+        );
+
+    color:#fff;
+
+}
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.card{
+
+    width:100%;
+
+    max-width:430px;
+
+    padding:25px 22px 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(20,42,68,.97),
+            rgba(10,25,43,.97)
+        );
+
+    border:
+        1px solid
+        rgba(105,185,255,.15);
+
+    border-radius:22px;
+
+    box-shadow:
+        0 20px 60px
+        rgba(0,0,0,.45);
+
+    position:relative;
+
+    overflow:hidden;
+
+}
+
+.card::before{
+
+    content:"";
+
+    position:absolute;
+
+    top:0;
+    left:10%;
+
+    width:80%;
+    height:2px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #36b9ff,
+            #8b5cf6,
+            transparent
+        );
+
+    box-shadow:
+        0 0 15px
+        rgba(105,185,255,.5);
+
+}
+
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.logo{
+
+    text-align:center;
+
+    margin-bottom:12px;
+
+}
+
+.logo img{
+
+    max-width:180px;
+
+    max-height:55px;
+
+    object-fit:contain;
+
+}
+
+.logoText{
+
+    font-size:27px;
+
+    font-weight:900;
+
+    background:
+        linear-gradient(
+            90deg,
+            #5ec8ff,
+            #8b5cf6,
+            #c084fc
+        );
+
+    -webkit-background-clip:text;
+
+    background-clip:text;
+
+    color:transparent;
+
+}
+
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.title{
+
+    text-align:center;
+
+    margin-bottom:22px;
+
+}
+
+.title h2{
+
+    font-size:23px;
+
+    margin-bottom:7px;
+
+    font-weight:900;
+
+}
+
+.title p{
+
+    color:#8fa3ba;
+
+    font-size:12px;
+
+    line-height:1.5;
+
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.formGroup{
+
+    margin-bottom:13px;
+
+}
+
+.label{
+
+    display:block;
+
+    color:#cbd8e8;
+
+    font-size:12px;
+
+    font-weight:bold;
+
+    margin-bottom:6px;
+
+}
+
+.inputWrap{
+
+    position:relative;
+
+}
+
+.inputIcon{
+
+    position:absolute;
+
+    left:13px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    pointer-events:none;
+
+    z-index:2;
+
+}
+
+input,
+select{
+
+    width:100%;
+
+    height:48px;
+
+    padding:
+        0 13px 0 42px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.07);
+
+    border-radius:11px;
+
+    outline:none;
+
+    background:
+        rgba(5,15,28,.82);
+
+    color:#fff;
+
+    font-size:13px;
+
+    transition:.2s;
+
+}
+
+input::placeholder{
+
+    color:#60748b;
+
+}
+
+select{
+
+    appearance:auto;
+
+}
+
+select option{
+
+    background:#0b1729;
+
+    color:#fff;
+
+}
+
+input:focus,
+select:focus{
+
+    border-color:#4dafff;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(77,175,255,.08);
+
+}
+
+
+/* =========================================================
+   PASSWORD TOGGLE
+========================================================= */
+
+.passwordToggle{
+
+    position:absolute;
+
+    right:10px;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    width:35px;
+
+    height:35px;
+
+    border:none;
+
+    background:transparent;
+
+    color:#7f96ad;
+
+    cursor:pointer;
+
+    font-size:16px;
+
+}
+
+
+/* =========================================================
+   INFO
+========================================================= */
+
+.infoBox{
+
+    display:flex;
+
+    gap:9px;
+
+    margin:16px 0;
+
+    padding:11px;
+
+    border-radius:11px;
+
+    background:
+        rgba(44,119,190,.08);
+
+    color:#8fa9c3;
+
+    font-size:10px;
+
+    line-height:1.5;
+
+}
+
+
+/* =========================================================
+   REGISTER BUTTON
+========================================================= */
+
+.registerBtn{
+
+    width:100%;
+
+    height:51px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #168cff,
+            #635bff,
+            #8b3dff
+        );
+
+    color:#fff;
+
+    font-size:14px;
+
+    font-weight:900;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+}
+
+.registerBtn:hover{
+
+    transform:translateY(-1px);
+
+    box-shadow:
+        0 10px 25px
+        rgba(37,99,235,.25);
+
+}
+
+.registerBtn:active{
+
+    transform:scale(.98);
+
+}
+
+.registerBtn.loading{
+
+    opacity:.7;
+
+    pointer-events:none;
+
+}
+
+
+/* =========================================================
+   LOGIN LINK
+========================================================= */
+
+.loginText{
+
+    text-align:center;
+
+    margin-top:18px;
+
+    color:#8195ab;
+
+    font-size:12px;
+
+}
+
+.loginText a{
+
+    color:#69b9ff;
+
+    font-weight:bold;
+
+    text-decoration:none;
+
+}
+
+.loginText a:hover{
+
+    text-decoration:underline;
+
+}
+
+
+/* =========================================================
+   HOME LINK
+========================================================= */
+
+.homeLink{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    height:43px;
+
+    margin-top:13px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.07);
+
+    border-radius:11px;
+
+    color:#8297ad;
+
+    text-decoration:none;
+
+    font-size:11px;
+
+    font-weight:bold;
+
+    transition:.2s;
+
+}
+
+.homeLink:hover{
+
+    color:#69b9ff;
+
+    border-color:
+        rgba(105,185,255,.25);
+
+    background:
+        rgba(105,185,255,.04);
+
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.footer{
+
+    text-align:center;
+
+    margin-top:17px;
+
+    color:#52677e;
+
+    font-size:9px;
+
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+.serverMsg{
+
+    display:none;
+
+    margin-bottom:15px;
+
+    padding:11px;
+
+    border-radius:10px;
+
+    font-size:12px;
+
+    line-height:1.5;
+
+    text-align:center;
+
+}
+
+.serverMsg.show{
+
+    display:block;
+
+}
+
+.serverMsg.error{
+
+    color:#ff8080;
+
+    background:
+        rgba(255,60,60,.08);
+
+    border:
+        1px solid
+        rgba(255,60,60,.2);
+
+}
+
+.serverMsg.success{
+
+    color:#00ff88;
+
+    background:
+        rgba(0,255,136,.06);
+
+    border:
+        1px solid
+        rgba(0,255,136,.18);
+
+}
+
+.serverMsg.info{
+
+    color:#ffc107;
+
+    background:
+        rgba(255,193,7,.06);
+
+    border:
+        1px solid
+        rgba(255,193,7,.18);
+
+}
+
+
+/* =========================================================
+   SPINNER
+========================================================= */
+
+.spinner{
+
+    display:inline-block;
+
+    width:14px;
+
+    height:14px;
+
+    border:
+        2px solid
+        rgba(255,255,255,.35);
+
+    border-top-color:#fff;
+
+    border-radius:50%;
+
+    animation:
+        spin .7s linear infinite;
+
+    vertical-align:middle;
+
+    margin-right:6px;
+
+}
+
+@keyframes spin{
+
+    to{
+
+        transform:rotate(360deg);
+
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:500px){
+
+    body{
+
+        padding:
+            15px 10px;
+
+        align-items:flex-start;
+
+    }
+
+    .card{
+
+        margin-top:15px;
+
+        padding:
+            22px 17px 20px;
+
+        border-radius:19px;
+
+    }
+
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media(max-width:360px){
+
+    .card{
+
+        padding:
+            20px 14px 18px;
+
+    }
+
+    input,
+    select{
+
+        height:46px;
+
+    }
+
+    .registerBtn{
+
+        height:49px;
+
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="card">
+
+
+    <!-- =====================================================
+         LOGO
+    ====================================================== -->
+
+    <div class="logo">
+
+        <img
+            id="logoImg"
+            src="../assets/logo.png"
+            alt="Logo"
+            onerror="
+                this.style.display='none';
+                document.getElementById('logoText').style.display='block';
+            "
+        >
+
+        <div
+            id="logoText"
+            class="logoText"
+            style="display:none"
+        >
+            GAME LOBBY
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         TITLE
+    ====================================================== -->
+
+    <div class="title">
+
+        <h2>
+            BUAT AKUN
+        </h2>
+
+        <p>
+            Daftarkan akun kamu untuk
+            mulai menggunakan platform.
+        </p>
+
+    </div>
+
+
+    <!-- =====================================================
+         MESSAGE
+    ====================================================== -->
+
+    <div
+        id="serverMsg"
+        class="serverMsg"
+    ></div>
+
+
+    <!-- =====================================================
+         USERNAME
+    ====================================================== -->
+
+    <div class="formGroup">
+
+        <label
+            class="label"
+            for="username"
+        >
+            Username
+        </label>
+
+        <div class="inputWrap">
+
+            <span class="inputIcon">
+                👤
+            </span>
+
+            <input
+                id="username"
+                type="text"
+                placeholder="Masukkan username"
+                autocomplete="username"
+                autocapitalize="none"
+                spellcheck="false"
+                maxlength="30"
+            >
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         PASSWORD
+    ====================================================== -->
+
+    <div class="formGroup">
+
+        <label
+            class="label"
+            for="password"
+        >
+            Password
+        </label>
+
+        <div class="inputWrap">
+
+            <span class="inputIcon">
+                🔒
+            </span>
+
+            <input
+                id="password"
+                type="password"
+                placeholder="Minimal 8 karakter"
+                autocomplete="new-password"
+                maxlength="100"
+            >
+
+            <button
+                type="button"
+                class="passwordToggle"
+                id="passwordEye"
+                onclick="togglePassword()"
+                aria-label="Tampilkan password"
+            >
+                👁
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         BANK
+    ====================================================== -->
+
+    <div class="formGroup">
+
+        <label
+            class="label"
+            for="bank"
+        >
+            Bank / E-Wallet
+        </label>
+
+        <div class="inputWrap">
+
+            <span class="inputIcon">
+                💳
+            </span>
+
+            <select id="bank">
+
+                <option value="">
+                    Pilih Bank / E-Wallet
+                </option>
+
+                <option value="BCA">
+                    BCA
+                </option>
+
+                <option value="BNI">
+                    BNI
+                </option>
+
+                <option value="BRI">
+                    BRI
+                </option>
+
+                <option value="MANDIRI">
+                    MANDIRI
+                </option>
+
+                <option value="DANA">
+                    DANA
+                </option>
+
+                <option value="OVO">
+                    OVO
+                </option>
+
+                <option value="GOPAY">
+                    GOPAY
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         NAMA REKENING
+    ====================================================== -->
+
+    <div class="formGroup">
+
+        <label
+            class="label"
+            for="namarek"
+        >
+            Nama Rekening
+        </label>
+
+        <div class="inputWrap">
+
+            <span class="inputIcon">
+                🪪
+            </span>
+
+            <input
+                id="namarek"
+                type="text"
+                placeholder="Nama sesuai rekening"
+                autocomplete="name"
+                maxlength="100"
+            >
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         NOMOR REKENING
+    ====================================================== -->
+
+    <div class="formGroup">
+
+        <label
+            class="label"
+            for="norek"
+        >
+            Nomor Rekening
+        </label>
+
+        <div class="inputWrap">
+
+            <span class="inputIcon">
+                🔢
+            </span>
+
+            <input
+                id="norek"
+                type="text"
+                inputmode="numeric"
+                placeholder="Nomor rekening / e-wallet"
+                autocomplete="off"
+                maxlength="30"
+            >
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         NOMOR HP
+    ====================================================== -->
+
+    <div class="formGroup">
+
+        <label
+            class="label"
+            for="wa"
+        >
+            Nomor HP
+        </label>
+
+        <div class="inputWrap">
+
+            <span class="inputIcon">
+                📱
+            </span>
+
+            <input
+                id="wa"
+                type="tel"
+                inputmode="tel"
+                placeholder="Contoh: 08123456789"
+                autocomplete="tel"
+                maxlength="20"
+            >
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         INFO
+    ====================================================== -->
+
+    <div class="infoBox">
+
+        <div>
+            🛡️
+        </div>
+
+        <div>
+            Pastikan data rekening dan nomor HP
+            yang kamu masukkan sudah benar.
+            Data akan disimpan di server.
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         REGISTER
+    ====================================================== -->
+
+    <button
+        id="registerButton"
+        class="registerBtn"
+        type="button"
+        onclick="register()"
+    >
+        ✨ &nbsp; BUAT AKUN
+    </button>
+
+
+    <!-- =====================================================
+         LOGIN
+    ====================================================== -->
+
+    <div class="loginText">
+
+        Sudah punya akun?
+
+        <a href="../masuk/">
+            Masuk sekarang
+        </a>
+
+    </div>
+
+
+    <!-- =====================================================
+         HOME
+    ====================================================== -->
+
+    <a
+        href=".././"
+        class="homeLink"
+    >
+        ← &nbsp; Kembali ke Beranda
+    </a>
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <div class="footer">
+
+        © 2026 Game Lobby.
+        All Rights Reserved.
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   CONFIG
+========================================================= */
+
+const API_URL =
+    "https://game-login-api.orkutstok64.workers.dev";
+
+
+/* =========================================================
+   ELEMENT
+========================================================= */
+
+const usernameInput =
+    document.getElementById(
+        "username"
+    );
+
+const passwordInput =
+    document.getElementById(
+        "password"
+    );
+
+const bankInput =
+    document.getElementById(
+        "bank"
+    );
+
+const namaRekeningInput =
+    document.getElementById(
+        "namarek"
+    );
+
+const nomorRekeningInput =
+    document.getElementById(
+        "norek"
+    );
+
+const nomorHpInput =
+    document.getElementById(
+        "wa"
+    );
+
+const registerButton =
+    document.getElementById(
+        "registerButton"
+    );
+
+const serverMsg =
+    document.getElementById(
+        "serverMsg"
+    );
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+function showMessage(
+    message,
+    type = "error"
+){
+
+    serverMsg.className =
+        "serverMsg show " +
+        type;
+
+    serverMsg.innerText =
+        message;
+
+}
+
+
+function hideMessage(){
+
+    serverMsg.className =
+        "serverMsg";
+
+    serverMsg.innerText =
+        "";
+
+}
+
+
+/* =========================================================
+   PASSWORD
+========================================================= */
+
+function togglePassword(){
+
+    if(
+        passwordInput.type ===
+        "password"
+    ){
+
+        passwordInput.type =
+            "text";
+
+        document.getElementById(
+            "passwordEye"
+        ).innerText =
+            "🙈";
+
+    }else{
+
+        passwordInput.type =
+            "password";
+
+        document.getElementById(
+            "passwordEye"
+        ).innerText =
+            "👁";
+
+    }
+
+}
+
+
+/* =========================================================
+   REQUEST JSON
+========================================================= */
+
+async function requestJSON(
+    url,
+    options
+){
+
+    let response;
+
+
+    try{
+
+        response =
+            await fetch(
+                url,
+                options
+            );
+
+    }catch(error){
+
+        console.error(
+            "FETCH ERROR:",
+            error
+        );
+
+        throw new Error(
+            "Tidak dapat terhubung ke server. Periksa koneksi internet dan URL Worker."
+        );
+
+    }
+
+
+    const text =
+        await response.text();
+
+
+    let data = {};
+
+
+    if(text){
+
+        try{
+
+            data =
+                JSON.parse(
+                    text
+                );
+
+        }catch(error){
+
+            console.error(
+                "INVALID SERVER RESPONSE:",
+                text
+            );
+
+            throw new Error(
+                "Server mengembalikan response yang tidak valid."
+            );
+
+        }
+
+    }
+
+
+    return {
+
+        response:
+            response,
+
+        data:
+            data
+
+    };
+
+}
+
+
+/* =========================================================
+   SAVE SESSION
+========================================================= */
+
+function saveSession(
+    data,
+    fallbackUsername
+){
+
+    const token =
+        String(
+            data.token ||
+            data.accessToken ||
+            data.authToken ||
+            ""
+        ).trim();
+
+
+    let user;
+
+
+    if(
+        data.user &&
+        typeof data.user ===
+        "object"
+    ){
+
+        user = {
+            ...data.user
+        };
+
+    }else{
+
+        user = {
+
+            username:
+                fallbackUsername
+
+        };
+
+    }
+
+
+    /*
+       Jangan simpan password.
+    */
+
+    delete user.password;
+
+    delete user.passwordHash;
+
+    delete user.password_hash;
+
+
+    /*
+       Simpan token.
+    */
+
+    if(token){
+
+        user.token =
+            token;
+
+
+        localStorage.setItem(
+            "token",
+            token
+        );
+
+
+        localStorage.setItem(
+            "authToken",
+            token
+        );
+
+    }
+
+
+    /*
+       Simpan user.
+    */
+
+    localStorage.setItem(
+        "currentUser",
+        JSON.stringify(
+            user
+        )
+    );
+
+
+    return {
+
+        user:
+            user,
+
+        token:
+            token
+
+    };
+
+}
+
+
+/* =========================================================
+   REGISTER
+========================================================= */
+
+async function register(){
+
+    if(
+        registerButton.disabled
+    ){
+
+        return;
+
+    }
+
+
+    hideMessage();
+
+
+    /* =====================================================
+       AMBIL DATA
+    ===================================================== */
+
+    const username =
+        usernameInput.value.trim();
+
+    const password =
+        passwordInput.value;
+
+    const bank =
+        bankInput.value.trim();
+
+    const namaRekening =
+        namaRekeningInput.value.trim();
+
+    const nomorRekening =
+        nomorRekeningInput.value.trim();
+
+    const nomorHp =
+        nomorHpInput.value.trim();
+
+
+    /* =====================================================
+       VALIDASI
+    ===================================================== */
+
+    if(
+        !username ||
+        !password ||
+        !bank ||
+        !namaRekening ||
+        !nomorRekening ||
+        !nomorHp
+    ){
+
+        showMessage(
+            "Silakan isi semua data terlebih dahulu.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if(
+        username.length < 3
+    ){
+
+        showMessage(
+            "Username minimal 3 karakter.",
+            "error"
+        );
+
+        usernameInput.focus();
+
+        return;
+
+    }
+
+
+    if(
+        username.length > 30
+    ){
+
+        showMessage(
+            "Username maksimal 30 karakter.",
+            "error"
+        );
+
+        usernameInput.focus();
+
+        return;
+
+    }
+
+
+    if(
+        !/^[a-zA-Z0-9_.-]+$/.test(
+            username
+        )
+    ){
+
+        showMessage(
+            "Username hanya boleh menggunakan huruf, angka, titik, garis bawah, atau tanda minus.",
+            "error"
+        );
+
+        usernameInput.focus();
+
+        return;
+
+    }
+
+
+    if(
+        password.length < 8
+    ){
+
+        showMessage(
+            "Password minimal 8 karakter.",
+            "error"
+        );
+
+        passwordInput.focus();
+
+        return;
+
+    }
+
+
+    if(
+        !/^[0-9]+$/.test(
+            nomorRekening
+        )
+    ){
+
+        showMessage(
+            "Nomor rekening hanya boleh berisi angka.",
+            "error"
+        );
+
+        nomorRekeningInput.focus();
+
+        return;
+
+    }
+
+
+    if(
+        nomorRekening.length < 5
+    ){
+
+        showMessage(
+            "Nomor rekening minimal 5 angka.",
+            "error"
+        );
+
+        nomorRekeningInput.focus();
+
+        return;
+
+    }
+
+
+    const phoneDigits =
+        nomorHp.replace(
+            /[^0-9]/g,
+            ""
+        );
+
+
+    if(
+        phoneDigits.length < 8
+    ){
+
+        showMessage(
+            "Nomor HP tidak valid.",
+            "error"
+        );
+
+        nomorHpInput.focus();
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       LOADING
+    ===================================================== */
+
+    registerButton.disabled =
+        true;
+
+    registerButton.classList.add(
+        "loading"
+    );
+
+    registerButton.innerHTML =
+        '<span class="spinner"></span> MEMBUAT AKUN...';
+
+
+    try{
+
+
+        /* =================================================
+           HAPUS SESSION LAMA
+        ================================================= */
+
+        localStorage.removeItem(
+            "currentUser"
+        );
+
+        localStorage.removeItem(
+            "token"
+        );
+
+        localStorage.removeItem(
+            "authToken"
+        );
+
+
+        /* =================================================
+           REGISTER
+        ================================================= */
+
+        const registerResult =
+            await requestJSON(
+                API_URL + "/register",
+                {
+
+                    method:
+                        "POST",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json",
+
+                        "Accept":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            username:
+                                username,
+
+                            password:
+                                password,
+
+                            bank:
+                                bank,
+
+                            namaRekening:
+                                namaRekening,
+
+                            nomorRekening:
+                                nomorRekening,
+
+                            nomorHp:
+                                nomorHp
+
+                        })
+
+                }
+            );
+
+
+        const registerResponse =
+            registerResult.response;
+
+        const registerData =
+            registerResult.data;
+
+
+        console.log(
+            "REGISTER STATUS:",
+            registerResponse.status
+        );
+
+        console.log(
+            "REGISTER RESPONSE:",
+            registerData
+        );
+
+
+        /* =================================================
+           REGISTER ERROR
+        ================================================= */
+
+        if(
+            !registerResponse.ok ||
+            registerData.success !== true
+        ){
+
+            throw new Error(
+                registerData.message ||
+                "Pendaftaran gagal."
+            );
+
+        }
+
+
+        /* =================================================
+           CEK TOKEN REGISTER
+        ================================================= */
+
+        let token =
+            String(
+                registerData.token ||
+                registerData.accessToken ||
+                registerData.authToken ||
+                ""
+            ).trim();
+
+
+        let loginData =
+            null;
+
+
+        /* =================================================
+           JIKA REGISTER SUDAH MEMBERI TOKEN
+        ================================================= */
+
+        if(token){
+
+            loginData = {
+
+                ...registerData,
+
+                token:
+                    token
+
+            };
+
+        }
+
+
+        /* =================================================
+           JIKA TIDAK ADA TOKEN
+           → AUTO LOGIN
+        ================================================= */
+
+        if(!token){
+
+            registerButton.innerHTML =
+                '<span class="spinner"></span> MASUK KE AKUN...';
+
+
+            const loginResult =
+                await requestJSON(
+                    API_URL + "/login",
+                    {
+
+                        method:
+                            "POST",
+
+                        headers:{
+                            "Content-Type":
+                                "application/json",
+
+                            "Accept":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                username:
+                                    username,
+
+                                password:
+                                    password
+
+                            })
+
+                    }
+                );
+
+
+            console.log(
+                "AUTO LOGIN STATUS:",
+                loginResult.response.status
+            );
+
+            console.log(
+                "AUTO LOGIN RESPONSE:",
+                loginResult.data
+            );
+
+
+            if(
+                !loginResult.response.ok ||
+                loginResult.data.success !== true
+            ){
+
+                throw new Error(
+                    "Akun berhasil dibuat, tetapi login otomatis gagal. Silakan masuk secara manual."
+                );
+
+            }
+
+
+            loginData =
+                loginResult.data;
+
+
+            token =
+                String(
+                    loginData.token ||
+                    loginData.accessToken ||
+                    loginData.authToken ||
+                    ""
+                ).trim();
+
+
+            if(!token){
+
+                throw new Error(
+                    "Login berhasil tetapi server tidak memberikan token."
+                );
+
+            }
+
+        }
+
+
+        /* =================================================
+           SIMPAN SESSION
+        ================================================= */
+
+        saveSession(
+            {
+
+                ...loginData,
+
+                token:
+                    token
+
+            },
+
+            username
+        );
+
+
+        /* =================================================
+           REMEMBER USER
+        ================================================= */
+
+        localStorage.setItem(
+            "rememberUser",
+            username
+        );
+
+
+        /* =================================================
+           SUCCESS
+        ================================================= */
+
+        showMessage(
+            "✅ Akun berhasil dibuat. Mengalihkan ke akun...",
+            "success"
+        );
+
+
+        registerButton.innerHTML =
+            "✅ BERHASIL";
+
+
+        /* =================================================
+           LANGSUNG HOME
+        ================================================= */
+
+        setTimeout(
+            function(){
+
+                window.location.replace(
+                    "../home/"
+                );
+
+            },
+            500
+        );
+
+
+    }catch(error){
+
+        console.error(
+            "REGISTER/AUTO LOGIN ERROR:",
+            error
+        );
+
+
+        showMessage(
+            "❌ " +
+            (
+                error.message ||
+                "Terjadi kesalahan."
+            ),
+            "error"
+        );
+
+
+        registerButton.disabled =
+            false;
+
+        registerButton.classList.remove(
+            "loading"
+        );
+
+        registerButton.innerHTML =
+            "✨ &nbsp; BUAT AKUN";
+
+    }
+
+}
+
+
+/* =========================================================
+   ENTER KEY
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event){
+
+        if(
+            event.key !==
+            "Enter"
+        ){
+
+            return;
+
+        }
+
+
+        if(
+            document.activeElement &&
+            document.activeElement.tagName ===
+            "SELECT"
+        ){
+
+            return;
+
+        }
+
+
+        event.preventDefault();
+
+        register();
+
+    }
+);
+
+
+/* =========================================================
+   NOMOR REKENING
+========================================================= */
+
+nomorRekeningInput.addEventListener(
+    "input",
+    function(){
+
+        this.value =
+            this.value.replace(
+                /[^0-9]/g,
+                ""
+            );
+
+    }
+);
+
+
+/* =========================================================
+   NOMOR HP
+========================================================= */
+
+nomorHpInput.addEventListener(
+    "input",
+    function(){
+
+        this.value =
+            this.value.replace(
+                /[^0-9+\-\s]/g,
+                ""
+            );
+
+    }
+);
+
+
+/* =========================================================
+   USERNAME
+========================================================= */
+
+usernameInput.addEventListener(
+    "input",
+    function(){
+
+        this.value =
+            this.value.replace(
+                /[^a-zA-Z0-9_.-]/g,
+                ""
+            );
+
+    }
+);
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+console.log(
+    "Daftar + Auto Login siap."
+);
+
+console.log(
+    "API:",
+    API_URL
+);
+
+</script>
+
+</body>
+
+</html>

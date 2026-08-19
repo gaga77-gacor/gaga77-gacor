@@ -1,0 +1,5415 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#070914">
+<title>Admin16 • Control Center</title>
+
+<style>
+:root{
+  --bg:#060812;
+  --bg2:#0a0f1b;
+  --panel:#0e1524;
+  --panel2:#111a2b;
+  --panel3:#172238;
+  --border:rgba(255,255,255,.075);
+  --border2:rgba(255,255,255,.13);
+  --text:#f8fafc;
+  --muted:#8b98ad;
+  --muted2:#5f6c82;
+  --primary:#7c5cff;
+  --primary2:#4f46e5;
+  --cyan:#22d3ee;
+  --green:#22c55e;
+  --red:#ef4444;
+  --yellow:#f59e0b;
+  --shadow:0 25px 80px rgba(0,0,0,.45);
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+html,body{
+  min-height:100%;
+}
+
+body{
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  background:
+    radial-gradient(
+      circle at 10% 0%,
+      rgba(124,92,255,.16),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 100% 10%,
+      rgba(34,211,238,.08),
+      transparent 25%
+    ),
+    var(--bg);
+  color:var(--text);
+}
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+.login-overlay{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      rgba(124,92,255,.22),
+      transparent 35%
+    ),
+    rgba(3,5,11,.97);
+  backdrop-filter:blur(20px);
+}
+
+.login-box{
+  width:100%;
+  max-width:420px;
+  padding:32px;
+  border:1px solid var(--border2);
+  border-radius:25px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(19,27,45,.97),
+      rgba(8,12,22,.98)
+    );
+  box-shadow:var(--shadow);
+}
+
+.login-logo{
+  width:65px;
+  height:65px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:20px;
+  margin-bottom:20px;
+  font-size:30px;
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--cyan)
+    );
+  box-shadow:0 15px 40px rgba(124,92,255,.3);
+}
+
+.login-box h1{
+  font-size:27px;
+  font-weight:900;
+}
+
+.login-box p{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.6;
+  margin:7px 0 24px;
+}
+
+.field{
+  margin-bottom:15px;
+}
+
+.field label{
+  display:block;
+  color:#aeb9ca;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.7px;
+  margin-bottom:7px;
+}
+
+.password-wrap{
+  position:relative;
+}
+
+.field input{
+  width:100%;
+  height:48px;
+  border:1px solid var(--border2);
+  border-radius:12px;
+  background:#080d18;
+  color:white;
+  outline:none;
+  padding:0 45px 0 14px;
+  font-size:13px;
+}
+
+.field input:focus{
+  border-color:rgba(124,92,255,.75);
+  box-shadow:0 0 0 4px rgba(124,92,255,.1);
+}
+
+.password-toggle{
+  position:absolute;
+  right:6px;
+  top:7px;
+  width:36px;
+  height:34px;
+  border:0;
+  background:transparent;
+  color:#748198;
+  cursor:pointer;
+}
+
+.primary-btn{
+  width:100%;
+  height:48px;
+  border:0;
+  border-radius:12px;
+  color:white;
+  font-weight:850;
+  cursor:pointer;
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--primary2)
+    );
+  box-shadow:0 12px 30px rgba(92,80,220,.25);
+}
+
+.primary-btn:disabled{
+  opacity:.6;
+}
+
+.login-error{
+  display:none;
+  margin-top:12px;
+  padding:11px;
+  border-radius:10px;
+  color:#fca5a5;
+  background:rgba(239,68,68,.1);
+  border:1px solid rgba(239,68,68,.2);
+  font-size:12px;
+}
+
+/* =====================================================
+   APP
+===================================================== */
+
+.app{
+  display:flex;
+  min-height:100vh;
+}
+
+.sidebar{
+  position:fixed;
+  inset:0 auto 0 0;
+  z-index:100;
+  width:255px;
+  padding:20px 15px;
+  background:rgba(7,11,21,.92);
+  border-right:1px solid var(--border);
+  backdrop-filter:blur(25px);
+}
+
+.logo{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:7px 9px 25px;
+}
+
+.logo-icon{
+  width:43px;
+  height:43px;
+  border-radius:13px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--cyan)
+    );
+  font-size:21px;
+}
+
+.logo-title{
+  font-weight:900;
+  font-size:16px;
+}
+
+.logo-sub{
+  color:var(--muted2);
+  font-size:9px;
+  margin-top:2px;
+  letter-spacing:1px;
+}
+
+.nav-title{
+  color:#536075;
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:1.5px;
+  padding:12px 12px 8px;
+}
+
+.nav{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.nav button{
+  position:relative;
+  width:100%;
+  height:43px;
+  border:0;
+  border-radius:11px;
+  background:transparent;
+  color:#8793a8;
+  padding:0 12px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  cursor:pointer;
+  text-align:left;
+  font-size:12px;
+  font-weight:700;
+  transition:.2s;
+}
+
+.nav button:hover{
+  color:white;
+  background:rgba(255,255,255,.045);
+}
+
+.nav button.active{
+  color:white;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(124,92,255,.2),
+      rgba(124,92,255,.045)
+    );
+  box-shadow:inset 3px 0 var(--primary);
+}
+
+.nav-icon{
+  width:21px;
+  text-align:center;
+  font-size:17px;
+}
+
+.nav-badge{
+  margin-left:auto;
+  min-width:20px;
+  height:20px;
+  padding:0 6px;
+  border-radius:20px;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:var(--red);
+  color:white;
+  font-size:9px;
+  font-weight:900;
+}
+
+.sidebar-bottom{
+  position:absolute;
+  left:15px;
+  right:15px;
+  bottom:18px;
+}
+
+.connection{
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:rgba(255,255,255,.025);
+}
+
+.connection-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:11px;
+}
+
+.dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#64748b;
+}
+
+.dot.online{
+  background:var(--green);
+  box-shadow:0 0 12px var(--green);
+}
+
+.connection-text{
+  color:var(--muted2);
+  margin-top:5px;
+  font-size:9px;
+}
+
+/* =====================================================
+   MAIN
+===================================================== */
+
+.main{
+  width:calc(100% - 255px);
+  margin-left:255px;
+  min-width:0;
+}
+
+.topbar{
+  height:75px;
+  position:sticky;
+  top:0;
+  z-index:50;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 30px;
+  border-bottom:1px solid var(--border);
+  background:rgba(6,8,18,.75);
+  backdrop-filter:blur(22px);
+}
+
+.page-title{
+  font-size:20px;
+  font-weight:900;
+}
+
+.page-sub{
+  color:var(--muted);
+  font-size:10px;
+  margin-top:3px;
+}
+
+.top-actions{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+
+.icon-btn,
+.small-btn{
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:#101624;
+  color:#cbd5e1;
+  cursor:pointer;
+}
+
+.icon-btn{
+  width:38px;
+  height:38px;
+}
+
+.small-btn{
+  height:34px;
+  padding:0 12px;
+  font-size:10px;
+  font-weight:800;
+}
+
+.icon-btn:hover,
+.small-btn:hover{
+  background:#182033;
+  color:white;
+}
+
+.mobile-menu{
+  display:none;
+}
+
+.admin-chip{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:5px 11px 5px 6px;
+  border:1px solid var(--border);
+  border-radius:30px;
+  background:#101624;
+}
+
+.avatar{
+  width:29px;
+  height:29px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--cyan)
+    );
+  font-size:12px;
+}
+
+.admin-chip span{
+  font-size:11px;
+  font-weight:800;
+}
+
+.content{
+  max-width:1500px;
+  margin:auto;
+  padding:28px 30px 50px;
+}
+
+.section{
+  display:none;
+}
+
+.section.active{
+  display:block;
+}
+
+/* =====================================================
+   STATS
+===================================================== */
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+  margin-bottom:22px;
+}
+
+.stat{
+  position:relative;
+  overflow:hidden;
+  padding:18px;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(17,24,39,.92),
+      rgba(9,13,23,.92)
+    );
+}
+
+.stat-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.stat-label{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:800;
+}
+
+.stat-icon{
+  width:34px;
+  height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+  background:rgba(124,92,255,.12);
+}
+
+.stat-value{
+  margin-top:13px;
+  font-size:23px;
+  font-weight:900;
+}
+
+.stat-desc{
+  color:#647287;
+  font-size:9px;
+  margin-top:4px;
+}
+
+/* =====================================================
+   CARD
+===================================================== */
+
+.card{
+  overflow:hidden;
+  border:1px solid var(--border);
+  border-radius:17px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15,22,36,.95),
+      rgba(8,12,21,.95)
+    );
+}
+
+.card-head{
+  min-height:68px;
+  padding:16px 19px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  border-bottom:1px solid var(--border);
+}
+
+.card-title{
+  font-size:14px;
+  font-weight:850;
+}
+
+.card-sub{
+  color:var(--muted);
+  font-size:10px;
+  margin-top:4px;
+}
+
+.toolbar{
+  padding:13px 19px;
+  display:flex;
+  gap:9px;
+  border-bottom:1px solid var(--border);
+}
+
+.search{
+  flex:1;
+  position:relative;
+}
+
+.search span{
+  position:absolute;
+  left:12px;
+  top:12px;
+  color:#64748b;
+}
+
+.search input,
+.filter select{
+  width:100%;
+  height:43px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  outline:none;
+  background:#090e19;
+  color:white;
+  padding:0 13px;
+  font-size:12px;
+}
+
+.search input{
+  padding-left:35px;
+}
+
+.filter{
+  width:160px;
+}
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.table-wrap{
+  overflow:auto;
+}
+
+table{
+  width:100%;
+  min-width:950px;
+  border-collapse:collapse;
+}
+
+th{
+  padding:12px 19px;
+  text-align:left;
+  background:#0b101c;
+  color:#627086;
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.7px;
+}
+
+td{
+  padding:13px 19px;
+  border-top:1px solid rgba(255,255,255,.045);
+  color:#cbd5e1;
+  font-size:11px;
+}
+
+tbody tr:hover{
+  background:rgba(255,255,255,.015);
+}
+
+.user-name{
+  color:white;
+  font-weight:800;
+}
+
+.trx-id{
+  color:#9588ff;
+  font-family:monospace;
+  font-size:10px;
+}
+
+.amount{
+  color:white;
+  font-weight:850;
+}
+
+.type,
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:5px 8px;
+  border-radius:20px;
+  font-size:9px;
+  font-weight:850;
+}
+
+.type.deposit,
+.badge.success{
+  color:#4ade80;
+  background:rgba(34,197,94,.1);
+}
+
+.type.withdraw,
+.badge.reject{
+  color:#f87171;
+  background:rgba(239,68,68,.1);
+}
+
+.badge.pending{
+  color:#fbbf24;
+  background:rgba(245,158,11,.1);
+}
+
+.action-group{
+  display:flex;
+  gap:5px;
+}
+
+.action-btn{
+  height:31px;
+  min-width:31px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:900;
+}
+
+.action-btn:disabled{
+  opacity:.5;
+}
+
+.confirm{
+  color:#4ade80;
+  background:rgba(34,197,94,.1);
+}
+
+.reject{
+  color:#f87171;
+  background:rgba(239,68,68,.1);
+}
+
+/* =====================================================
+   USERS
+===================================================== */
+
+.user-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(auto-fill,minmax(270px,1fr));
+  gap:12px;
+  padding:17px;
+}
+
+.user-card{
+  padding:15px;
+  border:1px solid var(--border);
+  border-radius:13px;
+  background:rgba(255,255,255,.015);
+}
+
+.user-head{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.user-avatar{
+  width:40px;
+  height:40px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--cyan)
+    );
+  font-weight:900;
+}
+
+.user-info{
+  min-width:0;
+}
+
+.user-info strong{
+  display:block;
+  font-size:13px;
+}
+
+.user-info span{
+  color:var(--muted);
+  font-size:9px;
+}
+
+.user-balance{
+  margin-top:14px;
+  padding-top:12px;
+  border-top:1px solid var(--border);
+}
+
+.user-balance small{
+  color:var(--muted);
+  font-size:9px;
+}
+
+.user-balance strong{
+  display:block;
+  margin-top:3px;
+  font-size:17px;
+}
+
+.user-details{
+  display:grid;
+  gap:5px;
+  margin-top:10px;
+}
+
+.detail{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  font-size:10px;
+}
+
+.detail span:first-child{
+  color:#64748b;
+}
+
+.detail span:last-child{
+  color:#aeb9c9;
+  text-align:right;
+}
+
+
+/* =====================================================
+   USER BALANCE MODAL
+===================================================== */
+.balance-modal{
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(2,5,12,.78);
+  backdrop-filter:blur(12px);
+}
+.balance-modal.show{display:flex;}
+.balance-box{
+  width:100%;
+  max-width:420px;
+  padding:22px;
+  border:1px solid var(--border2);
+  border-radius:18px;
+  background:linear-gradient(145deg,#111a2b,#080d17);
+  box-shadow:var(--shadow);
+}
+.balance-box h3{font-size:17px;font-weight:900;}
+.balance-box p{margin-top:5px;color:var(--muted);font-size:10px;}
+.balance-current{
+  margin:16px 0;
+  padding:13px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:rgba(255,255,255,.025);
+}
+.balance-current small{display:block;color:var(--muted);font-size:9px;}
+.balance-current strong{display:block;margin-top:4px;font-size:19px;}
+.balance-input{
+  width:100%;
+  height:46px;
+  border:1px solid var(--border2);
+  border-radius:11px;
+  outline:none;
+  background:#080d18;
+  color:white;
+  padding:0 13px;
+  font-size:13px;
+}
+.balance-input:focus{border-color:rgba(124,92,255,.7);box-shadow:0 0 0 4px rgba(124,92,255,.1);}
+.balance-actions{display:flex;gap:8px;margin-top:12px;}
+.balance-actions button{flex:1;height:42px;border-radius:10px;cursor:pointer;font-weight:850;}
+.balance-cancel{border:1px solid var(--border);background:#101624;color:#cbd5e1;}
+.balance-submit{border:0;background:linear-gradient(135deg,var(--green),#16a34a);color:white;}
+.balance-submit:disabled{opacity:.6;cursor:not-allowed;}
+.balance-error{display:none;margin-top:10px;color:#fca5a5;font-size:10px;}
+.user-balance-actions{display:flex;gap:7px;margin-top:12px;}
+.user-balance-actions .small-btn{flex:1;height:34px;}
+
+/* =====================================================
+   MODERN LIVE CHAT
+===================================================== */
+
+.chat-layout{
+  height:calc(100vh - 130px);
+  min-height:560px;
+  display:grid;
+  grid-template-columns:340px minmax(0,1fr);
+  overflow:hidden;
+  border:1px solid var(--border);
+  border-radius:20px;
+  background:#080d17;
+  box-shadow:0 20px 70px rgba(0,0,0,.3);
+}
+
+/* LIST */
+
+.chat-users{
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  border-right:1px solid var(--border);
+  background:
+    linear-gradient(
+      180deg,
+      #101827,
+      #090f1a
+    );
+}
+
+.chat-users-head{
+  padding:18px;
+  border-bottom:1px solid var(--border);
+}
+
+.chat-users-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.chat-users-title strong{
+  font-size:17px;
+}
+
+.chat-online{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:#4ade80;
+  font-size:9px;
+  font-weight:900;
+}
+
+.chat-search{
+  position:relative;
+  margin-top:14px;
+}
+
+.chat-search::before{
+  content:"⌕";
+  position:absolute;
+  left:13px;
+  top:10px;
+  color:#65738a;
+  z-index:1;
+}
+
+.chat-search input{
+  width:100%;
+  height:42px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  outline:none;
+  background:#080d17;
+  color:white;
+  padding:0 12px 0 35px;
+  font-size:11px;
+}
+
+.chat-search input:focus{
+  border-color:rgba(124,92,255,.6);
+}
+
+.chat-filter{
+  display:flex;
+  gap:6px;
+  margin-top:9px;
+}
+
+.chat-filter button{
+  flex:1;
+  height:31px;
+  border:1px solid var(--border);
+  border-radius:9px;
+  background:#0b111d;
+  color:#7d899d;
+  cursor:pointer;
+  font-size:9px;
+  font-weight:800;
+}
+
+.chat-filter button.active{
+  color:white;
+  background:rgba(124,92,255,.16);
+  border-color:rgba(124,92,255,.35);
+}
+
+.chat-user-list{
+  flex:1;
+  overflow:auto;
+}
+
+.chat-user{
+  position:relative;
+  display:flex;
+  gap:11px;
+  padding:14px 15px;
+  cursor:pointer;
+  border-bottom:1px solid rgba(255,255,255,.035);
+  transition:.15s;
+}
+
+.chat-user:hover{
+  background:rgba(255,255,255,.035);
+}
+
+.chat-user.active{
+  background:
+    linear-gradient(
+      90deg,
+      rgba(124,92,255,.18),
+      rgba(124,92,255,.035)
+    );
+  box-shadow:inset 3px 0 var(--primary);
+}
+
+.chat-avatar{
+  position:relative;
+  flex:none;
+  width:44px;
+  height:44px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:14px;
+  background:
+    linear-gradient(
+      135deg,
+      #7c5cff,
+      #22d3ee
+    );
+  font-weight:900;
+  font-size:13px;
+}
+
+.chat-online-dot{
+  position:absolute;
+  right:-2px;
+  bottom:-2px;
+  width:11px;
+  height:11px;
+  border:2px solid #101827;
+  border-radius:50%;
+  background:#22c55e;
+}
+
+.chat-user-info{
+  min-width:0;
+  flex:1;
+}
+
+.chat-user-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.chat-user-name{
+  color:#f8fafc;
+  font-size:12px;
+  font-weight:850;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.chat-time{
+  color:#647186;
+  font-size:8px;
+  white-space:nowrap;
+}
+
+.chat-preview{
+  margin-top:6px;
+  color:#738096;
+  font-size:9px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  padding-right:5px;
+}
+
+.chat-count{
+  display:inline-flex;
+  min-width:19px;
+  height:19px;
+  align-items:center;
+  justify-content:center;
+  margin-left:6px;
+  padding:0 5px;
+  border-radius:20px;
+  background:var(--primary);
+  color:white;
+  font-size:8px;
+  font-weight:900;
+}
+
+/* WINDOW */
+
+.chat-window{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  background:
+    radial-gradient(
+      circle at 80% 0%,
+      rgba(124,92,255,.09),
+      transparent 35%
+    ),
+    #090f1a;
+}
+
+.chat-window-head{
+  min-height:72px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 18px;
+  border-bottom:1px solid var(--border);
+  background:rgba(13,19,32,.8);
+  backdrop-filter:blur(15px);
+}
+
+.chat-current{
+  display:flex;
+  align-items:center;
+  gap:11px;
+}
+
+.chat-current-avatar{
+  width:42px;
+  height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:13px;
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--cyan)
+    );
+  font-weight:900;
+}
+
+.chat-current-info strong{
+  display:block;
+  font-size:13px;
+}
+
+.chat-current-info span{
+  display:block;
+  margin-top:4px;
+  color:#5eea8b;
+  font-size:9px;
+}
+
+.chat-head-actions{
+  display:flex;
+  gap:6px;
+}
+
+.chat-body{
+  flex:1;
+  overflow-y:auto;
+  padding:24px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(124,92,255,.025),
+      transparent 50%
+    );
+}
+
+.chat-message-row{
+  display:flex;
+  width:100%;
+}
+
+.chat-message-row.user{
+  justify-content:flex-start;
+}
+
+.chat-message-row.admin{
+  justify-content:flex-end;
+}
+
+.chat-message{
+  max-width:min(70%,520px);
+  padding:11px 13px;
+  border-radius:15px;
+  font-size:11px;
+  line-height:1.55;
+  word-break:break-word;
+}
+
+.chat-message-row.user .chat-message{
+  border-bottom-left-radius:4px;
+  background:#151f31;
+  border:1px solid rgba(255,255,255,.06);
+  color:#dbe4f0;
+}
+
+.chat-message-row.admin .chat-message{
+  border-bottom-right-radius:4px;
+  background:
+    linear-gradient(
+      135deg,
+      #654cf1,
+      #4f46e5
+    );
+  color:white;
+  box-shadow:0 8px 25px rgba(79,70,229,.18);
+}
+
+.chat-meta{
+  margin-top:5px;
+  opacity:.55;
+  font-size:8px;
+  text-align:right;
+}
+
+.chat-compose{
+  padding:12px 15px;
+  border-top:1px solid var(--border);
+  background:#0d1421;
+}
+
+.chat-compose-inner{
+  display:flex;
+  align-items:flex-end;
+  gap:8px;
+  padding:7px;
+  border:1px solid var(--border2);
+  border-radius:15px;
+  background:#080d17;
+}
+
+.chat-compose textarea{
+  flex:1;
+  min-height:39px;
+  max-height:120px;
+  resize:none;
+  border:0;
+  outline:none;
+  background:transparent;
+  color:white;
+  padding:9px 8px;
+  font-family:inherit;
+  font-size:11px;
+}
+
+.chat-send{
+  width:41px;
+  height:41px;
+  flex:none;
+  border:0;
+  border-radius:12px;
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--primary2)
+    );
+  color:white;
+  cursor:pointer;
+  font-size:16px;
+}
+
+.chat-send:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
+
+.chat-hint{
+  color:#536075;
+  font-size:8px;
+  margin:6px 5px 0;
+}
+
+/* =====================================================
+   EMPTY / TOAST
+===================================================== */
+
+.empty{
+  padding:45px 20px;
+  text-align:center;
+  color:#64748b;
+}
+
+.empty-icon{
+  font-size:29px;
+  margin-bottom:8px;
+}
+
+.empty-title{
+  color:#94a3b8;
+  font-size:12px;
+  font-weight:800;
+}
+
+.empty-sub{
+  margin-top:4px;
+  font-size:9px;
+}
+
+.chat-empty{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:#526076;
+}
+
+.chat-empty-icon{
+  width:65px;
+  height:65px;
+  margin:0 auto 13px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:20px;
+  background:rgba(124,92,255,.08);
+  font-size:27px;
+}
+
+.chat-empty strong{
+  display:block;
+  color:#8390a5;
+  font-size:13px;
+}
+
+.chat-empty span{
+  display:block;
+  margin-top:5px;
+  font-size:10px;
+}
+
+.toast-container{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  z-index:10000;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.toast{
+  min-width:260px;
+  max-width:360px;
+  padding:12px 14px;
+  border:1px solid var(--border);
+  border-radius:11px;
+  background:#111827;
+  box-shadow:var(--shadow);
+  font-size:11px;
+}
+
+.toast.success{
+  border-color:rgba(34,197,94,.25);
+}
+
+.toast.error{
+  border-color:rgba(239,68,68,.25);
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:1000px){
+
+  .sidebar{
+    transform:translateX(-100%);
+    transition:.25s;
+  }
+
+  .sidebar.open{
+    transform:none;
+  }
+
+  .main{
+    width:100%;
+    margin-left:0;
+  }
+
+  .mobile-menu{
+    display:inline-block;
+    margin-right:8px;
+  }
+
+  .stats{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .chat-layout{
+    grid-template-columns:290px minmax(0,1fr);
+  }
+}
+
+@media(max-width:700px){
+
+  .content{
+    padding:18px 12px 35px;
+  }
+
+  .topbar{
+    padding:0 12px;
+  }
+
+  .admin-chip span{
+    display:none;
+  }
+
+  .chat-layout{
+    height:calc(100vh - 112px);
+    min-height:500px;
+    grid-template-columns:1fr;
+  }
+
+  .chat-users{
+    display:none;
+  }
+
+  .chat-layout.mobile-users .chat-users{
+    display:flex;
+  }
+
+  .chat-layout.mobile-users .chat-window{
+    display:none;
+  }
+
+  .chat-message{
+    max-width:85%;
+  }
+}
+
+@media(max-width:500px){
+
+  .stats{
+    gap:8px;
+  }
+
+  .stat{
+    padding:13px;
+  }
+
+  .stat-value{
+    font-size:17px;
+  }
+
+  .toolbar{
+    flex-direction:column;
+  }
+
+  .filter{
+    width:100%;
+  }
+
+  .chat-body{
+    padding:15px;
+  }
+}
+/* =====================================================
+   CHAT LIST REDESIGN — MODERN MESSENGER STYLE
+===================================================== */
+.chat-layout{
+  grid-template-columns:360px minmax(0,1fr);
+  border-radius:18px;
+  background:#080c15;
+}
+.chat-users{
+  background:#0b101b;
+  border-right:1px solid rgba(255,255,255,.08);
+}
+.chat-users-head{
+  padding:16px 15px 12px;
+  background:#0d1320;
+}
+.chat-users-title strong{
+  font-size:19px;
+  letter-spacing:-.3px;
+}
+.chat-online{
+  padding:6px 9px;
+  border-radius:20px;
+  background:rgba(34,197,94,.08);
+  border:1px solid rgba(34,197,94,.14);
+}
+.chat-search input{
+  height:44px;
+  border-radius:13px;
+  background:#080d17;
+}
+.chat-filter{
+  gap:7px;
+  margin-top:10px;
+}
+.chat-filter button{
+  height:34px;
+  border-radius:10px;
+  background:#101827;
+}
+.chat-user-list{
+  padding:5px 0 10px;
+}
+.chat-user{
+  min-height:72px;
+  gap:12px;
+  padding:12px 14px;
+  border-bottom:0;
+  border-left:3px solid transparent;
+}
+.chat-user:hover{
+  background:rgba(255,255,255,.035);
+}
+.chat-user.active{
+  background:linear-gradient(90deg,rgba(124,92,255,.18),rgba(124,92,255,.055));
+  box-shadow:none;
+  border-left-color:var(--primary);
+}
+.chat-avatar{
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  background:linear-gradient(145deg,#273553,#172237);
+  color:#dfe7f5;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
+}
+.chat-online-dot{
+  width:10px;
+  height:10px;
+  right:0;
+  bottom:1px;
+  border:2px solid #0b101b;
+}
+.chat-user-name{
+  font-size:12px;
+}
+.chat-time{
+  font-size:8px;
+}
+.chat-preview{
+  margin-top:5px;
+  font-size:10px;
+  color:#78859b;
+  padding-right:0;
+}
+.chat-count{
+  min-width:20px;
+  height:20px;
+  background:var(--primary);
+  box-shadow:0 4px 12px rgba(124,92,255,.22);
+}
+.chat-window{
+  background:#080d17;
+}
+.chat-window-head{
+  min-height:74px;
+  padding:12px 18px;
+  background:#0d1320;
+}
+.chat-current-avatar{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:linear-gradient(145deg,#273553,#172237);
+}
+.chat-body{
+  padding:22px 6%;
+}
+.chat-compose{
+  background:#0d1320;
+  padding:11px 15px 13px;
+}
+.chat-compose-inner{
+  border-radius:14px;
+}
+@media(max-width:760px){
+  .chat-layout{grid-template-columns:1fr;border-radius:0;}
+  .chat-users-head{padding-top:14px;}
+  .chat-user{min-height:70px;padding:11px 13px;}
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     LOGIN
+===================================================== -->
+
+<div class="login-overlay" id="loginOverlay">
+
+  <div class="login-box">
+
+    <div class="login-logo">🛡️</div>
+
+    <h1>Admin16</h1>
+
+    <p>
+      Control Center untuk mengelola pengguna,
+      transaksi, dan Live Chat.
+    </p>
+
+    <div class="field">
+
+      <label>ADMIN KEY</label>
+
+      <div class="password-wrap">
+
+        <input
+          id="loginKey"
+          type="password"
+          placeholder="Masukkan Admin Key"
+          autocomplete="off"
+        >
+
+        <button
+          class="password-toggle"
+          onclick="togglePassword()"
+          type="button"
+        >👁</button>
+
+      </div>
+
+    </div>
+
+    <button
+      class="primary-btn"
+      id="loginButton"
+      onclick="loginAdmin()"
+    >
+      Masuk ke Dashboard
+    </button>
+
+    <div
+      class="login-error"
+      id="loginError"
+    ></div>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     APP
+===================================================== -->
+
+<div class="app">
+
+  <aside class="sidebar" id="sidebar">
+
+    <div class="logo">
+
+      <div class="logo-icon">🎮</div>
+
+      <div>
+        <div class="logo-title">
+          Game Admin
+        </div>
+
+        <div class="logo-sub">
+          ADMIN16 CONTROL CENTER
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="nav-title">
+      MENU UTAMA
+    </div>
+
+    <div class="nav">
+
+      <button
+        class="active"
+        onclick="showSection('dashboard',this)"
+      >
+        <span class="nav-icon">▦</span>
+        Dashboard
+      </button>
+
+      <button
+        onclick="showSection('transactions',this)"
+      >
+        <span class="nav-icon">↕</span>
+        Transaksi
+      </button>
+
+      <button
+        onclick="showSection('users',this)"
+      >
+        <span class="nav-icon">♙</span>
+        Pengguna
+      </button>
+
+      <button
+        onclick="showSection('chat',this)"
+        id="chatNavButton"
+      >
+        <span class="nav-icon">◉</span>
+        Live Chat
+
+        <span
+          class="nav-badge"
+          id="chatNavBadge"
+        >0</span>
+
+      </button>
+
+    </div>
+
+
+    <div class="nav-title">
+      SISTEM
+    </div>
+
+    <div class="nav">
+
+      <button onclick="refreshAll()">
+        <span class="nav-icon">↻</span>
+        Refresh Data
+      </button>
+
+      <button onclick="logoutAdmin()">
+        <span class="nav-icon">⇥</span>
+        Keluar
+      </button>
+
+    </div>
+
+
+    <div class="sidebar-bottom">
+
+      <div class="connection">
+
+        <div class="connection-row">
+
+          <span
+            class="dot"
+            id="connectionDot"
+          ></span>
+
+          <strong id="connectionStatus">
+            Offline
+          </strong>
+
+        </div>
+
+        <div class="connection-text">
+          Game Login API
+        </div>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+
+  <main class="main">
+
+    <header class="topbar">
+
+      <div>
+
+        <button
+          class="icon-btn mobile-menu"
+          onclick="toggleSidebar()"
+        >☰</button>
+
+        <span
+          class="page-title"
+          id="pageTitle"
+        >
+          Dashboard
+        </span>
+
+        <div class="page-sub">
+          Monitoring dan manajemen sistem
+        </div>
+
+      </div>
+
+
+      <div class="top-actions">
+
+        <button
+          class="icon-btn"
+          onclick="refreshAll()"
+          title="Refresh"
+        >↻</button>
+
+        <div class="admin-chip">
+
+          <div class="avatar">A</div>
+
+          <span>Administrator</span>
+
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <div class="content">
+
+      <!-- =================================================
+           DASHBOARD
+      ================================================= -->
+
+      <section
+        class="section active"
+        id="section-dashboard"
+      >
+
+        <div class="stats">
+
+          <div class="stat">
+
+            <div class="stat-top">
+
+              <div class="stat-label">
+                TOTAL USER
+              </div>
+
+              <div class="stat-icon">
+                👥
+              </div>
+
+            </div>
+
+            <div
+              class="stat-value"
+              id="statUsers"
+            >0</div>
+
+            <div class="stat-desc">
+              Akun terdaftar
+            </div>
+
+          </div>
+
+
+          <div class="stat">
+
+            <div class="stat-top">
+
+              <div class="stat-label">
+                TOTAL SALDO
+              </div>
+
+              <div class="stat-icon">
+                💰
+              </div>
+
+            </div>
+
+            <div
+              class="stat-value"
+              id="statBalance"
+            >Rp 0</div>
+
+            <div class="stat-desc">
+              Saldo seluruh user
+            </div>
+
+          </div>
+
+
+          <div class="stat">
+
+            <div class="stat-top">
+
+              <div class="stat-label">
+                DEPOSIT PENDING
+              </div>
+
+              <div class="stat-icon">
+                📥
+              </div>
+
+            </div>
+
+            <div
+              class="stat-value"
+              id="statDeposit"
+            >0</div>
+
+            <div class="stat-desc">
+              Menunggu konfirmasi
+            </div>
+
+          </div>
+
+
+          <div class="stat">
+
+            <div class="stat-top">
+
+              <div class="stat-label">
+                CHAT AKTIF
+              </div>
+
+              <div class="stat-icon">
+                💬
+              </div>
+
+            </div>
+
+            <div
+              class="stat-value"
+              id="statChat"
+            >0</div>
+
+            <div class="stat-desc">
+              Percakapan tersedia
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="card-head">
+
+            <div>
+
+              <div class="card-title">
+                Transaksi Terbaru
+              </div>
+
+              <div class="card-sub">
+                Aktivitas transaksi terakhir
+              </div>
+
+            </div>
+
+            <button
+              class="small-btn"
+              onclick="showSectionById('transactions')"
+            >
+              Lihat Semua
+            </button>
+
+          </div>
+
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+
+                <tr>
+                  <th>Transaksi</th>
+                  <th>User</th>
+                  <th>Jenis</th>
+                  <th>Nominal</th>
+                  <th>Status</th>
+                  <th>Tanggal</th>
+                </tr>
+
+              </thead>
+
+              <tbody id="recentBody"></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           TRANSACTIONS
+      ================================================= -->
+
+      <section
+        class="section"
+        id="section-transactions"
+      >
+
+        <div class="card">
+
+          <div class="card-head">
+
+            <div>
+
+              <div class="card-title">
+                Semua Transaksi
+              </div>
+
+              <div class="card-sub">
+                Kelola deposit dan withdraw
+              </div>
+
+            </div>
+
+            <button
+              class="small-btn"
+              onclick="loadTransactions()"
+            >
+              ↻ Refresh
+            </button>
+
+          </div>
+
+
+          <div class="toolbar">
+
+            <div class="search">
+
+              <span>⌕</span>
+
+              <input
+                id="transactionSearch"
+                placeholder="Cari ID atau username..."
+                oninput="filterTransactions()"
+              >
+
+            </div>
+
+
+            <div class="filter">
+
+              <select
+                id="statusFilter"
+                onchange="loadTransactions()"
+              >
+
+                <option value="">
+                  Semua Status
+                </option>
+
+                <option value="Pending">
+                  Pending
+                </option>
+
+                <option value="Success">
+                  Success
+                </option>
+
+                <option value="Reject">
+                  Reject
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+
+                <tr>
+                  <th>Transaksi</th>
+                  <th>User</th>
+                  <th>Jenis</th>
+                  <th>Nominal</th>
+                  <th>Metode</th>
+                  <th>Rekening</th>
+                  <th>Status</th>
+                  <th>Tanggal</th>
+                  <th>Aksi</th>
+                </tr>
+
+              </thead>
+
+              <tbody
+                id="transactionBody"
+              ></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           USERS
+      ================================================= -->
+
+      <section
+        class="section"
+        id="section-users"
+      >
+
+        <div class="card">
+
+          <div class="card-head">
+
+            <div>
+
+              <div class="card-title">
+                Pengguna
+              </div>
+
+              <div class="card-sub">
+                Semua akun yang terdaftar
+              </div>
+
+            </div>
+
+            <button
+              class="small-btn"
+              onclick="loadUsers()"
+            >
+              ↻ Refresh
+            </button>
+
+          </div>
+
+
+          <div class="toolbar">
+
+            <div class="search">
+
+              <span>⌕</span>
+
+              <input
+                id="userSearch"
+                placeholder="Cari username, bank, rekening..."
+                oninput="filterUsers()"
+              >
+
+            </div>
+
+          </div>
+
+
+          <div
+            class="user-grid"
+            id="userGrid"
+          ></div>
+
+        </div>
+
+      </section>
+
+
+
+
+      <!-- =================================================
+           USER BALANCE MODAL
+      ================================================= -->
+      <div class="balance-modal" id="balanceModal" onclick="if(event.target===this)closeBalanceModal()">
+        <div class="balance-box">
+          <h3>Tambah Saldo User</h3>
+          <p id="balanceUserLabel">User</p>
+          <div class="balance-current">
+            <small>SALDO SAAT INI</small>
+            <strong id="balanceCurrent">Rp 0</strong>
+          </div>
+          <input
+            id="balanceAmount"
+            class="balance-input"
+            type="number"
+            min="1"
+            step="1"
+            inputmode="numeric"
+            placeholder="Masukkan nominal, contoh 100000"
+          >
+          <div class="balance-error" id="balanceError"></div>
+          <div class="balance-actions">
+            <button class="balance-cancel" type="button" onclick="closeBalanceModal()">Batal</button>
+            <button class="balance-submit" id="balanceSubmit" type="button" onclick="submitBalanceTopUp()">+ Tambah Saldo</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================================================
+           LIVE CHAT
+      ================================================= -->
+
+      <section
+        class="section"
+        id="section-chat"
+      >
+
+        <div
+          class="chat-layout"
+          id="chatLayout"
+        >
+
+          <!-- USER LIST -->
+
+          <aside class="chat-users">
+
+            <div class="chat-users-head">
+
+              <div class="chat-users-title">
+
+                <strong>
+                  Pesan
+                </strong>
+
+                <div class="chat-online">
+
+                  <span
+                    class="dot online"
+                    style="width:6px;height:6px"
+                  ></span>
+
+                  LIVE
+
+                </div>
+
+              </div>
+
+
+              <div class="chat-search">
+
+                <input
+                  id="chatUserSearch"
+                  placeholder="Cari percakapan..."
+                  oninput="filterChatUsers()"
+                >
+
+              </div>
+
+
+              <div class="chat-filter">
+
+                <button
+                  class="active"
+                  id="chatFilterAll"
+                  onclick="setChatFilter('all',this)"
+                >
+                  Semua
+                </button>
+
+                <button
+                  id="chatFilterUnread"
+                  onclick="setChatFilter('unread',this)"
+                >
+                  Belum Dibaca
+                </button>
+
+              </div>
+
+            </div>
+
+
+            <div
+              class="chat-user-list"
+              id="chatUserList"
+            >
+
+              <div class="empty">
+
+                <div class="empty-icon">
+                  💬
+                </div>
+
+                <div class="empty-title">
+                  Memuat chat...
+                </div>
+
+              </div>
+
+            </div>
+
+          </aside>
+
+
+          <!-- CHAT WINDOW -->
+
+          <div class="chat-window">
+
+            <div class="chat-window-head">
+
+              <div class="chat-current">
+
+                <button
+                  class="icon-btn"
+                  onclick="showChatUsersMobile()"
+                  style="display:none"
+                  id="chatBackButton"
+                >
+                  ←
+                </button>
+
+                <div
+                  class="chat-current-avatar"
+                  id="chatCurrentAvatar"
+                >
+                  ?
+                </div>
+
+                <div class="chat-current-info">
+
+                  <strong
+                    id="chatCurrentName"
+                  >
+                    Pilih pengguna
+                  </strong>
+
+                  <span
+                    id="chatCurrentStatus"
+                  >
+                    Pilih percakapan untuk mulai
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              <div class="chat-head-actions">
+
+                <button
+                  class="small-btn"
+                  onclick="loadChatUsers()"
+                >
+                  ↻
+                </button>
+
+              </div>
+
+            </div>
+
+
+            <div
+              class="chat-body"
+              id="chatBody"
+            >
+
+              <div class="chat-empty">
+
+                <div>
+
+                  <div class="chat-empty-icon">
+                    💬
+                  </div>
+
+                  <strong>
+                    Live Chat Admin
+                  </strong>
+
+                  <span>
+                    Pilih pengguna di sebelah kiri
+                    untuk melihat percakapan.
+                  </span>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div class="chat-compose">
+
+              <div class="chat-compose-inner">
+
+                <textarea
+                  id="chatInput"
+                  placeholder="Tulis balasan..."
+                  maxlength="1000"
+                  disabled
+                ></textarea>
+
+                <button
+                  class="chat-send"
+                  id="chatSendButton"
+                  onclick="sendAdminMessage()"
+                  disabled
+                >
+                  ➤
+                </button>
+
+              </div>
+
+              <div class="chat-hint">
+                Enter untuk kirim • Shift + Enter untuk baris baru
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+</div>
+
+
+<div
+  class="toast-container"
+  id="toastContainer"
+></div>
+
+
+<script>
+
+/* =====================================================
+   CONFIG
+===================================================== */
+
+const API_URL =
+  "https://game-login-api.orkutstok64.workers.dev";
+
+let transactions = [];
+let users = [];
+
+let chatUsers = [];
+let selectedChatUser = null;
+let selectedChatUserId = null;
+let chatMessages = [];
+
+let chatPolling = null;
+let chatUserPolling = null;
+
+let currentChatFilter = "all";
+let chatMessageRequestId = 0;
+let chatUsersRequestBusy = false;
+let chatMessagesRequestBusy = false;
+
+
+/* =====================================================
+   ADMIN KEY
+===================================================== */
+
+function getAdminKey(){
+
+  return localStorage.getItem(
+    "ADMIN16_ADMIN_KEY"
+  ) || "";
+
+}
+
+function setAdminKey(key){
+
+  localStorage.setItem(
+    "ADMIN16_ADMIN_KEY",
+    key
+  );
+
+}
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+async function loginAdmin(){
+
+  const input =
+    document.getElementById("loginKey");
+
+  const button =
+    document.getElementById("loginButton");
+
+  const error =
+    document.getElementById("loginError");
+
+  const key =
+    input.value.trim();
+
+  if(!key){
+
+    showLoginError(
+      "Admin Key wajib diisi."
+    );
+
+    return;
+
+  }
+
+  button.disabled = true;
+  button.textContent =
+    "Menghubungkan...";
+
+  error.style.display =
+    "none";
+
+  try{
+
+    const response =
+      await fetch(
+        API_URL + "/admin/users",
+        {
+          method:"GET",
+          headers:{
+            "X-Admin-Key":key
+          },
+          cache:"no-store"
+        }
+      );
+
+    const data =
+      await response
+        .json()
+        .catch(() => ({}));
+
+    if(!response.ok){
+
+      showLoginError(
+        data.message ||
+        "Admin tidak diizinkan."
+      );
+
+      return;
+
+    }
+
+    setAdminKey(key);
+
+    document
+      .getElementById(
+        "loginOverlay"
+      )
+      .style.display =
+      "none";
+
+    setConnection(true);
+
+    users =
+      Array.isArray(data.users)
+        ? data.users
+        : [];
+
+    renderUsers();
+
+    await loadTransactions();
+    await loadChatUsers(false);
+
+    updateStats();
+
+    startPolling();
+
+    showToast(
+      "Login admin berhasil.",
+      "success"
+    );
+
+  }catch(error){
+
+    console.error(
+      "loginAdmin:",
+      error
+    );
+
+    showLoginError(
+      "Gagal terhubung ke API."
+    );
+
+  }finally{
+
+    button.disabled = false;
+
+    button.textContent =
+      "Masuk ke Dashboard";
+
+  }
+
+}
+
+
+function showLoginError(message){
+
+  const error =
+    document.getElementById(
+      "loginError"
+    );
+
+  error.textContent =
+    message;
+
+  error.style.display =
+    "block";
+
+}
+
+
+function togglePassword(){
+
+  const input =
+    document.getElementById(
+      "loginKey"
+    );
+
+  input.type =
+    input.type === "password"
+      ? "text"
+      : "password";
+
+}
+
+
+/* =====================================================
+   HEADERS
+===================================================== */
+
+function adminHeaders(){
+
+  return {
+    "Content-Type":"application/json",
+    "X-Admin-Key":getAdminKey()
+  };
+
+}
+
+
+/* =====================================================
+   USERS
+===================================================== */
+
+async function loadUsers(){
+
+  if(!getAdminKey())
+    return;
+
+  try{
+
+    const response =
+      await fetch(
+        API_URL + "/admin/users",
+        {
+          method:"GET",
+          headers:adminHeaders(),
+          cache:"no-store"
+        }
+      );
+
+    const data =
+      await response
+        .json()
+        .catch(() => ({}));
+
+    if(!response.ok){
+
+      if(response.status === 401){
+
+        forceLogout(
+          "Admin Key tidak valid."
+        );
+
+        return;
+
+      }
+
+      throw new Error(
+        data.message ||
+        "Gagal mengambil user."
+      );
+
+    }
+
+    users =
+      Array.isArray(data.users)
+        ? data.users
+        : [];
+
+    renderUsers();
+    updateStats();
+
+    setConnection(true);
+
+  }catch(error){
+
+    console.error(
+      "loadUsers:",
+      error
+    );
+
+    showToast(
+      error.message ||
+      "Gagal mengambil data user.",
+      "error"
+    );
+
+  }
+
+}
+
+
+function renderUsers(){
+
+  const grid =
+    document.getElementById(
+      "userGrid"
+    );
+
+  if(!grid)
+    return;
+
+  const search =
+    (
+      document.getElementById(
+        "userSearch"
+      )?.value || ""
+    )
+      .toLowerCase()
+      .trim();
+
+  const list =
+    users.filter(user => {
+
+      const text = [
+        user.username,
+        user.bank,
+        user.namaRekening,
+        user.nomorRekening,
+        user.nomorHp
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return text.includes(search);
+
+    });
+
+
+  if(!list.length){
+
+    grid.innerHTML =
+      emptyHtml(
+        "👤",
+        "Tidak ada pengguna",
+        "Belum ada data yang cocok."
+      );
+
+    return;
+
+  }
+
+
+  grid.innerHTML =
+    list.map(user => `
+
+      <div class="user-card">
+
+        <div class="user-head">
+
+          <div class="user-avatar">
+            ${initial(user.username)}
+          </div>
+
+          <div class="user-info">
+
+            <strong>
+              ${escapeHtml(user.username)}
+            </strong>
+
+            <span>
+              ID #${escapeHtml(user.id)}
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <div class="user-balance">
+
+          <small>SALDO</small>
+
+          <strong>
+            ${formatRupiah(user.saldo)}
+          </strong>
+
+        </div>
+
+        <div class="user-balance-actions">
+          <button
+            class="small-btn"
+            type="button"
+            onclick='openBalanceModalById(${Number(user.id)})'
+          >
+            + Tambah Saldo
+          </button>
+        </div>
+
+
+        <div class="user-details">
+
+          <div class="detail">
+            <span>Bank</span>
+            <span>
+              ${escapeHtml(user.bank || "-")}
+            </span>
+          </div>
+
+          <div class="detail">
+            <span>Nama Rekening</span>
+            <span>
+              ${escapeHtml(user.namaRekening || "-")}
+            </span>
+          </div>
+
+          <div class="detail">
+            <span>No. Rekening</span>
+            <span>
+              ${escapeHtml(user.nomorRekening || "-")}
+            </span>
+          </div>
+
+          <div class="detail">
+            <span>No. HP</span>
+            <span>
+              ${escapeHtml(user.nomorHp || "-")}
+            </span>
+          </div>
+
+        </div>
+
+      </div>
+
+    `).join("");
+
+}
+
+
+function filterUsers(){
+
+  renderUsers();
+
+}
+
+
+/* =====================================================
+   USER BALANCE
+===================================================== */
+let selectedBalanceUser = null;
+
+function openBalanceModalById(userId){
+  const user = users.find(
+    item => Number(item.id) === Number(userId)
+  );
+
+  if(!user){
+    showToast("User tidak ditemukan.","error");
+    return;
+  }
+
+  openBalanceModal({
+    id:user.id,
+    username:user.username,
+    saldo:Number(user.saldo)||0
+  });
+}
+
+function openBalanceModal(user){
+  selectedBalanceUser = user || null;
+
+  const modal = document.getElementById("balanceModal");
+  const amount = document.getElementById("balanceAmount");
+  const error = document.getElementById("balanceError");
+  const submit = document.getElementById("balanceSubmit");
+
+  if(!modal || !selectedBalanceUser) return;
+
+  document.getElementById("balanceUserLabel").textContent =
+    "Username: " + String(selectedBalanceUser.username || "-");
+
+  document.getElementById("balanceCurrent").textContent =
+    formatRupiah(selectedBalanceUser.saldo || 0);
+
+  amount.value = "";
+  error.textContent = "";
+  error.style.display = "none";
+  submit.disabled = false;
+  modal.classList.add("show");
+
+  setTimeout(() => amount.focus(), 50);
+}
+
+function closeBalanceModal(){
+  const modal = document.getElementById("balanceModal");
+  if(modal) modal.classList.remove("show");
+  selectedBalanceUser = null;
+}
+
+async function submitBalanceTopUp(){
+  if(!selectedBalanceUser) return;
+
+  const amountInput = document.getElementById("balanceAmount");
+  const error = document.getElementById("balanceError");
+  const submit = document.getElementById("balanceSubmit");
+  const amount = Math.floor(Number(amountInput.value));
+
+  error.style.display = "none";
+
+  if(!Number.isSafeInteger(amount) || amount <= 0){
+    error.textContent = "Nominal harus lebih dari Rp 0.";
+    error.style.display = "block";
+    return;
+  }
+
+  submit.disabled = true;
+  submit.textContent = "Memproses...";
+
+  try{
+    const response = await fetch(
+      API_URL + "/admin/users/balance",
+      {
+        method:"POST",
+        headers:adminHeaders(),
+        body:JSON.stringify({
+          userId:selectedBalanceUser.id,
+          amount:amount,
+          mode:"add"
+        })
+      }
+    );
+
+    const data = await response.json().catch(() => ({}));
+
+    if(!response.ok){
+      if(response.status === 401){
+        forceLogout("Admin Key tidak valid.");
+        return;
+      }
+      throw new Error(data.message || "Gagal menambah saldo.");
+    }
+
+    showToast(
+      data.message || "Saldo berhasil ditambahkan.",
+      "success"
+    );
+
+    closeBalanceModal();
+    await loadUsers();
+    await loadTransactions();
+
+  }catch(error){
+    console.error("submitBalanceTopUp:",error);
+    const message = error?.message || "Gagal menambah saldo.";
+    document.getElementById("balanceError").textContent = message;
+    document.getElementById("balanceError").style.display = "block";
+  }finally{
+    submit.disabled = false;
+    submit.textContent = "+ Tambah Saldo";
+  }
+}
+
+
+/* =====================================================
+   TRANSACTIONS
+===================================================== */
+
+async function loadTransactions(){
+
+  if(!getAdminKey())
+    return;
+
+  const status =
+    document.getElementById(
+      "statusFilter"
+    )?.value || "";
+
+  let url =
+    API_URL +
+    "/admin/transactions";
+
+  if(status){
+
+    url +=
+      "?status=" +
+      encodeURIComponent(status);
+
+  }
+
+  try{
+
+    const response =
+      await fetch(
+        url,
+        {
+          method:"GET",
+          headers:adminHeaders(),
+          cache:"no-store"
+        }
+      );
+
+    const data =
+      await response
+        .json()
+        .catch(() => ({}));
+
+    if(!response.ok){
+
+      if(response.status === 401){
+
+        forceLogout(
+          "Admin Key tidak valid."
+        );
+
+        return;
+
+      }
+
+      throw new Error(
+        data.message ||
+        "Gagal mengambil transaksi."
+      );
+
+    }
+
+    transactions =
+      Array.isArray(data.transactions)
+        ? data.transactions
+        : [];
+
+    renderTransactions();
+    renderRecent();
+    updateStats();
+
+    setConnection(true);
+
+  }catch(error){
+
+    console.error(
+      "loadTransactions:",
+      error
+    );
+
+    showToast(
+      error.message ||
+      "Gagal mengambil transaksi.",
+      "error"
+    );
+
+  }
+
+}
+
+
+function renderTransactions(){
+
+  const tbody =
+    document.getElementById(
+      "transactionBody"
+    );
+
+  if(!tbody)
+    return;
+
+  const search =
+    (
+      document.getElementById(
+        "transactionSearch"
+      )?.value || ""
+    )
+      .toLowerCase()
+      .trim();
+
+  const list =
+    transactions.filter(trx => {
+
+      const text = [
+        trx.id,
+        trx.username,
+        trx.type,
+        trx.bank,
+        trx.accountName,
+        trx.accountNumber,
+        trx.phone
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return text.includes(search);
+
+    });
+
+
+  if(!list.length){
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="9">
+          ${emptyInline("Tidak ada transaksi")}
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+
+  tbody.innerHTML =
+    list.map(trx => {
+
+      const pending =
+        trx.status === "Pending";
+
+      return `
+
+        <tr>
+
+          <td>
+            <span class="trx-id">
+              ${escapeHtml(trx.id)}
+            </span>
+          </td>
+
+          <td>
+            <span class="user-name">
+              ${escapeHtml(trx.username || "-")}
+            </span>
+          </td>
+
+          <td>
+
+            <span class="type ${
+              trx.type === "DEPOSIT"
+                ? "deposit"
+                : "withdraw"
+            }">
+
+              ${escapeHtml(trx.type || "-")}
+
+            </span>
+
+          </td>
+
+          <td>
+            <span class="amount">
+              ${formatRupiah(trx.amount)}
+            </span>
+          </td>
+
+          <td>
+            ${escapeHtml(trx.method || "-")}
+          </td>
+
+          <td>
+
+            ${
+              trx.type === "WITHDRAW"
+              ? `
+
+                <strong>
+                  ${escapeHtml(
+                    trx.accountName || "-"
+                  )}
+                </strong>
+
+                <div style="
+                  color:#64748b;
+                  font-size:9px;
+                  margin-top:3px
+                ">
+
+                  ${escapeHtml(
+                    trx.bank || "-"
+                  )}
+
+                  •
+
+                  ${escapeHtml(
+                    trx.accountNumber || "-"
+                  )}
+
+                </div>
+
+              `
+              : "-"
+            }
+
+          </td>
+
+          <td>
+            ${statusBadge(trx.status)}
+          </td>
+
+          <td>
+            ${formatDate(trx.createdAt)}
+          </td>
+
+          <td>
+
+            ${
+              pending
+              ? `
+
+                <div class="action-group">
+
+                  <button
+                    class="action-btn confirm"
+                    onclick="executeAction(
+                      '${escapeJs(trx.id)}',
+                      'confirm',
+                      this
+                    )"
+                  >
+                    ✓
+                  </button>
+
+                  <button
+                    class="action-btn reject"
+                    onclick="executeAction(
+                      '${escapeJs(trx.id)}',
+                      'reject',
+                      this
+                    )"
+                  >
+                    ✕
+                  </button>
+
+                </div>
+
+              `
+              : `
+                <span style="
+                  color:#475569;
+                  font-size:9px
+                ">
+                  Selesai
+                </span>
+              `
+            }
+
+          </td>
+
+        </tr>
+
+      `;
+
+    }).join("");
+
+}
+
+
+function filterTransactions(){
+
+  renderTransactions();
+
+}
+
+
+async function executeAction(
+  id,
+  action,
+  clickedButton
+){
+
+  const row =
+    clickedButton?.closest("tr");
+
+  const buttons =
+    row
+      ? row.querySelectorAll(
+          ".action-btn"
+        )
+      : [];
+
+  buttons.forEach(
+    button =>
+      button.disabled = true
+  );
+
+  if(clickedButton)
+    clickedButton.textContent = "…";
+
+
+  try{
+
+    const response =
+      await fetch(
+        API_URL +
+        "/admin/transaction/action",
+        {
+          method:"POST",
+          headers:adminHeaders(),
+          body:JSON.stringify({
+            id,
+            action
+          })
+        }
+      );
+
+    const data =
+      await response
+        .json()
+        .catch(() => ({}));
+
+    if(!response.ok){
+
+      throw new Error(
+        data.message ||
+        "Gagal memproses transaksi."
+      );
+
+    }
+
+    showToast(
+      data.message ||
+      "Transaksi berhasil diproses.",
+      "success"
+    );
+
+    await loadTransactions();
+    await loadUsers();
+
+  }catch(error){
+
+    console.error(
+      "executeAction:",
+      error
+    );
+
+    showToast(
+      error.message ||
+      "Terjadi kesalahan.",
+      "error"
+    );
+
+    buttons.forEach(
+      button =>
+        button.disabled = false
+    );
+
+    if(clickedButton){
+
+      clickedButton.textContent =
+        action === "confirm"
+          ? "✓"
+          : "✕";
+
+    }
+
+  }
+
+}
+
+
+/* =====================================================
+   RECENT
+===================================================== */
+
+function renderRecent(){
+
+  const tbody =
+    document.getElementById(
+      "recentBody"
+    );
+
+  if(!tbody)
+    return;
+
+  const list =
+    transactions.slice(0,8);
+
+  if(!list.length){
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6">
+          ${emptyInline(
+            "Belum ada transaksi"
+          )}
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+  tbody.innerHTML =
+    list.map(trx => `
+
+      <tr>
+
+        <td>
+          <span class="trx-id">
+            ${escapeHtml(trx.id)}
+          </span>
+        </td>
+
+        <td>
+          <span class="user-name">
+            ${escapeHtml(
+              trx.username || "-"
+            )}
+          </span>
+        </td>
+
+        <td>
+
+          <span class="type ${
+            trx.type === "DEPOSIT"
+              ? "deposit"
+              : "withdraw"
+          }">
+
+            ${escapeHtml(
+              trx.type || "-"
+            )}
+
+          </span>
+
+        </td>
+
+        <td>
+          <span class="amount">
+            ${formatRupiah(trx.amount)}
+          </span>
+        </td>
+
+        <td>
+          ${statusBadge(trx.status)}
+        </td>
+
+        <td>
+          ${formatDate(trx.createdAt)}
+        </td>
+
+      </tr>
+
+    `).join("");
+
+}
+
+
+/* =====================================================
+   CHAT DATA
+===================================================== */
+
+async function loadChatUsers(
+  showError = true
+){
+  if(!getAdminKey() || chatUsersRequestBusy)
+    return;
+
+  chatUsersRequestBusy = true;
+
+  try{
+    const response =
+      await fetch(
+        API_URL + "/admin/chat/users",
+        {
+          method:"GET",
+          headers:adminHeaders(),
+          cache:"no-store"
+        }
+      );
+
+    const data =
+      await response.json().catch(() => ({}));
+
+    if(!response.ok){
+      if(response.status === 401 || response.status === 403){
+        forceLogout(
+          data.message || "Admin Key tidak valid."
+        );
+        return;
+      }
+      throw new Error(
+        data.message || "Gagal mengambil daftar chat."
+      );
+    }
+
+    chatUsers = chatArray(
+      data,
+      ["users","chatUsers","chats","conversations"]
+    );
+
+    renderChatUsers();
+    updateChatBadge();
+    updateStats();
+    setConnection(true);
+
+    if(!selectedChatUserId && chatUsers.length){
+      const first = chatUsers[0];
+      const id = chatUserId(first);
+      const name = chatUsername(first);
+      if(id){
+        await selectChatUser(id, name, true);
+      }
+    }
+  }catch(error){
+    console.error("loadChatUsers:", error);
+    if(showError){
+      showToast(
+        error.message || "Gagal mengambil daftar chat.",
+        "error"
+      );
+    }
+  }finally{
+    chatUsersRequestBusy = false;
+  }
+}
+
+
+function chatArray(
+  data,
+  keys
+){
+
+  for(
+    const key of keys
+  ){
+
+    if(
+      Array.isArray(
+        data?.[key]
+      )
+    ){
+
+      return data[key];
+
+    }
+
+  }
+
+  return [];
+
+}
+
+
+function chatUserId(item){
+
+  const user =
+    item?.user || {};
+
+  return String(
+    item?.user_id ??
+    item?.userId ??
+    item?.userid ??
+    item?.id_user ??
+    user?.id ??
+    item?.id ??
+    ""
+  );
+
+}
+
+
+function chatUsername(item){
+
+  const user =
+    item?.user || {};
+
+  return String(
+    item?.username ??
+    item?.user_username ??
+    user?.username ??
+    "User"
+  );
+
+}
+
+
+function chatLastMessage(item){
+
+  return String(
+    item?.last_message ??
+    item?.lastMessage ??
+    item?.message ??
+    item?.last_text ??
+    item?.text ??
+    "Belum ada pesan"
+  );
+
+}
+
+
+function chatMessageText(message){
+
+  return String(
+    message?.message ??
+    message?.text ??
+    message?.content ??
+    ""
+  );
+
+}
+
+
+function chatMessageDate(message){
+
+  return (
+    message?.created_at ??
+    message?.createdAt ??
+    message?.timestamp ??
+    message?.date ??
+    null
+  );
+
+}
+
+
+function chatSender(message){
+
+  return String(
+    message?.sender ??
+    message?.role ??
+    message?.from ??
+    message?.type ??
+    ""
+  ).toLowerCase();
+
+}
+
+
+/* =====================================================
+   CHAT LIST
+===================================================== */
+
+function renderChatUsers(){
+
+  const container =
+    document.getElementById(
+      "chatUserList"
+    );
+
+  if(!container)
+    return;
+
+  const search =
+    (
+      document.getElementById(
+        "chatUserSearch"
+      )?.value || ""
+    )
+      .toLowerCase()
+      .trim();
+
+
+  const list =
+    chatUsers.filter(item => {
+
+      if(
+        currentChatFilter ===
+        "unread"
+      ){
+
+        const unread =
+          Number(
+            item?.unread_count ??
+            item?.unreadCount ??
+            0
+          );
+
+        if(unread <= 0)
+          return false;
+
+      }
+
+
+      const user =
+        item?.user || {};
+
+      const text = [
+
+        chatUsername(item),
+        chatUserId(item),
+        user?.id,
+        item?.last_message,
+        item?.lastMessage,
+        item?.message
+
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      return text.includes(search);
+
+    });
+
+
+  if(!list.length){
+
+    container.innerHTML = `
+
+      <div class="empty">
+
+        <div class="empty-icon">
+          💬
+        </div>
+
+        <div class="empty-title">
+          ${
+            currentChatFilter === "unread"
+              ? "Tidak ada pesan belum dibaca"
+              : "Belum ada percakapan"
+          }
+        </div>
+
+        <div class="empty-sub">
+          Pesan dari user akan muncul di sini.
+        </div>
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  container.innerHTML =
+    list.map(item => {
+
+      const id =
+        chatUserId(item);
+
+      const username =
+        chatUsername(item);
+
+      const lastMessage =
+        chatLastMessage(item);
+
+      const count =
+        Number(
+          item?.unread_count ??
+          item?.unreadCount ??
+          item?.message_count ??
+          item?.messageCount ??
+          0
+        );
+
+      const active =
+        String(id) ===
+        String(selectedChatUserId);
+
+
+      return `
+
+        <div
+          class="chat-user ${
+            active ? "active" : ""
+          }"
+          data-user-id="${escapeHtml(id)}"
+          onclick="selectChatUser(
+            '${escapeJs(id)}',
+            '${escapeJs(username)}'
+          )"
+        >
+
+          <div class="chat-avatar">
+
+            ${initial(username)}
+
+            <span
+              class="chat-online-dot"
+            ></span>
+
+          </div>
+
+
+          <div class="chat-user-info">
+
+            <div class="chat-user-top">
+
+              <span
+                class="chat-user-name"
+              >
+                ${escapeHtml(username)}
+              </span>
+
+              <span class="chat-time">
+
+                ${formatChatTime(
+                  item?.last_message_at ??
+                  item?.lastMessageAt ??
+                  item?.created_at ??
+                  item?.createdAt
+                )}
+
+              </span>
+
+            </div>
+
+
+            <div class="chat-preview">
+
+              ${escapeHtml(
+                lastMessage
+              )}
+
+              ${
+                count > 0
+                ? `
+
+                  <span class="chat-count">
+                    ${
+                      count > 99
+                        ? "99+"
+                        : count
+                    }
+                  </span>
+
+                `
+                : ""
+              }
+
+            </div>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+}
+
+
+function filterChatUsers(){
+
+  renderChatUsers();
+
+}
+
+
+function setChatFilter(
+  filter,
+  button
+){
+
+  currentChatFilter =
+    filter;
+
+  document
+    .querySelectorAll(
+      ".chat-filter button"
+    )
+    .forEach(
+      el =>
+        el.classList.remove(
+          "active"
+        )
+    );
+
+  button.classList.add(
+    "active"
+  );
+
+  renderChatUsers();
+
+}
+
+
+/* =====================================================
+   CHAT BADGE
+===================================================== */
+
+function updateChatBadge(){
+
+  const badge =
+    document.getElementById(
+      "chatNavBadge"
+    );
+
+  if(!badge)
+    return;
+
+  let count = 0;
+
+  chatUsers.forEach(item => {
+
+    count += Number(
+      item?.unread_count ??
+      item?.unreadCount ??
+      0
+    );
+
+  });
+
+
+  if(count > 0){
+
+    badge.style.display =
+      "inline-flex";
+
+    badge.textContent =
+      count > 99
+        ? "99+"
+        : String(count);
+
+  }else{
+
+    badge.style.display =
+      "none";
+
+  }
+
+}
+
+
+/* =====================================================
+   SELECT CHAT USER
+===================================================== */
+
+async function selectChatUser(
+  userId,
+  username,
+  silent = false
+){
+
+  userId =
+    String(
+      userId || ""
+    ).trim();
+
+  if(!userId)
+    return;
+
+
+  selectedChatUserId =
+    userId;
+
+  selectedChatUser = {
+    id:userId,
+    username:String(
+      username || "User"
+    )
+  };
+
+
+  document
+    .getElementById(
+      "chatCurrentName"
+    )
+    .textContent =
+    selectedChatUser.username;
+
+
+  document
+    .getElementById(
+      "chatCurrentAvatar"
+    )
+    .textContent =
+    initial(
+      selectedChatUser.username
+    );
+
+
+  document
+    .getElementById(
+      "chatCurrentStatus"
+    )
+    .textContent =
+    "Percakapan aktif";
+
+
+  document
+    .getElementById(
+      "chatInput"
+    )
+    .disabled =
+    false;
+
+
+  document
+    .getElementById(
+      "chatSendButton"
+    )
+    .disabled =
+    false;
+
+
+  renderChatUsers();
+
+  await loadChatMessages(
+    userId,
+    !silent
+  );
+
+
+  document
+    .getElementById(
+      "chatLayout"
+    )
+    .classList.remove(
+      "mobile-users"
+    );
+
+}
+
+
+/* =====================================================
+   LOAD CHAT MESSAGES
+===================================================== */
+
+async function loadChatMessages(
+  userId,
+  showError = true
+){
+  if(!userId || !getAdminKey())
+    return;
+
+  if(chatMessagesRequestBusy)
+    return;
+
+  const requestId = ++chatMessageRequestId;
+  chatMessagesRequestBusy = true;
+
+  try{
+    const url =
+      API_URL +
+      "/admin/chat/messages?user_id=" +
+      encodeURIComponent(String(userId));
+
+    const response =
+      await fetch(
+        url,
+        {
+          method:"GET",
+          headers:adminHeaders(),
+          cache:"no-store"
+        }
+      );
+
+    const data =
+      await response.json().catch(() => ({}));
+
+    if(!response.ok){
+      if(response.status === 401 || response.status === 403){
+        forceLogout(
+          data.message || "Admin Key tidak valid."
+        );
+        return;
+      }
+      throw new Error(
+        data.message || "Gagal mengambil pesan."
+      );
+    }
+
+    // Abaikan response lama jika admin sudah pindah ke user lain.
+    if(
+      requestId !== chatMessageRequestId ||
+      String(userId) !== String(selectedChatUserId)
+    ){
+      return;
+    }
+
+    chatMessages = chatArray(
+      data,
+      ["messages","chatMessages","data"]
+    );
+
+    renderChatMessages();
+  }catch(error){
+    console.error("loadChatMessages:", error);
+    if(showError){
+      showToast(
+        error.message || "Gagal mengambil pesan chat.",
+        "error"
+      );
+    }
+  }finally{
+    chatMessagesRequestBusy = false;
+  }
+}
+
+
+/* =====================================================
+   RENDER MESSAGES
+===================================================== */
+
+function renderChatMessages(){
+
+  const body =
+    document.getElementById(
+      "chatBody"
+    );
+
+  if(!body)
+    return;
+
+
+  if(!selectedChatUserId){
+
+    body.innerHTML = `
+
+      <div class="chat-empty">
+
+        <div>
+
+          <div class="chat-empty-icon">
+            💬
+          </div>
+
+          <strong>
+            Live Chat Admin
+          </strong>
+
+          <span>
+            Pilih pengguna untuk melihat percakapan.
+          </span>
+
+        </div>
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  if(!chatMessages.length){
+
+    body.innerHTML = `
+
+      <div class="chat-empty">
+
+        <div>
+
+          <div class="chat-empty-icon">
+            ✉️
+          </div>
+
+          <strong>
+            Belum ada pesan
+          </strong>
+
+          <span>
+            Belum ada pesan dari user ini.
+          </span>
+
+        </div>
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  body.innerHTML =
+    chatMessages.map(message => {
+
+      const sender =
+        chatSender(
+          message
+        );
+
+
+      const isAdmin =
+        sender.includes("admin") ||
+        sender.includes("agent") ||
+        sender === "staff" ||
+        sender === "operator";
+
+
+      const text =
+        chatMessageText(
+          message
+        );
+
+
+      const date =
+        chatMessageDate(
+          message
+        );
+
+
+      const name =
+        isAdmin
+          ? "Admin"
+          : (
+              selectedChatUser
+                ?.username ||
+              "User"
+            );
+
+
+      return `
+
+        <div
+          class="chat-message-row ${
+            isAdmin
+              ? "admin"
+              : "user"
+          }"
+        >
+
+          <div class="chat-message">
+
+            ${escapeHtml(text)}
+
+            <div class="chat-meta">
+
+              ${escapeHtml(name)}
+              •
+              ${formatChatTime(date)}
+
+            </div>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+
+
+  scrollChatBottom();
+
+}
+
+
+function scrollChatBottom(){
+
+  const body =
+    document.getElementById(
+      "chatBody"
+    );
+
+  if(!body)
+    return;
+
+  requestAnimationFrame(() => {
+
+    body.scrollTop =
+      body.scrollHeight;
+
+  });
+
+}
+
+
+/* =====================================================
+   SEND ADMIN MESSAGE
+===================================================== */
+
+async function sendAdminMessage(){
+
+  if(!selectedChatUserId)
+    return;
+
+
+  const input =
+    document.getElementById(
+      "chatInput"
+    );
+
+  const button =
+    document.getElementById(
+      "chatSendButton"
+    );
+
+
+  const message =
+    input.value.trim();
+
+
+  if(!message)
+    return;
+
+
+  input.disabled = true;
+  button.disabled = true;
+
+
+  try{
+
+    const response =
+      await fetch(
+        API_URL +
+        "/admin/chat/send",
+        {
+          method:"POST",
+          headers:adminHeaders(),
+          body:JSON.stringify({
+            user_id:
+              String(
+                selectedChatUserId
+              ),
+            message
+          })
+        }
+      );
+
+
+    const data =
+      await response
+        .json()
+        .catch(() => ({}));
+
+
+    if(!response.ok){
+
+      if(
+        response.status === 401
+      ){
+
+        forceLogout(
+          "Admin Key tidak valid."
+        );
+
+        return;
+
+      }
+
+      throw new Error(
+        data.message ||
+        "Gagal mengirim pesan."
+      );
+
+    }
+
+
+    input.value = "";
+
+
+    await loadChatMessages(
+      selectedChatUserId,
+      false
+    );
+
+
+    await loadChatUsers(
+      false
+    );
+
+
+    showToast(
+      data.message ||
+      "Balasan admin berhasil dikirim.",
+      "success"
+    );
+
+
+  }catch(error){
+
+    console.error(
+      "sendAdminMessage:",
+      error
+    );
+
+    showToast(
+      error.message ||
+      "Pesan gagal dikirim.",
+      "error"
+    );
+
+  }finally{
+
+    input.disabled = false;
+    button.disabled = false;
+
+    input.focus();
+
+  }
+
+}
+
+
+/* =====================================================
+   MOBILE CHAT
+===================================================== */
+
+function showChatUsersMobile(){
+
+  document
+    .getElementById(
+      "chatLayout"
+    )
+    .classList.add(
+      "mobile-users"
+    );
+
+}
+
+
+/* =====================================================
+   POLLING
+===================================================== */
+
+function startPolling(){
+
+  stopPolling();
+
+
+  chatUserPolling =
+    setInterval(
+      async () => {
+
+        if(
+          getAdminKey()
+        ){
+
+          await loadChatUsers(
+            false
+          );
+
+        }
+
+      },
+      2000
+    );
+
+
+  chatPolling =
+    setInterval(
+      async () => {
+
+        if(
+          getAdminKey() &&
+          selectedChatUserId
+        ){
+
+          await loadChatMessages(
+            selectedChatUserId,
+            false
+          );
+
+        }
+
+      },
+      1500
+    );
+
+}
+
+
+function stopPolling(){
+
+  if(chatPolling){
+
+    clearInterval(
+      chatPolling
+    );
+
+    chatPolling = null;
+
+  }
+
+
+  if(chatUserPolling){
+
+    clearInterval(
+      chatUserPolling
+    );
+
+    chatUserPolling = null;
+
+  }
+
+}
+
+
+/* =====================================================
+   ENTER TO SEND
+===================================================== */
+
+document.addEventListener(
+  "keydown",
+  function(event){
+
+    if(
+      event.target?.id ===
+      "chatInput"
+    ){
+
+      if(
+        event.key === "Enter" &&
+        !event.shiftKey
+      ){
+
+        event.preventDefault();
+
+        sendAdminMessage();
+
+      }
+
+    }
+
+
+    if(
+      event.target?.id ===
+      "loginKey" &&
+      event.key === "Enter"
+    ){
+
+      event.preventDefault();
+
+      loginAdmin();
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   STATS
+===================================================== */
+
+function updateStats(){
+
+  const usersEl =
+    document.getElementById(
+      "statUsers"
+    );
+
+  const balanceEl =
+    document.getElementById(
+      "statBalance"
+    );
+
+  const depositEl =
+    document.getElementById(
+      "statDeposit"
+    );
+
+  const chatEl =
+    document.getElementById(
+      "statChat"
+    );
+
+
+  if(usersEl){
+
+    usersEl.textContent =
+      users.length;
+
+  }
+
+
+  const totalBalance =
+    users.reduce(
+      (sum,user) =>
+        sum +
+        Number(
+          user.saldo || 0
+        ),
+      0
+    );
+
+
+  if(balanceEl){
+
+    balanceEl.textContent =
+      formatCompactRupiah(
+        totalBalance
+      );
+
+  }
+
+
+  const pendingDeposit =
+    transactions.filter(
+      trx =>
+        trx.type === "DEPOSIT" &&
+        trx.status === "Pending"
+    ).length;
+
+
+  if(depositEl){
+
+    depositEl.textContent =
+      pendingDeposit;
+
+  }
+
+
+  if(chatEl){
+
+    chatEl.textContent =
+      chatUsers.length;
+
+  }
+
+}
+
+
+/* =====================================================
+   NAVIGATION
+===================================================== */
+
+function showSection(
+  section,
+  button
+){
+
+  document
+    .querySelectorAll(
+      ".section"
+    )
+    .forEach(
+      el =>
+        el.classList.remove(
+          "active"
+        )
+    );
+
+
+  const target =
+    document.getElementById(
+      "section-" +
+      section
+    );
+
+
+  if(target){
+
+    target.classList.add(
+      "active"
+    );
+
+  }
+
+
+  document
+    .querySelectorAll(
+      ".nav button"
+    )
+    .forEach(
+      el =>
+        el.classList.remove(
+          "active"
+        )
+    );
+
+
+  if(button){
+
+    button.classList.add(
+      "active"
+    );
+
+  }
+
+
+  const titles = {
+
+    dashboard:
+      "Dashboard",
+
+    transactions:
+      "Transaksi",
+
+    users:
+      "Pengguna",
+
+    chat:
+      "Live Chat"
+
+  };
+
+
+  document
+    .getElementById(
+      "pageTitle"
+    )
+    .textContent =
+    titles[section] ||
+    "Dashboard";
+
+
+  document
+    .getElementById(
+      "sidebar"
+    )
+    .classList.remove(
+      "open"
+    );
+
+
+  if(
+    section === "chat"
+  ){
+
+    loadChatUsers(
+      false
+    );
+
+  }
+
+}
+
+
+function showSectionById(
+  section
+){
+
+  let button = null;
+
+
+  document
+    .querySelectorAll(
+      ".nav button"
+    )
+    .forEach(btn => {
+
+      const text =
+        btn.textContent
+          .toLowerCase();
+
+
+      if(
+        section === "dashboard" &&
+        text.includes(
+          "dashboard"
+        )
+      ){
+
+        button = btn;
+
+      }
+
+
+      if(
+        section === "transactions" &&
+        text.includes(
+          "transaksi"
+        )
+      ){
+
+        button = btn;
+
+      }
+
+
+      if(
+        section === "users" &&
+        text.includes(
+          "pengguna"
+        )
+      ){
+
+        button = btn;
+
+      }
+
+
+      if(
+        section === "chat" &&
+        text.includes(
+          "live chat"
+        )
+      ){
+
+        button = btn;
+
+      }
+
+    });
+
+
+  showSection(
+    section,
+    button
+  );
+
+}
+
+
+function toggleSidebar(){
+
+  document
+    .getElementById(
+      "sidebar"
+    )
+    .classList.toggle(
+      "open"
+    );
+
+}
+
+
+/* =====================================================
+   REFRESH
+===================================================== */
+
+async function refreshAll(){
+
+  if(!getAdminKey()){
+
+    document
+      .getElementById(
+        "loginOverlay"
+      )
+      .style.display =
+      "flex";
+
+    return;
+
+  }
+
+
+  showToast(
+    "Memperbarui data...",
+    "success"
+  );
+
+
+  await Promise.all([
+
+    loadUsers(),
+
+    loadTransactions(),
+
+    loadChatUsers(false)
+
+  ]);
+
+}
+
+
+/* =====================================================
+   CONNECTION
+===================================================== */
+
+function setConnection(
+  online
+){
+
+  const dot =
+    document.getElementById(
+      "connectionDot"
+    );
+
+  const text =
+    document.getElementById(
+      "connectionStatus"
+    );
+
+
+  if(online){
+
+    dot.classList.add(
+      "online"
+    );
+
+    text.textContent =
+      "Online";
+
+  }else{
+
+    dot.classList.remove(
+      "online"
+    );
+
+    text.textContent =
+      "Offline";
+
+  }
+
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+function forceLogout(
+  message
+){
+
+  stopPolling();
+
+  localStorage.removeItem(
+    "ADMIN16_ADMIN_KEY"
+  );
+
+  setConnection(false);
+
+  document
+    .getElementById(
+      "loginOverlay"
+    )
+    .style.display =
+    "flex";
+
+  showLoginError(
+    message ||
+    "Silakan login kembali."
+  );
+
+}
+
+
+function logoutAdmin(){
+
+  stopPolling();
+
+  localStorage.removeItem(
+    "ADMIN16_ADMIN_KEY"
+  );
+
+  document
+    .getElementById(
+      "loginKey"
+    )
+    .value = "";
+
+  setConnection(false);
+
+  document
+    .getElementById(
+      "loginOverlay"
+    )
+    .style.display =
+    "flex";
+
+  showToast(
+    "Admin telah keluar.",
+    "success"
+  );
+
+}
+
+
+/* =====================================================
+   HELPERS
+===================================================== */
+
+function formatRupiah(
+  value
+){
+
+  return new Intl.NumberFormat(
+    "id-ID",
+    {
+      style:"currency",
+      currency:"IDR",
+      maximumFractionDigits:0
+    }
+  ).format(
+    Number(value || 0)
+  );
+
+}
+
+
+function formatCompactRupiah(
+  value
+){
+
+  const n =
+    Number(value || 0);
+
+
+  if(n >= 1000000000){
+
+    return "Rp " +
+      (
+        n / 1000000000
+      )
+        .toFixed(1)
+        .replace(".0","") +
+      " M";
+
+  }
+
+
+  if(n >= 1000000){
+
+    return "Rp " +
+      (
+        n / 1000000
+      )
+        .toFixed(1)
+        .replace(".0","") +
+      " jt";
+
+  }
+
+
+  if(n >= 1000){
+
+    return "Rp " +
+      (
+        n / 1000
+      )
+        .toFixed(1)
+        .replace(".0","") +
+      " rb";
+
+  }
+
+
+  return formatRupiah(n);
+
+}
+
+
+function formatDate(
+  value
+){
+
+  if(!value)
+    return "-";
+
+
+  const date =
+    new Date(value);
+
+
+  if(
+    Number.isNaN(
+      date.getTime()
+    )
+  ){
+
+    return escapeHtml(
+      value
+    );
+
+  }
+
+
+  return date.toLocaleString(
+    "id-ID",
+    {
+      day:"2-digit",
+      month:"short",
+      year:"numeric",
+      hour:"2-digit",
+      minute:"2-digit"
+    }
+  );
+
+}
+
+
+function formatChatTime(
+  value
+){
+
+  if(!value)
+    return "";
+
+
+  const date =
+    new Date(value);
+
+
+  if(
+    Number.isNaN(
+      date.getTime()
+    )
+  ){
+
+    return "";
+
+  }
+
+
+  return date.toLocaleTimeString(
+    "id-ID",
+    {
+      hour:"2-digit",
+      minute:"2-digit"
+    }
+  );
+
+}
+
+
+function initial(
+  username
+){
+
+  return escapeHtml(
+    String(
+      username || "A"
+    )
+      .charAt(0)
+      .toUpperCase()
+  );
+
+}
+
+
+function statusBadge(
+  status
+){
+
+  let cls =
+    "pending";
+
+  let icon =
+    "●";
+
+
+  if(
+    status === "Success"
+  ){
+
+    cls =
+      "success";
+
+    icon =
+      "✓";
+
+  }
+
+
+  if(
+    status === "Reject"
+  ){
+
+    cls =
+      "reject";
+
+    icon =
+      "×";
+
+  }
+
+
+  return `
+
+    <span class="badge ${cls}">
+      ${icon}
+      ${escapeHtml(
+        status || "-"
+      )}
+    </span>
+
+  `;
+
+}
+
+
+function emptyInline(
+  text
+){
+
+  return `
+
+    <div class="empty">
+
+      <div class="empty-icon">
+        ◌
+      </div>
+
+      <div class="empty-title">
+        ${escapeHtml(text)}
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+function emptyHtml(
+  icon,
+  title,
+  sub
+){
+
+  return `
+
+    <div
+      class="empty"
+      style="grid-column:1/-1"
+    >
+
+      <div class="empty-icon">
+        ${icon}
+      </div>
+
+      <div class="empty-title">
+        ${escapeHtml(title)}
+      </div>
+
+      <div class="empty-sub">
+        ${escapeHtml(sub)}
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+function escapeHtml(
+  value
+){
+
+  return String(
+    value ?? ""
+  )
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+function escapeJs(
+  value
+){
+
+  return String(
+    value ?? ""
+  )
+    .replace(
+      /\\/g,
+      "\\\\"
+    )
+    .replace(
+      /'/g,
+      "\\'"
+    )
+    .replace(
+      /\r/g,
+      "\\r"
+    )
+    .replace(
+      /\n/g,
+      "\\n"
+    );
+
+}
+
+
+/* =====================================================
+   TOAST
+===================================================== */
+
+function showToast(
+  message,
+  type="success"
+){
+
+  const container =
+    document.getElementById(
+      "toastContainer"
+    );
+
+
+  const toast =
+    document.createElement(
+      "div"
+    );
+
+
+  toast.className =
+    "toast " +
+    type;
+
+
+  toast.textContent =
+    message;
+
+
+  container.appendChild(
+    toast
+  );
+
+
+  setTimeout(
+    () => {
+      toast.remove();
+    },
+    3000
+  );
+
+}
+
+
+/* =====================================================
+   AUTO LOGIN
+===================================================== */
+
+async function boot(){
+
+  const key =
+    getAdminKey();
+
+
+  if(!key){
+
+    setConnection(false);
+
+    return;
+
+  }
+
+
+  try{
+
+    const response =
+      await fetch(
+        API_URL +
+        "/admin/users",
+        {
+          method:"GET",
+          headers:{
+            "X-Admin-Key":key
+          },
+          cache:"no-store"
+        }
+      );
+
+
+    if(!response.ok){
+
+      localStorage.removeItem(
+        "ADMIN16_ADMIN_KEY"
+      );
+
+      return;
+
+    }
+
+
+    const data =
+      await response
+        .json()
+        .catch(() => ({}));
+
+
+    document
+      .getElementById(
+        "loginOverlay"
+      )
+      .style.display =
+      "none";
+
+
+    users =
+      Array.isArray(
+        data.users
+      )
+        ? data.users
+        : [];
+
+
+    setConnection(true);
+
+    renderUsers();
+
+    await loadTransactions();
+
+    await loadChatUsers(false);
+
+    updateStats();
+
+    startPolling();
+
+
+  }catch(error){
+
+    console.error(
+      "boot:",
+      error
+    );
+
+    setConnection(false);
+
+  }
+
+}
+
+
+boot();
+
+</script>
+
+</body>
+</html>
