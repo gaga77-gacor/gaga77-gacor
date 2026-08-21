@@ -1,0 +1,2950 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="theme-color" content="#07111f">
+
+<title>Deposit</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    -webkit-tap-highlight-color:transparent;
+}
+
+:root{
+    --bg:#06101c;
+    --panel:#0d1d30;
+    --panel2:#112943;
+    --input:#091a2b;
+    --border:rgba(255,255,255,.07);
+    --text:#f5f7fa;
+    --muted:#8292a6;
+    --green:#00e887;
+    --green2:#00bfa6;
+    --yellow:#ffc107;
+    --red:#ff4d67;
+    --blue:#4da3ff;
+}
+
+body{
+    min-height:100vh;
+    background:
+        radial-gradient(
+            circle at 50% -10%,
+            rgba(0,220,150,.10),
+            transparent 35%
+        ),
+        linear-gradient(
+            180deg,
+            #06111e 0%,
+            #071321 100%
+        );
+    color:var(--text);
+    font-family:Arial,Helvetica,sans-serif;
+    padding-bottom:30px;
+}
+
+.header{
+    position:sticky;
+    top:0;
+    z-index:20;
+    height:62px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(6,17,30,.94);
+    backdrop-filter:blur(15px);
+    border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+.headerTitle{
+    font-size:18px;
+    font-weight:800;
+}
+
+.container{
+    width:100%;
+    max-width:600px;
+    margin:auto;
+    padding:15px;
+}
+
+.card{
+    background:
+        linear-gradient(
+            145deg,
+            rgba(17,41,67,.96),
+            rgba(10,28,47,.96)
+        );
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:17px;
+    margin-bottom:14px;
+    box-shadow:0 15px 40px rgba(0,0,0,.20);
+}
+
+.sectionTitle{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-size:17px;
+    font-weight:800;
+    margin-bottom:16px;
+}
+
+.sectionIcon{
+    width:34px;
+    height:34px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,232,135,.10);
+}
+
+label{
+    display:block;
+    margin-top:13px;
+    margin-bottom:6px;
+    color:#9aa8b8;
+    font-size:12px;
+    font-weight:600;
+}
+
+label:first-of-type{
+    margin-top:0;
+}
+
+input,
+select{
+    width:100%;
+    height:49px;
+    border:1px solid rgba(255,255,255,.055);
+    border-radius:12px;
+    outline:none;
+    background:var(--input);
+    color:#fff;
+    padding:0 14px;
+    font-size:14px;
+}
+
+input:focus,
+select:focus{
+    border-color:rgba(0,232,135,.45);
+    box-shadow:0 0 0 3px rgba(0,232,135,.07);
+}
+
+input::placeholder{
+    color:#68798c;
+}
+
+.mainButton{
+    width:100%;
+    height:52px;
+    border:0;
+    border-radius:13px;
+    margin-top:17px;
+    color:#fff;
+    font-size:14px;
+    font-weight:800;
+    background:linear-gradient(135deg,#00d96f,#00bfa6);
+    box-shadow:0 8px 24px rgba(0,210,130,.18);
+    cursor:pointer;
+}
+
+.mainButton:active,
+.cancelButton:active,
+.payButton:active{
+    transform:scale(.985);
+}
+
+.mainButton:disabled,
+.cancelButton:disabled{
+    opacity:.55;
+    cursor:not-allowed;
+}
+
+.msg{
+    display:none;
+    margin-top:12px;
+    padding:11px 12px;
+    border-radius:11px;
+    font-size:12px;
+    line-height:1.5;
+    text-align:center;
+}
+
+.msg.show{
+    display:block;
+}
+
+.msg.success{
+    color:#00ed8a;
+    background:rgba(0,232,135,.08);
+    border:1px solid rgba(0,232,135,.15);
+}
+
+.msg.error{
+    color:#ff6379;
+    background:rgba(255,77,103,.08);
+    border:1px solid rgba(255,77,103,.15);
+}
+
+.msg.info{
+    color:#ffd15c;
+    background:rgba(255,193,7,.08);
+    border:1px solid rgba(255,193,7,.15);
+}
+
+/* PAYMENT */
+
+.payment{
+    display:none;
+    margin-top:16px;
+    border-radius:18px;
+    overflow:hidden;
+    background:linear-gradient(160deg,#0a1c2e,#071724);
+    border:1px solid rgba(255,255,255,.06);
+}
+
+.payment.show{
+    display:block;
+}
+
+.paymentHeader{
+    padding:17px 16px 13px;
+    text-align:center;
+    border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+.paymentBadge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:6px 10px;
+    border-radius:20px;
+    background:rgba(0,232,135,.09);
+    color:#00ed8a;
+    font-size:11px;
+    font-weight:700;
+    margin-bottom:10px;
+}
+
+.paymentTitle{
+    font-size:18px;
+    font-weight:800;
+}
+
+.paymentSubtitle{
+    margin-top:5px;
+    color:#7f91a5;
+    font-size:11px;
+}
+
+.amountArea{
+    text-align:center;
+    padding:17px 15px 12px;
+}
+
+.amountLabel{
+    color:#7e90a4;
+    font-size:11px;
+}
+
+.paymentAmount{
+    margin-top:5px;
+    color:var(--green);
+    font-size:28px;
+    font-weight:900;
+}
+
+.paymentTotal{
+    margin-top:8px;
+    color:#dfe6ee;
+    font-size:13px;
+}
+
+.paymentUnique{
+    margin-top:4px;
+    color:#ffc107;
+    font-size:12px;
+}
+
+.paymentOrder{
+    margin-top:8px;
+    color:#63758a;
+    font-size:10px;
+    word-break:break-all;
+}
+
+/* QR */
+
+.qrArea{
+    margin:8px 15px 15px;
+    padding:16px;
+    border-radius:16px;
+    background:#fff;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:280px;
+}
+
+#qrisContainer{
+    width:250px;
+    min-height:250px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+#qrisContainer img{
+    display:block;
+    width:250px;
+    height:250px;
+    max-width:100%;
+    object-fit:contain;
+}
+
+.qrFallback{
+    color:#222;
+    text-align:center;
+    font-size:12px;
+    line-height:1.5;
+    padding:15px;
+}
+
+/* STATUS */
+
+.paymentStatus{
+    margin:0 15px 14px;
+    padding:12px;
+    border-radius:11px;
+    text-align:center;
+    font-size:12px;
+    font-weight:700;
+}
+
+.paymentStatus.pending{
+    color:#ffd04a;
+    background:rgba(255,193,7,.08);
+    border:1px solid rgba(255,193,7,.12);
+}
+
+.paymentStatus.success{
+    color:#00ed8a;
+    background:rgba(0,232,135,.08);
+    border:1px solid rgba(0,232,135,.12);
+}
+
+.paymentStatus.expired,
+.paymentStatus.cancelled{
+    color:#ff6379;
+    background:rgba(255,77,103,.08);
+    border:1px solid rgba(255,77,103,.12);
+}
+
+/* ACTION */
+
+.paymentActions{
+    padding:0 15px 15px;
+    display:flex;
+    flex-direction:column;
+    gap:9px;
+}
+
+.payButton,
+.cancelButton{
+    width:100%;
+    height:46px;
+    border:0;
+    border-radius:11px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    font-size:12px;
+    font-weight:800;
+    cursor:pointer;
+}
+
+.payButton{
+    color:#fff;
+    background:linear-gradient(135deg,#00d96f,#00bfa6);
+}
+
+.cancelButton{
+    color:#fff;
+    background:linear-gradient(135deg,#ff4d67,#d92d4c);
+}
+
+.payButton.hidden,
+.cancelButton.hidden{
+    display:none;
+}
+
+/* INFO */
+
+.info{
+    margin:0 15px 15px;
+    padding:13px;
+    border-radius:12px;
+    background:rgba(0,232,135,.055);
+    border:1px solid rgba(0,232,135,.13);
+}
+
+.infoTitle{
+    color:#00ed8a;
+    font-size:12px;
+    font-weight:800;
+    margin-bottom:8px;
+}
+
+.info ol{
+    padding-left:18px;
+}
+
+.info li{
+    color:#b8c3ce;
+    font-size:11px;
+    line-height:1.7;
+}
+
+/* HISTORY */
+
+.historyTitle{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:13px;
+}
+
+.historyTitle strong{
+    font-size:17px;
+}
+
+.refresh{
+    width:34px;
+    height:34px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.06);
+    background:#0b1c2e;
+    color:#00e887;
+    cursor:pointer;
+    font-size:18px;
+}
+
+.historyItem{
+    padding:14px;
+    border-radius:14px;
+    background:rgba(4,16,28,.48);
+    border:1px solid rgba(255,255,255,.05);
+    margin-top:9px;
+}
+
+.historyTop{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+}
+
+.historyAmount{
+    font-size:15px;
+    font-weight:800;
+}
+
+.status{
+    padding:5px 9px;
+    border-radius:8px;
+    font-size:10px;
+    font-weight:800;
+}
+
+.status.pending{
+    background:#ffc107;
+    color:#111;
+}
+
+.status.success{
+    background:#00e887;
+    color:#00160d;
+}
+
+.status.reject,
+.status.cancelled{
+    background:#ff4d67;
+    color:#fff;
+}
+
+.historyId{
+    margin-top:7px;
+    color:#738499;
+    font-size:10px;
+    word-break:break-all;
+}
+
+.historyLine{
+    margin-top:4px;
+    color:#9eacbb;
+    font-size:11px;
+}
+
+.historyMessage{
+    margin-top:8px;
+    font-size:11px;
+}
+
+.historyMessage.pending{
+    color:#ffc107;
+}
+
+.historyMessage.success{
+    color:#00e887;
+}
+
+.historyMessage.reject,
+.historyMessage.cancelled{
+    color:#ff6379;
+}
+
+.continuePay{
+    width:100%;
+    height:38px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-top:9px;
+    border-radius:9px;
+    text-decoration:none;
+    background:#122a42;
+    color:#00e887;
+    font-size:10px;
+    font-weight:800;
+}
+
+.empty,
+.loading{
+    text-align:center;
+    padding:25px 10px;
+    color:#66778a;
+    font-size:12px;
+}
+
+@media(max-width:500px){
+
+    .container{
+        padding:10px;
+    }
+
+    .card{
+        padding:13px;
+        border-radius:16px;
+    }
+
+    .paymentAmount{
+        font-size:26px;
+    }
+
+    #qrisContainer{
+        width:220px;
+        min-height:220px;
+    }
+
+    #qrisContainer img{
+        width:220px;
+        height:220px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+    <div class="headerTitle">💳 Deposit</div>
+</header>
+
+<div class="container">
+
+    <div class="card">
+
+        <div class="sectionTitle">
+            <div class="sectionIcon">💳</div>
+            Buat Deposit
+        </div>
+
+        <label>Username</label>
+
+        <input
+            id="user"
+            readonly
+            placeholder="Username"
+        >
+
+        <label>Nominal Deposit</label>
+
+        <input
+            id="nominal"
+            type="number"
+            min="10000"
+            step="1"
+            inputmode="numeric"
+            placeholder="Minimal Rp 10.000"
+        >
+
+        <label>Metode Pembayaran</label>
+
+        <select id="metode">
+            <option value="QRIS">QRIS</option>
+        </select>
+
+        <button
+            id="depositButton"
+            class="mainButton"
+            onclick="buatDeposit()"
+        >
+            💳 BUAT DEPOSIT
+        </button>
+
+        <div id="msg" class="msg"></div>
+
+        <div id="paymentBox" class="payment">
+
+            <div class="paymentHeader">
+
+                <div class="paymentBadge">
+                    ● PEMBAYARAN QRIS
+                </div>
+
+                <div class="paymentTitle">
+                    Scan QR untuk membayar
+                </div>
+
+                <div class="paymentSubtitle">
+                    Gunakan mobile banking atau e-wallet
+                </div>
+
+            </div>
+
+            <div class="amountArea">
+
+                <div class="amountLabel">
+                    Nominal Deposit
+                </div>
+
+                <div
+                    id="paymentAmount"
+                    class="paymentAmount"
+                >
+                    Rp 0
+                </div>
+
+                <div
+                    id="paymentTotal"
+                    class="paymentTotal"
+                >
+                    Total pembayaran: Rp 0
+                </div>
+
+                <div
+                    id="paymentUnique"
+                    class="paymentUnique"
+                >
+                    Kode unik: -
+                </div>
+
+                <div
+                    id="paymentOrder"
+                    class="paymentOrder"
+                >
+                    Order: -
+                </div>
+
+            </div>
+
+            <div class="qrArea">
+
+                <div id="qrisContainer">
+
+                    <div class="qrFallback">
+                        ⏳ Menyiapkan QRIS...
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div
+                id="paymentStatus"
+                class="paymentStatus pending"
+            >
+                ⏳ Menunggu pembayaran...
+            </div>
+
+            <div class="paymentActions">
+
+                <a
+                    id="checkoutButton"
+                    class="payButton hidden"
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    📲 BAYAR SEKARANG
+                </a>
+
+                <button
+                    id="cancelButton"
+                    class="cancelButton hidden"
+                    type="button"
+                    onclick="batalkanPembayaran()"
+                >
+                    ❌ BATALKAN PEMBAYARAN
+                </button>
+
+            </div>
+
+            <div class="info">
+
+                <div class="infoTitle">
+                    Cara Pembayaran
+                </div>
+
+                <ol>
+
+                    <li>
+                        Buka mobile banking atau e-wallet.
+                    </li>
+
+                    <li>
+                        Pilih menu Scan / QRIS.
+                    </li>
+
+                    <li>
+                        Scan QRIS yang tampil di atas.
+                    </li>
+
+                    <li>
+                        Bayar sesuai total pembayaran.
+                    </li>
+
+                    <li>
+                        Sistem mengecek status pembayaran otomatis.
+                    </li>
+
+                    <li>
+                        Setelah pembayaran berhasil,
+                        saldo diproses otomatis.
+                    </li>
+
+                </ol>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="historyTitle">
+
+            <strong>
+                📋 History Deposit
+            </strong>
+
+            <button
+                class="refresh"
+                onclick="loadHistory()"
+                title="Refresh"
+            >
+                ↻
+            </button>
+
+        </div>
+
+        <div id="list">
+
+            <div class="loading">
+                Memuat history...
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+/* =========================================================
+   CONFIG
+========================================================= */
+
+const API_URL =
+    "https://worker-payment.orkutstok64.workers.dev";
+
+let currentTransactionId = "";
+
+let paymentTimer = null;
+
+let checkingPayment = false;
+
+let loadingHistory = false;
+
+
+/* =========================================================
+   FORMAT RUPIAH
+========================================================= */
+
+function formatRupiah(value){
+
+    return new Intl.NumberFormat(
+        "id-ID",
+        {
+            style:"currency",
+            currency:"IDR",
+            minimumFractionDigits:0
+        }
+    ).format(
+        Number(value) || 0
+    );
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(value){
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================================================
+   CURRENT USER
+========================================================= */
+
+function getCurrentUser(){
+
+    const keys = [
+        "currentUser",
+        "user",
+        "loginUser"
+    ];
+
+    for(const key of keys){
+
+        try{
+
+            const raw =
+                localStorage.getItem(key);
+
+            if(!raw){
+                continue;
+            }
+
+            let data;
+
+            try{
+                data = JSON.parse(raw);
+            }catch{
+                continue;
+            }
+
+            if(!data){
+                continue;
+            }
+
+            if(
+                data.user &&
+                typeof data.user === "object"
+            ){
+
+                return {
+                    ...data.user,
+                    token:
+                        data.token ||
+                        data.user.token ||
+                        ""
+                };
+
+            }
+
+            if(
+                typeof data === "object"
+            ){
+
+                return data;
+
+            }
+
+        }catch(error){
+
+            console.warn(
+                "USER STORAGE ERROR",
+                error
+            );
+
+        }
+
+    }
+
+    return null;
+
+}
+
+
+/* =========================================================
+   TOKEN
+========================================================= */
+
+function getToken(){
+
+    const user =
+        getCurrentUser();
+
+    if(user){
+
+        const token =
+            String(
+                user.token ||
+                user.accessToken ||
+                user.authToken ||
+                ""
+            ).trim();
+
+        if(token){
+            return token;
+        }
+
+    }
+
+    const keys = [
+        "token",
+        "authToken",
+        "accessToken",
+        "loginToken",
+        "userToken"
+    ];
+
+    for(const key of keys){
+
+        const token =
+            String(
+                localStorage.getItem(key) || ""
+            ).trim();
+
+        if(token){
+            return token;
+        }
+
+    }
+
+    return "";
+
+}
+
+
+/* =========================================================
+   USERNAME
+========================================================= */
+
+function getUsername(){
+
+    const user =
+        getCurrentUser();
+
+    if(!user){
+        return "";
+    }
+
+    return String(
+        user.username ||
+        user.name ||
+        user.userName ||
+        ""
+    ).trim();
+
+}
+
+
+/* =========================================================
+   API FETCH
+========================================================= */
+
+async function apiFetch(
+    endpoint,
+    options = {}
+){
+
+    const token =
+        getToken();
+
+    if(!token){
+
+        throw new Error(
+            "Token login tidak ditemukan. Silakan login kembali."
+        );
+
+    }
+
+    const headers = {
+        "Accept":"application/json",
+        ...(options.headers || {})
+    };
+
+    if(
+        options.body &&
+        !headers["Content-Type"]
+    ){
+
+        headers["Content-Type"] =
+            "application/json";
+
+    }
+
+    headers.Authorization =
+        "Bearer " + token;
+
+    let response;
+
+    try{
+
+        response =
+            await fetch(
+                API_URL + endpoint,
+                {
+                    ...options,
+                    headers
+                }
+            );
+
+    }catch(error){
+
+        console.error(
+            "FETCH ERROR",
+            error
+        );
+
+        throw new Error(
+            "Gagal terhubung ke Worker."
+        );
+
+    }
+
+    let data;
+
+    try{
+
+        data =
+            await response.json();
+
+    }catch{
+
+        throw new Error(
+            "Response Worker tidak valid."
+        );
+
+    }
+
+    if(!response.ok){
+
+        const error =
+            new Error(
+                data?.message ||
+                "Request gagal. HTTP " +
+                response.status
+            );
+
+        error.status =
+            response.status;
+
+        error.data =
+            data;
+
+        throw error;
+
+    }
+
+    return data;
+
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+function showMessage(
+    text,
+    type = "info"
+){
+
+    const el =
+        document.getElementById("msg");
+
+    el.className =
+        "msg show " + type;
+
+    el.innerText =
+        text;
+
+}
+
+
+/* =========================================================
+   USER
+========================================================= */
+
+function loadUser(){
+
+    document.getElementById(
+        "user"
+    ).value =
+        getUsername() || "User";
+
+}
+
+
+/* =========================================================
+   LOGIN CHECK
+========================================================= */
+
+function requireLogin(){
+
+    const token =
+        getToken();
+
+    const button =
+        document.getElementById(
+            "depositButton"
+        );
+
+    if(!token){
+
+        button.disabled = true;
+
+        showMessage(
+            "❌ Session login tidak ditemukan. Silakan login kembali.",
+            "error"
+        );
+
+        return false;
+
+    }
+
+    button.disabled = false;
+
+    return true;
+
+}
+
+
+/* =========================================================
+   HIDE PAYMENT
+========================================================= */
+
+function hidePayment(){
+
+    document
+        .getElementById("paymentBox")
+        .classList.remove("show");
+
+}
+
+
+/* =========================================================
+   IMAGE URL CHECK
+========================================================= */
+
+function isImageUrl(value){
+
+    if(!value){
+        return false;
+    }
+
+    const text =
+        String(value).trim();
+
+    return (
+        text.startsWith("data:image/") ||
+        /^https?:\/\//i.test(text) ||
+        text.startsWith("blob:")
+    );
+
+}
+
+
+/* =========================================================
+   QR VALUE
+   SUPPORT:
+   - imageqris.url
+   - imageqris.image
+   - qrisUrl
+   - qrUrl
+   - qrImage
+   - qrImageUrl
+   - qr_code_url
+   - qr_code
+   - qris
+   - qr
+   - qrString
+   - qrisString
+   - qrPayload
+   - qrisPayload
+   - paymentQr
+   - paymentQR
+========================================================= */
+
+function getQRValue(
+    transaction,
+    payment
+){
+
+    const objects = [
+        transaction || {},
+        payment || {},
+        transaction?.payment || {},
+        payment?.data || {},
+        transaction?.data || {},
+        transaction?.gateway || {},
+        payment?.gateway || {}
+    ];
+
+
+    /*
+     * ViiPayment:
+     *
+     * imageqris: {
+     *     url: "https://..."
+     * }
+     */
+
+    for(const object of objects){
+
+        if(
+            object?.imageqris &&
+            typeof object.imageqris === "object"
+        ){
+
+            const url =
+                object.imageqris.url ||
+                object.imageqris.image ||
+                object.imageqris.qr_url ||
+                object.imageqris.src ||
+                "";
+
+            if(
+                String(url).trim()
+            ){
+
+                return String(
+                    url
+                ).trim();
+
+            }
+
+        }
+
+    }
+
+
+    /*
+     * Beberapa kemungkinan field
+     * QR langsung.
+     */
+
+    const keys = [
+
+        "qrisUrl",
+        "qrUrl",
+        "qrImage",
+        "qrImageUrl",
+        "qr_code_url",
+        "qr_code",
+        "qris",
+        "qr",
+        "qrString",
+        "qrisString",
+        "qrPayload",
+        "qrisPayload",
+        "paymentQr",
+        "paymentQR",
+        "image_qris",
+        "imageqris"
+
+    ];
+
+
+    for(const object of objects){
+
+        if(
+            !object ||
+            typeof object !== "object"
+        ){
+
+            continue;
+
+        }
+
+
+        for(const key of keys){
+
+            const value =
+                object[key];
+
+
+            if(
+                value === undefined ||
+                value === null
+            ){
+
+                continue;
+
+            }
+
+
+            /*
+             * Jika field adalah object.
+             */
+
+            if(
+                typeof value === "object"
+            ){
+
+                const nestedUrl =
+                    value.url ||
+                    value.image ||
+                    value.qr_url ||
+                    value.src ||
+                    value.value ||
+                    "";
+
+                if(
+                    String(
+                        nestedUrl
+                    ).trim()
+                ){
+
+                    return String(
+                        nestedUrl
+                    ).trim();
+
+                }
+
+            }
+
+
+            /*
+             * Jika field berupa string.
+             */
+
+            if(
+                typeof value === "string" &&
+                value.trim()
+            ){
+
+                return value.trim();
+
+            }
+
+        }
+
+    }
+
+
+    return "";
+
+}
+
+
+/* =========================================================
+   RENDER QR
+========================================================= */
+
+function renderQR(qrisValue){
+
+    const container =
+        document.getElementById(
+            "qrisContainer"
+        );
+
+
+    container.innerHTML = "";
+
+
+    const value =
+        String(
+            qrisValue || ""
+        ).trim();
+
+
+    console.log(
+        "================================="
+    );
+
+    console.log(
+        "QR VALUE:",
+        value
+    );
+
+    console.log(
+        "================================="
+    );
+
+
+    if(!value){
+
+        container.innerHTML = `
+            <div class="qrFallback">
+                ⚠️ QRIS belum tersedia dari gateway.
+                <br><br>
+                Silakan tunggu beberapa detik
+                atau gunakan tombol
+                <b>BAYAR SEKARANG</b>
+                jika tersedia.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    let imageUrl = "";
+
+
+    /*
+     * Jika gateway sudah memberikan
+     * URL gambar QRIS.
+     */
+
+    if(
+        /^https?:\/\//i.test(value) ||
+        value.startsWith("data:image/") ||
+        value.startsWith("blob:")
+    ){
+
+        imageUrl = value;
+
+    }else{
+
+        /*
+         * Jika gateway memberikan payload
+         * QRIS mentah.
+         *
+         * Kita buat gambar QR dari payload.
+         */
+
+        imageUrl =
+            "https://api.qrserver.com/v1/create-qr-code/?size=500x500&margin=10&data=" +
+            encodeURIComponent(value);
+
+    }
+
+
+    const img =
+        document.createElement("img");
+
+
+    img.alt =
+        "QRIS Pembayaran";
+
+
+    img.width =
+        250;
+
+
+    img.height =
+        250;
+
+
+    img.loading =
+        "eager";
+
+
+    img.decoding =
+        "async";
+
+
+    img.referrerPolicy =
+        "no-referrer";
+
+
+    img.src =
+        imageUrl;
+
+
+    img.onload =
+        function(){
+
+            container.innerHTML = "";
+
+            container.appendChild(
+                img
+            );
+
+        };
+
+
+    img.onerror =
+        function(){
+
+            console.error(
+                "QR IMAGE ERROR:",
+                imageUrl
+            );
+
+
+            container.innerHTML = `
+                <div class="qrFallback">
+                    ⚠️ QRIS gagal dimuat.
+                    <br><br>
+                    <small>
+                        URL QR dari gateway
+                        tidak dapat dibuka.
+                    </small>
+                </div>
+            `;
+
+        };
+
+
+    container.appendChild(
+        img
+    );
+
+}
+
+
+/* =========================================================
+   SHOW PAYMENT
+========================================================= */
+
+function showPayment(
+    transaction,
+    payment = null
+){
+
+    if(!transaction){
+        return;
+    }
+
+
+    const paymentData =
+        payment || {};
+
+
+    const amount =
+        Number(
+            transaction.amount || 0
+        );
+
+
+    const paymentAmount =
+        Number(
+            transaction.paymentAmount ??
+            paymentData.amount ??
+            paymentData.paymentAmount ??
+            amount
+        );
+
+
+    const gatewayOrderId =
+        String(
+            transaction.gatewayOrderId ||
+            paymentData.orderId ||
+            transaction.orderId ||
+            paymentData.gatewayOrderId ||
+            ""
+        ).trim();
+
+
+    const qrisValue =
+        getQRValue(
+            transaction,
+            paymentData
+        );
+
+
+    const checkoutUrl =
+        String(
+            transaction.checkoutUrl ||
+            paymentData.checkoutUrl ||
+            transaction.paymentUrl ||
+            paymentData.paymentUrl ||
+            transaction.payment_url ||
+            paymentData.payment_url ||
+            ""
+        ).trim();
+
+
+    document.getElementById(
+        "paymentAmount"
+    ).innerText =
+        formatRupiah(amount);
+
+
+    document.getElementById(
+        "paymentTotal"
+    ).innerText =
+        "Total pembayaran: " +
+        formatRupiah(paymentAmount);
+
+
+    const unique =
+        paymentAmount - amount;
+
+
+    document.getElementById(
+        "paymentUnique"
+    ).innerText =
+        unique > 0
+            ? "Kode unik: " +
+              formatRupiah(unique)
+            : "Tidak ada kode unik";
+
+
+    document.getElementById(
+        "paymentOrder"
+    ).innerText =
+        "Order: " +
+        (
+            gatewayOrderId ||
+            "-"
+        );
+
+
+    /*
+     * RENDER QR
+     */
+
+    renderQR(
+        qrisValue
+    );
+
+
+    /*
+     * CHECKOUT BUTTON
+     */
+
+    const checkoutButton =
+        document.getElementById(
+            "checkoutButton"
+        );
+
+
+    if(checkoutUrl){
+
+        checkoutButton.href =
+            checkoutUrl;
+
+        checkoutButton.classList.remove(
+            "hidden"
+        );
+
+    }else{
+
+        checkoutButton.removeAttribute(
+            "href"
+        );
+
+        checkoutButton.classList.add(
+            "hidden"
+        );
+
+    }
+
+
+    /*
+     * PAYMENT BOX
+     */
+
+    document
+        .getElementById("paymentBox")
+        .classList.add("show");
+
+
+    setPaymentStatus(
+        transaction.status ||
+        "Pending"
+    );
+
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function setPaymentStatus(
+    status,
+    message = ""
+){
+
+    const el =
+        document.getElementById(
+            "paymentStatus"
+        );
+
+
+    const cancelButton =
+        document.getElementById(
+            "cancelButton"
+        );
+
+
+    const normalized =
+        String(
+            status || ""
+        ).toLowerCase();
+
+
+    el.className =
+        "paymentStatus";
+
+
+    /*
+     * SUCCESS
+     */
+
+    if(
+        normalized === "success" ||
+        normalized === "paid" ||
+        normalized === "successful" ||
+        normalized === "settlement" ||
+        normalized === "completed" ||
+        normalized === "berhasil"
+    ){
+
+        el.classList.add(
+            "success"
+        );
+
+        el.innerText =
+            message ||
+            "✅ Pembayaran berhasil. Saldo diproses otomatis.";
+
+        cancelButton.classList.add(
+            "hidden"
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * CANCELLED
+     */
+
+    if(
+        normalized === "cancelled" ||
+        normalized === "canceled"
+    ){
+
+        el.classList.add(
+            "cancelled"
+        );
+
+        el.innerText =
+            message ||
+            "❌ Pembayaran telah dibatalkan.";
+
+        cancelButton.classList.add(
+            "hidden"
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * REJECT / EXPIRED
+     */
+
+    if(
+        normalized === "reject" ||
+        normalized === "rejected" ||
+        normalized === "expired" ||
+        normalized === "expire"
+    ){
+
+        el.classList.add(
+            "expired"
+        );
+
+        el.innerText =
+            message ||
+            "❌ Pembayaran tidak berhasil.";
+
+        cancelButton.classList.add(
+            "hidden"
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * PENDING
+     */
+
+    el.classList.add(
+        "pending"
+    );
+
+    el.innerText =
+        message ||
+        "⏳ Menunggu pembayaran gateway...";
+
+
+    cancelButton.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+/* =========================================================
+   CREATE DEPOSIT
+========================================================= */
+
+async function buatDeposit(){
+
+    if(!requireLogin()){
+        return;
+    }
+
+
+    const button =
+        document.getElementById(
+            "depositButton"
+        );
+
+
+    const nominal =
+        Number(
+            document.getElementById(
+                "nominal"
+            ).value
+        );
+
+
+    const method =
+        String(
+            document.getElementById(
+                "metode"
+            ).value ||
+            "QRIS"
+        );
+
+
+    if(
+        !Number.isInteger(nominal) ||
+        nominal < 10000
+    ){
+
+        showMessage(
+            "❌ Minimal deposit Rp 10.000 dan harus angka bulat.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    stopPaymentPolling();
+
+    currentTransactionId = "";
+
+    hidePayment();
+
+
+    button.disabled = true;
+
+    button.innerText =
+        "⏳ Membuat pembayaran...";
+
+
+    try{
+
+        const result =
+            await apiFetch(
+                "/deposit",
+                {
+                    method:"POST",
+                    body:
+                        JSON.stringify({
+                            amount:nominal,
+                            method:method
+                        })
+                }
+            );
+
+
+        console.log(
+            "DEPOSIT RESPONSE:",
+            result
+        );
+
+
+        if(
+            !result ||
+            result.success !== true
+        ){
+
+            throw new Error(
+                result?.message ||
+                "Gagal membuat deposit."
+            );
+
+        }
+
+
+        const transaction =
+            result.transaction;
+
+
+        if(!transaction){
+
+            throw new Error(
+                "Worker tidak mengembalikan data transaksi."
+            );
+
+        }
+
+
+        currentTransactionId =
+            String(
+                transaction.id || ""
+            ).trim();
+
+
+        /*
+         * Tampilkan pembayaran
+         */
+
+        showPayment(
+            transaction,
+            result.payment || {}
+        );
+
+
+        showMessage(
+            "✅ Pembayaran berhasil dibuat. Silakan scan QRIS.",
+            "success"
+        );
+
+
+        document.getElementById(
+            "nominal"
+        ).value = "";
+
+
+        if(currentTransactionId){
+
+            startPaymentPolling(
+                currentTransactionId
+            );
+
+        }
+
+
+        await loadHistory();
+
+
+    }catch(error){
+
+        console.error(
+            "DEPOSIT ERROR:",
+            error
+        );
+
+
+        showMessage(
+            "❌ " +
+            (
+                error.message ||
+                "Gagal membuat deposit."
+            ),
+            "error"
+        );
+
+    }finally{
+
+        button.disabled = false;
+
+        button.innerText =
+            "💳 BUAT DEPOSIT";
+
+    }
+
+}
+
+
+/* =========================================================
+   CANCEL DEPOSIT
+========================================================= */
+
+async function batalkanPembayaran(){
+
+    if(!currentTransactionId){
+
+        showMessage(
+            "❌ Tidak ada pembayaran aktif.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            "Batalkan pembayaran ini?\n\n" +
+            "Pembayaran yang dibatalkan tidak akan diproses sebagai deposit."
+        );
+
+
+    if(!confirmed){
+        return;
+    }
+
+
+    const button =
+        document.getElementById(
+            "cancelButton"
+        );
+
+
+    const oldText =
+        button.innerText;
+
+
+    button.disabled = true;
+
+    button.innerText =
+        "⏳ Membatalkan...";
+
+
+    try{
+
+        const result =
+            await apiFetch(
+                "/deposit/cancel",
+                {
+                    method:"POST",
+                    body:
+                        JSON.stringify({
+                            trx_id:
+                                currentTransactionId
+                        })
+                }
+            );
+
+
+        if(
+            !result ||
+            result.success !== true
+        ){
+
+            throw new Error(
+                result?.message ||
+                "Pembayaran gagal dibatalkan."
+            );
+
+        }
+
+
+        stopPaymentPolling();
+
+
+        const returnedTransaction =
+            result.transaction;
+
+
+        if(returnedTransaction){
+
+            showPayment(
+                returnedTransaction,
+                result.payment || {}
+            );
+
+
+            setPaymentStatus(
+                returnedTransaction.status ||
+                "Cancelled",
+                "❌ Pembayaran telah dibatalkan."
+            );
+
+        }else{
+
+            setPaymentStatus(
+                "Cancelled",
+                "❌ Pembayaran telah dibatalkan."
+            );
+
+        }
+
+
+        showMessage(
+            "✅ Pembayaran berhasil dibatalkan.",
+            "success"
+        );
+
+
+        currentTransactionId = "";
+
+
+        await loadHistory();
+
+
+    }catch(error){
+
+        console.error(
+            "CANCEL ERROR:",
+            error
+        );
+
+
+        showMessage(
+            "❌ " +
+            (
+                error.message ||
+                "Gagal membatalkan pembayaran."
+            ),
+            "error"
+        );
+
+    }finally{
+
+        button.disabled = false;
+
+        button.innerText =
+            oldText;
+
+    }
+
+}
+
+
+/* =========================================================
+   CHECK PAYMENT STATUS
+========================================================= */
+
+async function checkPaymentStatus(
+    trxId
+){
+
+    if(
+        !trxId ||
+        checkingPayment
+    ){
+
+        return;
+
+    }
+
+
+    checkingPayment = true;
+
+
+    try{
+
+        const result =
+            await apiFetch(
+                "/deposit/status?trx_id=" +
+                encodeURIComponent(
+                    trxId
+                ),
+                {
+                    method:"GET"
+                }
+            );
+
+
+        console.log(
+            "PAYMENT STATUS RESPONSE:",
+            result
+        );
+
+
+        if(
+            !result ||
+            result.success !== true ||
+            !result.transaction
+        ){
+
+            return;
+
+        }
+
+
+        const transaction =
+            result.transaction;
+
+
+        showPayment(
+            transaction,
+            result.payment || {}
+        );
+
+
+        const status =
+            String(
+                transaction.status ||
+                "Pending"
+            ).toLowerCase();
+
+
+        /*
+         * SUCCESS
+         */
+
+        if(
+            status === "success" ||
+            status === "paid" ||
+            status === "successful" ||
+            status === "settlement" ||
+            status === "completed" ||
+            status === "berhasil"
+        ){
+
+            stopPaymentPolling();
+
+
+            setPaymentStatus(
+                "Success",
+                "✅ Pembayaran berhasil! Saldo diproses otomatis."
+            );
+
+
+            showMessage(
+                "✅ Pembayaran berhasil diterima gateway.",
+                "success"
+            );
+
+
+            currentTransactionId = "";
+
+
+            await loadHistory();
+
+
+            return;
+
+        }
+
+
+        /*
+         * CANCELLED
+         */
+
+        if(
+            status === "cancelled" ||
+            status === "canceled"
+        ){
+
+            stopPaymentPolling();
+
+
+            setPaymentStatus(
+                "Cancelled",
+                "❌ Pembayaran telah dibatalkan."
+            );
+
+
+            currentTransactionId = "";
+
+
+            await loadHistory();
+
+
+            return;
+
+        }
+
+
+        /*
+         * REJECT / EXPIRED
+         */
+
+        if(
+            status === "reject" ||
+            status === "rejected" ||
+            status === "expired" ||
+            status === "expire"
+        ){
+
+            stopPaymentPolling();
+
+
+            setPaymentStatus(
+                status,
+                "❌ Pembayaran tidak berhasil."
+            );
+
+
+            currentTransactionId = "";
+
+
+            await loadHistory();
+
+
+            return;
+
+        }
+
+
+        /*
+         * PENDING
+         */
+
+        setPaymentStatus(
+            "Pending",
+            "⏳ Menunggu pembayaran gateway..."
+        );
+
+
+    }catch(error){
+
+        console.warn(
+            "STATUS ERROR:",
+            error
+        );
+
+    }finally{
+
+        checkingPayment = false;
+
+    }
+
+}
+
+
+/* =========================================================
+   POLLING
+========================================================= */
+
+function startPaymentPolling(
+    trxId
+){
+
+    stopPaymentPolling();
+
+
+    if(!trxId){
+        return;
+    }
+
+
+    currentTransactionId =
+        trxId;
+
+
+    checkPaymentStatus(
+        trxId
+    );
+
+
+    paymentTimer =
+        setInterval(
+            function(){
+
+                if(currentTransactionId){
+
+                    checkPaymentStatus(
+                        currentTransactionId
+                    );
+
+                }
+
+            },
+            5000
+        );
+
+}
+
+
+/* =========================================================
+   STOP POLLING
+========================================================= */
+
+function stopPaymentPolling(){
+
+    if(paymentTimer){
+
+        clearInterval(
+            paymentTimer
+        );
+
+        paymentTimer = null;
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD HISTORY
+========================================================= */
+
+async function loadHistory(){
+
+    if(loadingHistory){
+        return;
+    }
+
+
+    const list =
+        document.getElementById(
+            "list"
+        );
+
+
+    if(!getToken()){
+
+        list.innerHTML = `
+            <div class="empty">
+                ❌ Session login tidak ditemukan.
+                <br><br>
+                Silakan login kembali.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    loadingHistory = true;
+
+
+    try{
+
+        const data =
+            await apiFetch(
+                "/deposit/history",
+                {
+                    method:"GET"
+                }
+            );
+
+
+        const transactions =
+            Array.isArray(
+                data?.transactions
+            )
+            ?
+            data.transactions
+            :
+            [];
+
+
+        /*
+         * Cari transaksi pending terbaru.
+         */
+
+        const pending =
+            transactions.find(
+                trx => {
+
+                    const status =
+                        String(
+                            trx.status || ""
+                        ).toLowerCase();
+
+                    return (
+                        status === "pending"
+                    );
+
+                }
+            );
+
+
+        if(pending){
+
+            currentTransactionId =
+                String(
+                    pending.id || ""
+                ).trim();
+
+
+            showPayment(
+                pending,
+                pending.payment || {}
+            );
+
+
+            if(currentTransactionId){
+
+                startPaymentPolling(
+                    currentTransactionId
+                );
+
+            }
+
+        }
+
+
+        if(!transactions.length){
+
+            list.innerHTML = `
+                <div class="empty">
+                    Belum ada history deposit.
+                </div>
+            `;
+
+            return;
+
+        }
+
+
+        list.innerHTML =
+            transactions
+                .map(
+                    renderTransaction
+                )
+                .join("");
+
+
+    }catch(error){
+
+        console.error(
+            "HISTORY ERROR:",
+            error
+        );
+
+
+        list.innerHTML = `
+            <div
+                class="empty"
+                style="color:#ff6379"
+            >
+                ❌ ${escapeHTML(
+                    error.message ||
+                    "Gagal mengambil history."
+                )}
+            </div>
+        `;
+
+    }finally{
+
+        loadingHistory = false;
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER HISTORY
+========================================================= */
+
+function renderTransaction(
+    trx
+){
+
+    const rawStatus =
+        String(
+            trx.status ||
+            "Pending"
+        );
+
+
+    const status =
+        rawStatus.toLowerCase();
+
+
+    let statusClass =
+        "pending";
+
+
+    let statusText =
+        "Pending";
+
+
+    let message =
+        "⏳ Menunggu pembayaran gateway.";
+
+
+    /*
+     * SUCCESS
+     */
+
+    if(
+        status === "success" ||
+        status === "paid" ||
+        status === "successful" ||
+        status === "settlement" ||
+        status === "completed" ||
+        status === "berhasil"
+    ){
+
+        statusClass =
+            "success";
+
+
+        statusText =
+            "Success";
+
+
+        message =
+            "✅ Pembayaran berhasil.";
+
+    }
+
+
+    /*
+     * REJECT / EXPIRED
+     */
+
+    if(
+        status === "reject" ||
+        status === "rejected" ||
+        status === "expired" ||
+        status === "expire"
+    ){
+
+        statusClass =
+            "reject";
+
+
+        statusText =
+            status === "reject" ||
+            status === "rejected"
+                ? "Reject"
+                : "Expired";
+
+
+        message =
+            "❌ Pembayaran tidak berhasil.";
+
+    }
+
+
+    /*
+     * CANCELLED
+     */
+
+    if(
+        status === "cancelled" ||
+        status === "canceled"
+    ){
+
+        statusClass =
+            "cancelled";
+
+
+        statusText =
+            "Cancelled";
+
+
+        message =
+            "❌ Pembayaran dibatalkan.";
+
+    }
+
+
+    const amount =
+        Number(
+            trx.amount || 0
+        );
+
+
+    const paymentAmount =
+        Number(
+            trx.paymentAmount ??
+            trx.payment?.amount ??
+            amount
+        );
+
+
+    const id =
+        trx.id ||
+        "-";
+
+
+    const method =
+        trx.method ||
+        "QRIS";
+
+
+    const createdAt =
+        trx.createdAt ||
+        "-";
+
+
+    const checkoutUrl =
+        String(
+            trx.checkoutUrl ||
+            trx.payment?.checkoutUrl ||
+            trx.paymentUrl ||
+            ""
+        ).trim();
+
+
+    return `
+
+        <div class="historyItem">
+
+            <div class="historyTop">
+
+                <div class="historyAmount">
+                    ${formatRupiah(amount)}
+                </div>
+
+                <span class="status ${statusClass}">
+                    ${escapeHTML(statusText)}
+                </span>
+
+            </div>
+
+
+            <div class="historyId">
+                ID: ${escapeHTML(id)}
+            </div>
+
+
+            <div class="historyLine">
+                Metode:
+                <b>${escapeHTML(method)}</b>
+            </div>
+
+
+            ${
+                paymentAmount !== amount
+                ?
+                `
+                <div class="historyLine">
+                    💰 Total bayar:
+                    ${formatRupiah(paymentAmount)}
+                </div>
+                `
+                :
+                ""
+            }
+
+
+            <div class="historyLine">
+                🕒 Dibuat:
+                ${escapeHTML(createdAt)}
+            </div>
+
+
+            ${
+                status === "pending" &&
+                checkoutUrl
+                ?
+                `
+                <a
+                    class="continuePay"
+                    href="${escapeHTML(checkoutUrl)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    📲 LANJUTKAN PEMBAYARAN
+                </a>
+                `
+                :
+                ""
+            }
+
+
+            <div
+                class="historyMessage ${statusClass}"
+            >
+                ${message}
+            </div>
+
+        </div>
+
+    `;
+
+}
+
+
+/* =========================================================
+   CHECK SESSION
+========================================================= */
+
+async function checkSession(){
+
+    const token =
+        getToken();
+
+
+    if(!token){
+        return false;
+    }
+
+
+    try{
+
+        const response =
+            await apiFetch(
+                "/me",
+                {
+                    method:"GET"
+                }
+            );
+
+
+        if(
+            response &&
+            response.success === true &&
+            response.user
+        ){
+
+            const oldUser =
+                getCurrentUser() || {};
+
+
+            const newUser = {
+
+                ...oldUser,
+
+                ...response.user,
+
+                token:token
+
+            };
+
+
+            localStorage.setItem(
+                "currentUser",
+                JSON.stringify(
+                    newUser
+                )
+            );
+
+
+            return true;
+
+        }
+
+    }catch(error){
+
+        console.error(
+            "SESSION ERROR:",
+            error
+        );
+
+    }
+
+
+    return false;
+
+}
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+async function init(){
+
+    loadUser();
+
+
+    if(!requireLogin()){
+
+        document.getElementById(
+            "list"
+        ).innerHTML = `
+            <div class="empty">
+                ❌ Token login tidak ditemukan.
+                <br><br>
+                Silakan login kembali.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    const valid =
+        await checkSession();
+
+
+    if(!valid){
+
+        showMessage(
+            "❌ Session login tidak valid. Silakan login kembali.",
+            "error"
+        );
+
+
+        document.getElementById(
+            "list"
+        ).innerHTML = `
+            <div class="empty">
+                ❌ Session tidak valid.
+            </div>
+        `;
+
+
+        return;
+
+    }
+
+
+    loadUser();
+
+
+    await loadHistory();
+
+}
+
+
+/* =========================================================
+   AUTO REFRESH
+========================================================= */
+
+setInterval(
+    async function(){
+
+        if(
+            getToken() &&
+            !loadingHistory
+        ){
+
+            await loadHistory();
+
+        }
+
+    },
+    10000
+);
+
+
+/* =========================================================
+   START
+========================================================= */
+
+init();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Withdraw</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:linear-gradient(
+        135deg,
+        #08131f,
+        #0d1c2d
+    );
+    color:#fff;
+}
+
+.container{
+    max-width:420px;
+    margin:auto;
+    padding:20px;
+}
+
+.card{
+    background:#11243b;
+    padding:15px;
+    border-radius:15px;
+    margin-bottom:12px;
+}
+
+.info{
+    font-size:13px;
+    color:#aaa;
+    margin:6px 0;
+}
+
+.info b{
+    color:#fff;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:10px;
+    background:#0b1220;
+    color:#fff;
+    outline:none;
+}
+
+input:focus{
+    border:1px solid #ffb703;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:12px;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(
+        135deg,
+        #ffb703,
+        #fb8500
+    );
+    color:#fff;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+
+button:active{
+    transform:scale(.98);
+}
+
+.msg{
+    text-align:center;
+    margin-top:10px;
+    font-size:13px;
+    line-height:1.5;
+}
+
+.msg.success{
+    color:#00ff88;
+}
+
+.msg.error{
+    color:#ff4d4d;
+}
+
+.msg.loading{
+    color:#ffc107;
+}
+
+.historyTitle{
+    margin:15px 0 8px;
+    font-weight:bold;
+}
+
+.item{
+    background:#0f1d33;
+    padding:12px;
+    border-radius:12px;
+    margin-bottom:10px;
+    border:1px solid rgba(255,255,255,.06);
+}
+
+.row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+}
+
+.status{
+    font-size:12px;
+    padding:3px 8px;
+    border-radius:8px;
+    white-space:nowrap;
+}
+
+.status.Pending{
+    background:#ffb703;
+    color:#000;
+}
+
+.status.Success{
+    background:#00ff88;
+    color:#000;
+}
+
+.status.Reject{
+    background:#ff4d4d;
+    color:#fff;
+}
+
+.small{
+    font-size:11px;
+    opacity:.7;
+    margin-top:5px;
+    word-break:break-word;
+}
+
+.warning{
+    background:#2b2110;
+    border:1px solid #8a6500;
+    color:#ffc107;
+    padding:10px;
+    border-radius:10px;
+    font-size:12px;
+    margin-top:10px;
+    line-height:1.5;
+}
+
+.empty{
+    opacity:.6;
+    text-align:center;
+    padding:15px;
+    font-size:13px;
+}
+
+.loadingHistory{
+    opacity:.6;
+    text-align:center;
+    padding:15px;
+    font-size:13px;
+}
+
+.loginBox{
+    background:#2b1010;
+    border:1px solid #8a3030;
+    color:#ff7777;
+    padding:12px;
+    border-radius:10px;
+    margin-bottom:12px;
+    font-size:13px;
+    line-height:1.5;
+    display:none;
+}
+
+.loginBox.show{
+    display:block;
+}
+
+@media(max-width:500px){
+
+    .container{
+        padding:12px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>💸 Withdraw</h2>
+
+
+<!-- LOGIN STATUS -->
+
+<div
+    id="loginBox"
+    class="loginBox"
+>
+    ❌ Sesi login tidak ditemukan.
+    Silakan login terlebih dahulu.
+</div>
+
+
+<!-- USER INFO -->
+
+<div class="card">
+
+    <div class="info">
+        Nama:
+        <b id="name">-</b>
+    </div>
+
+    <div class="info">
+        Bank:
+        <b id="bank">-</b>
+    </div>
+
+    <div class="info">
+        Nama Rekening:
+        <b id="rek">-</b>
+    </div>
+
+    <div class="info">
+        Nomor Rekening:
+        <b id="norek">-</b>
+    </div>
+
+    <div class="info">
+        No HP:
+        <b id="hp">-</b>
+    </div>
+
+    <div class="info">
+        Saldo:
+        <b id="saldo">Rp 0</b>
+    </div>
+
+</div>
+
+
+<!-- FORM WITHDRAW -->
+
+<div class="card">
+
+    <input
+        id="rekInput"
+        placeholder="Nama Rekening"
+        autocomplete="off"
+    >
+
+    <input
+        id="norekInput"
+        placeholder="Nomor Rekening"
+        autocomplete="off"
+    >
+
+    <input
+        id="hpInput"
+        placeholder="No HP"
+        autocomplete="off"
+    >
+
+    <input
+        id="amount"
+        type="number"
+        min="1"
+        step="1"
+        placeholder="Masukkan jumlah withdraw"
+    >
+
+    <button
+        id="withdrawButton"
+        onclick="sendWithdraw()"
+        disabled
+    >
+        💸 Kirim Request
+    </button>
+
+    <div
+        class="msg"
+        id="msg"
+    ></div>
+
+
+    <div class="warning">
+
+        ⚠️ Setelah request dikirim,
+        saldo akan langsung dikurangi.
+
+        <br><br>
+
+        Jika withdraw ditolak admin,
+        saldo akan otomatis dikembalikan.
+
+    </div>
+
+</div>
+
+
+<!-- HISTORY -->
+
+<div class="historyTitle">
+    📊 Aktivitas Withdraw
+</div>
+
+<div id="history">
+
+    <div class="loadingHistory">
+        Memuat history...
+    </div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   CONFIG
+========================================================= */
+
+const API_URL =
+    "https://game-login-api.orkutstok64.workers.dev";
+
+
+/* =========================================================
+   CURRENT USER
+========================================================= */
+
+function getCurrentUser(){
+
+    const keys = [
+        "currentUser",
+        "user",
+        "loggedUser"
+    ];
+
+
+    for(
+        const key of keys
+    ){
+
+        try{
+
+            const raw =
+                localStorage.getItem(
+                    key
+                );
+
+
+            if(!raw){
+                continue;
+            }
+
+
+            const data =
+                JSON.parse(raw);
+
+
+            if(
+                data &&
+                typeof data === "object"
+            ){
+
+                return data;
+
+            }
+
+        }catch(error){
+
+            console.warn(
+                "Gagal membaca " +
+                key,
+                error
+            );
+
+        }
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =========================================================
+   TOKEN
+========================================================= */
+
+function getToken(){
+
+    /*
+       Prioritas utama:
+
+       currentUser.token
+    */
+
+    const currentUser =
+        getCurrentUser();
+
+
+    if(currentUser){
+
+        const token =
+            currentUser.token ||
+            currentUser.accessToken ||
+            currentUser.authToken ||
+            currentUser.sessionToken;
+
+
+        if(
+            typeof token === "string" &&
+            token.trim()
+        ){
+
+            return token.trim();
+
+        }
+
+    }
+
+
+    /*
+       Fallback jika login lama
+       menyimpan token langsung.
+    */
+
+    const keys = [
+        "token",
+        "authToken",
+        "accessToken",
+        "sessionToken"
+    ];
+
+
+    for(
+        const key of keys
+    ){
+
+        const token =
+            localStorage.getItem(
+                key
+            );
+
+
+        if(
+            token &&
+            token.trim()
+        ){
+
+            return token.trim();
+
+        }
+
+    }
+
+
+    return "";
+
+}
+
+
+/* =========================================================
+   USERNAME
+========================================================= */
+
+function getLocalUsername(){
+
+    const user =
+        getCurrentUser();
+
+
+    if(!user){
+        return "";
+    }
+
+
+    return String(
+        user.username ||
+        user.name ||
+        user.user ||
+        ""
+    ).trim();
+
+}
+
+
+/* =========================================================
+   FORMAT RUPIAH
+========================================================= */
+
+function formatRupiah(value){
+
+    return "Rp " +
+        Number(
+            value || 0
+        ).toLocaleString(
+            "id-ID"
+        );
+
+}
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(text){
+
+    return String(
+        text ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+
+}
+
+
+/* =========================================================
+   API REQUEST
+========================================================= */
+
+async function apiRequest(
+    endpoint,
+    options = {}
+){
+
+    const token =
+        getToken();
+
+
+    const headers = {
+
+        "Content-Type":
+            "application/json",
+
+        ...(options.headers || {})
+
+    };
+
+
+    /*
+       Kirim token jika tersedia.
+    */
+
+    if(token){
+
+        headers.Authorization =
+            "Bearer " +
+            token;
+
+    }
+
+
+    let response;
+
+
+    try{
+
+        response =
+            await fetch(
+                API_URL + endpoint,
+                {
+                    ...options,
+                    headers
+                }
+            );
+
+    }catch(error){
+
+        console.error(
+            "FETCH ERROR:",
+            error
+        );
+
+
+        throw new Error(
+            "Failed to fetch. Periksa URL Worker, koneksi, dan CORS."
+        );
+
+    }
+
+
+    let data = null;
+
+
+    const contentType =
+        response.headers.get(
+            "content-type"
+        ) || "";
+
+
+    if(
+        contentType.includes(
+            "application/json"
+        )
+    ){
+
+        try{
+
+            data =
+                await response.json();
+
+        }catch(error){
+
+            data = null;
+
+        }
+
+    }else{
+
+        const text =
+            await response.text();
+
+
+        try{
+
+            data =
+                JSON.parse(text);
+
+        }catch(error){
+
+            data = {
+                message:
+                    text
+            };
+
+        }
+
+    }
+
+
+    if(
+        !response.ok
+    ){
+
+        /*
+           Jika Worker mengembalikan
+           401 berarti token/session
+           memang tidak valid.
+        */
+
+        if(
+            response.status === 401
+        ){
+
+            throw new Error(
+                data?.message ||
+                "Sesi login tidak valid atau sudah expired."
+            );
+
+        }
+
+
+        throw new Error(
+            data?.message ||
+            "Request gagal. HTTP " +
+            response.status
+        );
+
+    }
+
+
+    return data || {};
+
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+function showMessage(
+    text,
+    type = ""
+){
+
+    const element =
+        document.getElementById(
+            "msg"
+        );
+
+
+    element.innerText =
+        text;
+
+
+    element.className =
+        "msg " +
+        type;
+
+}
+
+
+/* =========================================================
+   LOGIN BOX
+========================================================= */
+
+function showLoginBox(
+    show
+){
+
+    const box =
+        document.getElementById(
+            "loginBox"
+        );
+
+
+    if(show){
+
+        box.classList.add(
+            "show"
+        );
+
+    }else{
+
+        box.classList.remove(
+            "show"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   DISABLE FORM
+========================================================= */
+
+function disableForm(
+    disabled
+){
+
+    document.getElementById(
+        "withdrawButton"
+    ).disabled =
+        disabled;
+
+}
+
+
+/* =========================================================
+   RENDER USER
+========================================================= */
+
+function renderUser(
+    user
+){
+
+    document.getElementById(
+        "name"
+    ).innerText =
+        user.username ||
+        user.name ||
+        "-";
+
+
+    document.getElementById(
+        "bank"
+    ).innerText =
+        user.bank ||
+        "-";
+
+
+    document.getElementById(
+        "rek"
+    ).innerText =
+        user.namaRekening ||
+        user.accountName ||
+        "-";
+
+
+    document.getElementById(
+        "norek"
+    ).innerText =
+        user.nomorRekening ||
+        user.accountNumber ||
+        "-";
+
+
+    document.getElementById(
+        "hp"
+    ).innerText =
+        user.nomorHp ||
+        user.phone ||
+        "-";
+
+
+    document.getElementById(
+        "saldo"
+    ).innerText =
+        formatRupiah(
+            user.saldo
+        );
+
+}
+
+
+/* =========================================================
+   LOAD USER
+========================================================= */
+
+async function loadUser(){
+
+    const token =
+        getToken();
+
+
+    /*
+       Tidak ada token.
+    */
+
+    if(!token){
+
+        showLoginBox(
+            true
+        );
+
+
+        showMessage(
+            "❌ Silakan login terlebih dahulu.",
+            "error"
+        );
+
+
+        disableForm(
+            true
+        );
+
+
+        return false;
+
+    }
+
+
+    try{
+
+        const data =
+            await apiRequest(
+                "/me",
+                {
+                    method:"GET"
+                }
+            );
+
+
+        if(
+            !data ||
+            data.success === false ||
+            !data.user
+        ){
+
+            throw new Error(
+                data?.message ||
+                "Data user tidak ditemukan."
+            );
+
+        }
+
+
+        const user =
+            data.user;
+
+
+        renderUser(
+            user
+        );
+
+
+        /*
+           Isi data rekening.
+
+           Mendukung dua kemungkinan
+           nama field.
+        */
+
+        document.getElementById(
+            "rekInput"
+        ).value =
+            user.namaRekening ||
+            user.accountName ||
+            "";
+
+
+        document.getElementById(
+            "norekInput"
+        ).value =
+            user.nomorRekening ||
+            user.accountNumber ||
+            "";
+
+
+        document.getElementById(
+            "hpInput"
+        ).value =
+            user.nomorHp ||
+            user.phone ||
+            "";
+
+
+        showLoginBox(
+            false
+        );
+
+
+        showMessage(
+            "",
+            ""
+        );
+
+
+        disableForm(
+            false
+        );
+
+
+        return true;
+
+    }catch(error){
+
+        console.error(
+            "LOAD USER ERROR:",
+            error
+        );
+
+
+        /*
+           Token ada tetapi server menolak.
+        */
+
+        showLoginBox(
+            true
+        );
+
+
+        showMessage(
+            "❌ " +
+            (
+                error.message ||
+                "Sesi login tidak valid."
+            ),
+            "error"
+        );
+
+
+        disableForm(
+            true
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+/* =========================================================
+   SEND WITHDRAW
+========================================================= */
+
+async function sendWithdraw(){
+
+    const button =
+        document.getElementById(
+            "withdrawButton"
+        );
+
+
+    /*
+       Cek token lagi sebelum submit.
+    */
+
+    const token =
+        getToken();
+
+
+    if(!token){
+
+        showLoginBox(
+            true
+        );
+
+
+        showMessage(
+            "❌ Silakan login terlebih dahulu.",
+            "error"
+        );
+
+
+        disableForm(
+            true
+        );
+
+
+        return;
+
+    }
+
+
+    const amountInput =
+        document.getElementById(
+            "amount"
+        );
+
+
+    const rekInput =
+        document.getElementById(
+            "rekInput"
+        );
+
+
+    const norekInput =
+        document.getElementById(
+            "norekInput"
+        );
+
+
+    const hpInput =
+        document.getElementById(
+            "hpInput"
+        );
+
+
+    const amount =
+        Number(
+            amountInput.value
+        );
+
+
+    const accountName =
+        rekInput.value.trim();
+
+
+    const accountNumber =
+        norekInput.value.trim();
+
+
+    const phone =
+        hpInput.value.trim();
+
+
+    /*
+       Validasi nominal.
+    */
+
+    if(
+        !Number.isFinite(
+            amount
+        ) ||
+        amount <= 0
+    ){
+
+        showMessage(
+            "❌ Nominal withdraw tidak valid.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    if(
+        !Number.isInteger(
+            amount
+        )
+    ){
+
+        showMessage(
+            "❌ Nominal harus berupa angka bulat.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Validasi rekening.
+    */
+
+    if(
+        !accountName ||
+        !accountNumber ||
+        !phone
+    ){
+
+        showMessage(
+            "❌ Data rekening wajib diisi.",
+            "error"
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Loading.
+    */
+
+    button.disabled =
+        true;
+
+
+    button.innerText =
+        "⏳ Mengirim...";
+
+
+    showMessage(
+        "⏳ Memproses withdraw...",
+        "loading"
+    );
+
+
+    try{
+
+        const data =
+            await apiRequest(
+                "/withdraw",
+                {
+                    method:"POST",
+
+                    body:
+                        JSON.stringify({
+
+                            amount:
+                                amount,
+
+                            accountName:
+                                accountName,
+
+                            accountNumber:
+                                accountNumber,
+
+                            phone:
+                                phone
+
+                        })
+
+                }
+            );
+
+
+        if(
+            data.success === false
+        ){
+
+            throw new Error(
+                data.message ||
+                "Withdraw gagal."
+            );
+
+        }
+
+
+        showMessage(
+            "✅ " +
+            (
+                data.message ||
+                "Withdraw berhasil dikirim."
+            ),
+            "success"
+        );
+
+
+        /*
+           Hapus nominal.
+        */
+
+        amountInput.value =
+            "";
+
+
+        /*
+           Ambil saldo terbaru
+           dari server.
+        */
+
+        await loadUser();
+
+
+        /*
+           Ambil history terbaru.
+        */
+
+        await loadHistory();
+
+
+    }catch(error){
+
+        console.error(
+            "WITHDRAW ERROR:",
+            error
+        );
+
+
+        showMessage(
+            "❌ " +
+            (
+                error.message ||
+                "Withdraw gagal."
+            ),
+            "error"
+        );
+
+
+        /*
+           Tetap refresh saldo.
+        */
+
+        await loadUser();
+
+    }finally{
+
+        /*
+           Jangan langsung aktifkan jika
+           session sudah tidak valid.
+        */
+
+        if(
+            getToken()
+        ){
+
+            button.disabled =
+                false;
+
+        }
+
+
+        button.innerText =
+            "💸 Kirim Request";
+
+    }
+
+}
+
+
+/* =========================================================
+   LOAD HISTORY
+========================================================= */
+
+async function loadHistory(){
+
+    const history =
+        document.getElementById(
+            "history"
+        );
+
+
+    const token =
+        getToken();
+
+
+    if(!token){
+
+        history.innerHTML = `
+
+            <div class="empty">
+
+                Silakan login terlebih dahulu.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    try{
+
+        const data =
+            await apiRequest(
+                "/withdraw/history",
+                {
+                    method:"GET"
+                }
+            );
+
+
+        if(
+            data.success === false
+        ){
+
+            throw new Error(
+                data.message ||
+                "Gagal mengambil history."
+            );
+
+        }
+
+
+        const transactions =
+            Array.isArray(
+                data.transactions
+            )
+            ?
+            [...data.transactions]
+            :
+            [];
+
+
+        /*
+           Terbaru di atas.
+        */
+
+        transactions.sort(
+            function(a,b){
+
+                const aId =
+                    Number(
+                        a.databaseId ||
+                        a.idNumber ||
+                        0
+                    );
+
+
+                const bId =
+                    Number(
+                        b.databaseId ||
+                        b.idNumber ||
+                        0
+                    );
+
+
+                return bId - aId;
+
+            }
+        );
+
+
+        renderHistory(
+            transactions
+        );
+
+
+    }catch(error){
+
+        console.error(
+            "HISTORY ERROR:",
+            error
+        );
+
+
+        history.innerHTML = `
+
+            <div
+                class="empty"
+                style="color:#ff4d4d;"
+            >
+
+                ❌
+                ${escapeHTML(
+                    error.message ||
+                    "Gagal mengambil history."
+                )}
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER HISTORY
+========================================================= */
+
+function renderHistory(
+    transactions
+){
+
+    const history =
+        document.getElementById(
+            "history"
+        );
+
+
+    if(
+        !transactions.length
+    ){
+
+        history.innerHTML = `
+
+            <div class="empty">
+
+                Belum ada aktivitas withdraw.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    let html =
+        "";
+
+
+    transactions.forEach(
+        function(d){
+
+            const status =
+                d.status ||
+                "Pending";
+
+
+            let statusClass =
+                "Pending";
+
+
+            if(
+                status === "Success"
+            ){
+
+                statusClass =
+                    "Success";
+
+            }
+
+
+            if(
+                status === "Reject"
+            ){
+
+                statusClass =
+                    "Reject";
+
+            }
+
+
+            html += `
+
+                <div class="item">
+
+                    <div class="row">
+
+                        <b>
+                            ${formatRupiah(
+                                d.amount
+                            )}
+                        </b>
+
+                        <span
+                            class="
+                                status
+                                ${statusClass}
+                            "
+                        >
+
+                            ${escapeHTML(
+                                status
+                            )}
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="small">
+
+                        🆔 ID:
+                        ${escapeHTML(
+                            d.id || "-"
+                        )}
+
+                    </div>
+
+
+                    <div class="small">
+
+                        🏦 Bank:
+                        ${escapeHTML(
+                            d.bank || "-"
+                        )}
+
+                    </div>
+
+
+                    <div class="small">
+
+                        👨‍💼 Nama Rekening:
+                        ${escapeHTML(
+                            d.accountName ||
+                            "-"
+                        )}
+
+                    </div>
+
+
+                    <div class="small">
+
+                        📌 Nomor Rekening:
+                        ${escapeHTML(
+                            d.accountNumber ||
+                            "-"
+                        )}
+
+                    </div>
+
+
+                    <div class="small">
+
+                        📱 No HP:
+                        ${escapeHTML(
+                            d.phone ||
+                            "-"
+                        )}
+
+                    </div>
+
+
+                    <div class="small">
+
+                        🕒
+                        ${escapeHTML(
+                            formatDate(
+                                d.createdAt
+                            )
+                        )}
+
+                    </div>
+
+
+                    ${
+                        status === "Pending"
+                        ?
+                        `
+
+                        <div
+                            class="small"
+                            style="
+                                color:#ffc107;
+                                opacity:1;
+                                margin-top:8px;
+                            "
+                        >
+
+                            ⏳ Saldo sudah dipotong.
+                            Menunggu konfirmasi admin.
+
+                        </div>
+
+                        `
+                        :
+                        ""
+                    }
+
+
+                    ${
+                        status === "Reject"
+                        ?
+                        `
+
+                        <div
+                            class="small"
+                            style="
+                                color:#00ff88;
+                                opacity:1;
+                                margin-top:8px;
+                            "
+                        >
+
+                            ↩️ Withdraw ditolak.
+                            Saldo telah dikembalikan.
+
+                        </div>
+
+                        `
+                        :
+                        ""
+                    }
+
+
+                    ${
+                        status === "Success"
+                        ?
+                        `
+
+                        <div
+                            class="small"
+                            style="
+                                color:#00ff88;
+                                opacity:1;
+                                margin-top:8px;
+                            "
+                        >
+
+                            ✅ Withdraw disetujui admin.
+
+                        </div>
+
+                        `
+                        :
+                        ""
+                    }
+
+
+                    ${
+                        d.adminNote
+                        ?
+                        `
+
+                        <div
+                            class="small"
+                            style="
+                                color:#aaa;
+                                margin-top:8px;
+                            "
+                        >
+
+                            📝 Catatan admin:
+
+                            ${escapeHTML(
+                                d.adminNote
+                            )}
+
+                        </div>
+
+                        `
+                        :
+                        ""
+                    }
+
+
+                    ${
+                        d.processedAt
+                        ?
+                        `
+
+                        <div
+                            class="small"
+                        >
+
+                            ⚙️ Diproses:
+
+                            ${escapeHTML(
+                                formatDate(
+                                    d.processedAt
+                                )
+                            )}
+
+                        </div>
+
+                        `
+                        :
+                        ""
+                    }
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    history.innerHTML =
+        html;
+
+}
+
+
+/* =========================================================
+   FORMAT DATE
+========================================================= */
+
+function formatDate(
+    value
+){
+
+    if(!value){
+
+        return "-";
+
+    }
+
+
+    const date =
+        new Date(
+            value
+        );
+
+
+    if(
+        Number.isNaN(
+            date.getTime()
+        )
+    ){
+
+        return String(
+            value
+        );
+
+    }
+
+
+    return date.toLocaleString(
+        "id-ID"
+    );
+
+}
+
+
+/* =========================================================
+   AUTO REFRESH
+========================================================= */
+
+let refreshing =
+    false;
+
+
+setInterval(
+    async function(){
+
+        /*
+           Hindari request bertumpuk.
+        */
+
+        if(
+            refreshing
+        ){
+
+            return;
+
+        }
+
+
+        if(
+            !getToken()
+        ){
+
+            return;
+
+        }
+
+
+        refreshing =
+            true;
+
+
+        try{
+
+            await loadUser();
+
+            await loadHistory();
+
+        }catch(error){
+
+            console.error(
+                "AUTO REFRESH ERROR:",
+                error
+            );
+
+        }finally{
+
+            refreshing =
+                false;
+
+        }
+
+    },
+    5000
+);
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+(async function(){
+
+    const loggedIn =
+        await loadUser();
+
+
+    if(
+        loggedIn
+    ){
+
+        await loadHistory();
+
+    }else{
+
+        const history =
+            document.getElementById(
+                "history"
+            );
+
+
+        history.innerHTML = `
+
+            <div class="empty">
+
+                Silakan login terlebih dahulu.
+
+            </div>
+
+        `;
+
+    }
+
+})();
+
+</script>
+
+</body>
+</html>
