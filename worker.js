@@ -1,0 +1,4502 @@
+// API compatibility for the existing game-online ZIP.
+// The ZIP currently uses both game-login-api.orkutstok64.workers.dev
+// and worker-payment.orkutstok64.workers.dev. Deploy this same Worker
+// script to both hostnames and bind BOTH deployments to the SAME D1 database.
+const FRONTEND_API_HOSTS = new Set([
+  "game-login-api.orkutstok64.workers.dev",
+  "worker-payment.orkutstok64.workers.dev"
+]);
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Admin-Key"
+};
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      "Content-Type": "application/json; charset=UTF-8",
+      ...corsHeaders
+    }
+  });
+}
+
+function safeNumber(value, fallback = 0) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function safeString(value, fallback = "") {
+  if (value === null || value === undefined) return fallback;
+  return String(value).trim();
+}
+
+async function readJson(request) {
+  try {
+    return await request.json();
+  } catch {
+    return {};
+  }
+}
+
+function bytesToHex(bytes) {
+  return Array.from(bytes)
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function hexToBytes(hex) {
+  const clean = String(hex || "");
+
+  if (
+    !/^[0-9a-fA-F]+$/.test(clean) ||
+    clean.length % 2
+  ) {
+    throw new Error("Salt tidak valid.");
+  }
+
+  const bytes = new Uint8Array(clean.length / 2);
+
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = parseInt(
+      clean.substring(i * 2, i * 2 + 2),
+      16
+    );
+  }
+
+  return bytes;
+}
+
+async function sha256(value) {
+  const hash = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(String(value))
+  );
+
+  return bytesToHex(new Uint8Array(hash));
+}
+
+async function hashPassword(password, saltHex = null) {
+  const salt = saltHex
+    ? hexToBytes(saltHex)
+    : crypto.getRandomValues(new Uint8Array(16));
+
+  const keyMaterial =
+    await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(password),
+      "PBKDF2",
+      false,
+      ["deriveBits"]
+    );
+
+  const hash =
+    await crypto.subtle.deriveBits(
+      {
+        name: "PBKDF2",
+        salt,
+        iterations: 100000,
+        hash: "SHA-256"
+      },
+      keyMaterial,
+      256
+    );
+
+  return {
+    salt: bytesToHex(salt),
+    hash: bytesToHex(new Uint8Array(hash))
+  };
+}
+
+async function columnExists(env, table, column) {
+  const result =
+    await env.DB.prepare(
+      `PRAGMA table_info(${table})`
+    ).all();
+
+  return (result.results || []).some(
+    x => x.name === column
+  );
+}
+
+async function addColumnIfMissing(
+  env,
+  table,
+  column,
+  definition
+) {
+  if (
+    !(await columnExists(
+      env,
+      table,
+      column
+    ))
+  ) {
+    await env.DB.prepare(
+      `ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`
+    ).run();
+  }
+}
+
+async function createTables(env) {
+
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      bank TEXT,
+      nama_rekening TEXT,
+      nomor_rekening TEXT,
+      nomor_hp TEXT,
+      saldo REAL NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+
+  for (
+    const [c, d] of [
+      ["bank", "TEXT"],
+      ["nama_rekening", "TEXT"],
+      ["nomor_rekening", "TEXT"],
+      ["nomor_hp", "TEXT"],
+      ["saldo", "REAL NOT NULL DEFAULT 0"]
+    ]
+  ) {
+    await addColumnIfMissing(
+      env,
+      "users",
+      c,
+      d
+    );
+  }
+
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS sessions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      token_hash TEXT NOT NULL UNIQUE,
+      expires_at INTEGER NOT NULL,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS transactions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      trx_id TEXT NOT NULL UNIQUE,
+      user_id INTEGER NOT NULL,
+      type TEXT NOT NULL,
+      amount REAL NOT NULL,
+      method TEXT,
+      bank TEXT,
+      account_name TEXT,
+      account_number TEXT,
+      phone TEXT,
+      status TEXT NOT NULL DEFAULT 'Pending',
+      balance_processed INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      processed_at TEXT,
+      admin_note TEXT
+    )
+  `).run();
+
+  for (
+    const [c, d] of [
+      ["gateway_order_id", "TEXT"],
+      ["gateway_transaction_id", "TEXT"],
+      ["gateway_amount", "REAL"],
+      ["gateway_status", "TEXT"],
+      ["gateway_type", "TEXT"],
+      ["checkout_url", "TEXT"],
+      ["qris_url", "TEXT"],
+      ["qris_string", "TEXT"],
+      ["qr_code_svg", "TEXT"],
+      ["deposit_address", "TEXT"],
+      ["crypto_chain", "TEXT"],
+      ["crypto_token", "TEXT"],
+      ["tx_hash", "TEXT"],
+      ["amount_received", "REAL"],
+      ["gateway_created_at", "TEXT"],
+      ["payment_url", "TEXT"],
+      ["payment_amount", "REAL"]
+    ]
+  ) {
+    await addColumnIfMissing(
+      env,
+      "transactions",
+      c,
+      d
+    );
+  }
+
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS chat_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      sender TEXT NOT NULL,
+      message TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS gateway_config (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      api_key TEXT,
+      base_url TEXT,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+}
+
+function cleanUser(row) {
+  return {
+    id: row?.id,
+    username: row?.username || "",
+    bank: row?.bank || "",
+    namaRekening: row?.nama_rekening || "",
+    nomorRekening: row?.nomor_rekening || "",
+    nomorHp: row?.nomor_hp || "",
+    saldo: safeNumber(row?.saldo),
+    createdAt: row?.created_at || null
+  };
+}
+
+function cleanTransaction(row) {
+  return {
+    id: row?.trx_id || "",
+    databaseId: row?.id || null,
+    userId: row?.user_id || null,
+    username: row?.username || "",
+    type: row?.type || "",
+    amount: safeNumber(row?.amount),
+    method: row?.method || "",
+    bank: row?.bank || "",
+    accountName: row?.account_name || "",
+    accountNumber: row?.account_number || "",
+    phone: row?.phone || "",
+    status: row?.status || "Pending",
+    balanceProcessed:
+      Number(row?.balance_processed || 0) === 1,
+    createdAt: row?.created_at || null,
+    processedAt: row?.processed_at || null,
+    adminNote: row?.admin_note || "",
+
+    gatewayOrderId:
+      row?.gateway_order_id || "",
+
+    gatewayTransactionId:
+      row?.gateway_transaction_id || "",
+
+    gatewayAmount:
+      row?.gateway_amount == null
+        ? null
+        : safeNumber(row.gateway_amount),
+
+    gatewayStatus:
+      row?.gateway_status || "",
+
+    gatewayType:
+      row?.gateway_type || "QRIS",
+
+    checkoutUrl:
+      row?.checkout_url ||
+      row?.payment_url ||
+      "",
+
+    paymentUrl:
+      row?.payment_url ||
+      row?.checkout_url ||
+      "",
+
+    qrisUrl:
+      row?.qris_url || "",
+
+    qrisString:
+      row?.qris_string || "",
+
+    qrCodeSvg:
+      row?.qr_code_svg || "",
+
+    depositAddress:
+      row?.deposit_address || "",
+
+    cryptoChain:
+      row?.crypto_chain || "",
+
+    cryptoToken:
+      row?.crypto_token || "",
+
+    txHash:
+      row?.tx_hash || "",
+
+    amountReceived:
+      row?.amount_received == null
+        ? null
+        : safeNumber(row.amount_received),
+
+    paymentAmount:
+      row?.payment_amount == null
+        ? null
+        : safeNumber(row.payment_amount),
+
+    gatewayCreatedAt:
+      row?.gateway_created_at || null
+  };
+}
+
+async function getAuthenticatedUser(
+  request,
+  env
+) {
+  const authorization =
+    request.headers.get("Authorization");
+
+  if (!authorization) return null;
+
+  const token =
+    authorization
+      .replace(/^Bearer\s+/i, "")
+      .trim();
+
+  if (!token) return null;
+
+  const tokenHash =
+    await sha256(token);
+
+  return await env.DB.prepare(`
+    SELECT
+      sessions.*,
+      users.id AS uid,
+      users.username,
+      users.bank,
+      users.nama_rekening,
+      users.nomor_rekening,
+      users.nomor_hp,
+      users.saldo,
+      users.created_at AS user_created_at
+    FROM sessions
+    INNER JOIN users
+      ON users.id = sessions.user_id
+    WHERE
+      sessions.token_hash = ?
+      AND sessions.expires_at > ?
+    LIMIT 1
+  `)
+    .bind(
+      tokenHash,
+      Date.now()
+    )
+    .first();
+}
+
+function isAdmin(request, env) {
+  const configuredKey =
+    safeString(env.ADMIN_KEY);
+
+  if (!configuredKey) return false;
+
+  const headerKey =
+    safeString(
+      request.headers.get("X-Admin-Key")
+    );
+
+  if (
+    headerKey &&
+    headerKey === configuredKey
+  ) {
+    return true;
+  }
+
+  const auth =
+    safeString(
+      request.headers.get("Authorization")
+    );
+
+  if (auth) {
+    const bearer =
+      auth
+        .replace(/^Bearer\s+/i, "")
+        .trim();
+
+    if (
+      bearer &&
+      bearer === configuredKey
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function adminHeaders(request) {
+  return {
+    "Content-Type":
+      "application/json",
+    "X-Admin-Key":
+      request.headers.get(
+        "X-Admin-Key"
+      ) || ""
+  };
+}
+
+
+/* =========================================================
+   INSTANPAY
+========================================================= */
+
+async function getGatewayConfig(env) {
+  const row =
+    await env.DB.prepare(
+      "SELECT api_key, base_url FROM gateway_config WHERE id=1 LIMIT 1"
+    ).first();
+
+  const apiKey =
+    safeString(row?.api_key) ||
+    safeString(
+      env.INSTANPAY_API_KEY
+    );
+
+  const baseUrl =
+    safeString(row?.base_url) ||
+    "https://instanpay.net";
+
+  return {
+    apiKey,
+    baseUrl:
+      baseUrl.replace(/\/+$/, "")
+  };
+}
+
+async function paymentBase(env) {
+  return (
+    await getGatewayConfig(env)
+  ).baseUrl;
+}
+
+async function paymentApiKey(env) {
+  return (
+    await getGatewayConfig(env)
+  ).apiKey;
+}
+
+function instanpayHeaders(apiKey) {
+  return {
+    "X-API-Key": apiKey,
+    "Content-Type":
+      "application/json",
+    "Accept":
+      "application/json"
+  };
+}
+
+function instanpayStatus(value) {
+  return safeString(value)
+    .toUpperCase();
+}
+
+async function instanpayFetch(
+  env,
+  path,
+  options = {}
+) {
+  const base =
+    await paymentBase(env);
+
+  const apiKey =
+    await paymentApiKey(env);
+
+  if (!apiKey) {
+    throw new Error(
+      "API Key Instanpay belum dikonfigurasi."
+    );
+  }
+
+  const response =
+    await fetch(
+      `${base}${path}`,
+      {
+        ...options,
+        headers: {
+          ...instanpayHeaders(apiKey),
+          ...(options.headers || {})
+        }
+      }
+    );
+
+  const raw =
+    await response.text();
+
+  let data;
+
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    throw new Error(
+      "Response Instanpay bukan JSON."
+    );
+  }
+
+  if (
+    !response.ok ||
+    data?.success === false
+  ) {
+    const message =
+      safeString(
+        data?.message ||
+        data?.error
+      ) ||
+      `Instanpay HTTP ${response.status}`;
+
+    throw new Error(message);
+  }
+
+  return data;
+}
+
+function webhookUrlFromRequest(
+  request
+) {
+  const url =
+    new URL(request.url);
+
+  return `${url.origin}/webhook/payment`;
+}
+
+
+/* =========================================================
+   CREATE QRIS
+========================================================= */
+
+async function createQrisPayment(
+  env,
+  {
+    amount,
+    customerName,
+    webhookUrl
+  }
+) {
+  const data =
+    await instanpayFetch(
+      env,
+      "/api/v1/payments",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          amount,
+          customer_name:
+            customerName || "Guest",
+          webhook_url:
+            webhookUrl
+        })
+      }
+    );
+
+  const d =
+    data?.data || {};
+
+  if (
+    !d.transactionId ||
+    !d.qrisString
+  ) {
+    throw new Error(
+      "Response QRIS Instanpay tidak lengkap."
+    );
+  }
+
+  return {
+    gatewayType:
+      "QRIS",
+
+    transactionId:
+      safeString(
+        d.transactionId
+      ),
+
+    orderId:
+      safeString(
+        d.transactionId
+      ),
+
+    baseAmount:
+      safeNumber(
+        d.baseAmount,
+        amount
+      ),
+
+    totalAmount:
+      safeNumber(
+        d.totalAmount,
+        amount
+      ),
+
+    uniqueCode:
+      safeNumber(
+        d.uniqueCode,
+        0
+      ),
+
+    qrisString:
+      safeString(
+        d.qrisString
+      ),
+
+    qrCodeSvg:
+      safeString(
+        d.qrCodeSvg
+      ),
+
+    paymentUrl:
+      "",
+
+    depositAddress:
+      "",
+
+    chain:
+      "",
+
+    token:
+      "",
+
+    txHash:
+      "",
+
+    amountReceived:
+      null,
+
+    status:
+      instanpayStatus(
+        d.status ||
+        "PENDING"
+      ),
+
+    expiredAt:
+      safeString(
+        d.expiredAt
+      ),
+
+    createdAt:
+      new Date().toISOString()
+  };
+}
+
+
+/* =========================================================
+   CREATE CRYPTO
+========================================================= */
+
+async function createCryptoPayment(
+  env,
+  {
+    amountUsd,
+    chain,
+    token,
+    customerName,
+    customerEmail
+  }
+) {
+  const data =
+    await instanpayFetch(
+      env,
+      "/api/v1/crypto-payments",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          amount_usd:
+            Number(amountUsd),
+
+          chain,
+
+          token,
+
+          customer_name:
+            customerName || "Guest",
+
+          ...(customerEmail
+            ? {
+                customer_email:
+                  customerEmail
+              }
+            : {})
+        })
+      }
+    );
+
+  const d =
+    data?.data || {};
+
+  if (
+    !d.transactionId ||
+    !d.gatewayOrderId ||
+    !d.deposit_address
+  ) {
+    throw new Error(
+      "Response Crypto Instanpay tidak lengkap."
+    );
+  }
+
+  return {
+    gatewayType:
+      "CRYPTO",
+
+    transactionId:
+      safeString(
+        d.transactionId
+      ),
+
+    orderId:
+      safeString(
+        d.gatewayOrderId
+      ),
+
+    amountUsd:
+      safeNumber(
+        d.amount_usd,
+        amountUsd
+      ),
+
+    paymentUrl:
+      safeString(
+        d.payment_url
+      ),
+
+    depositAddress:
+      safeString(
+        d.deposit_address
+      ),
+
+    chain:
+      safeString(
+        d.chain || chain
+      ).toUpperCase(),
+
+    token:
+      safeString(
+        d.token || token
+      ).toUpperCase(),
+
+    txHash:
+      "",
+
+    amountReceived:
+      null,
+
+    status:
+      instanpayStatus(
+        d.status ||
+        "PENDING"
+      ),
+
+    expiredAt:
+      safeString(
+        d.expires_at
+      ),
+
+    createdAt:
+      new Date().toISOString()
+  };
+}
+
+
+/* =========================================================
+   STATUS INSTANPAY
+========================================================= */
+
+async function checkQrisPayment(
+  env,
+  transactionId
+) {
+  return await instanpayFetch(
+    env,
+    `/api/v1/status/${encodeURIComponent(transactionId)}`,
+    {
+      method: "GET"
+    }
+  );
+}
+
+async function checkCryptoPayment(
+  env,
+  id
+) {
+  return await instanpayFetch(
+    env,
+    `/api/v1/crypto-status/${encodeURIComponent(id)}`,
+    {
+      method: "GET"
+    }
+  );
+}
+
+
+/* =========================================================
+   FINALIZE DEPOSIT
+========================================================= */
+
+async function finalizeDeposit(
+  env,
+  trx,
+  gatewayStatus,
+  gatewayAmount = null,
+  note =
+    "Pembayaran otomatis terverifikasi Instanpay.",
+  extra = {}
+) {
+  if (
+    !trx ||
+    trx.type !== "DEPOSIT" ||
+    trx.status !== "Pending"
+  ) {
+    return trx;
+  }
+
+  const status =
+    instanpayStatus(
+      gatewayStatus
+    );
+
+  const paid =
+    status === "PAID";
+
+  if (!paid) {
+
+    if (status === "EXPIRED") {
+
+      await env.DB.prepare(`
+        UPDATE transactions
+        SET
+          status='Reject',
+          gateway_status=?,
+          gateway_amount=?,
+          tx_hash=?,
+          amount_received=?,
+          processed_at=?,
+          admin_note=?
+        WHERE
+          trx_id=?
+          AND status='Pending'
+      `)
+        .bind(
+          status,
+          gatewayAmount ?? null,
+          extra.txHash || null,
+          extra.amountReceived ??
+            null,
+          new Date().toISOString(),
+          "Pembayaran Instanpay expired.",
+          trx.trx_id
+        )
+        .run();
+
+    } else {
+
+      await env.DB.prepare(`
+        UPDATE transactions
+        SET
+          gateway_status=?,
+          gateway_amount=?,
+          tx_hash=?,
+          amount_received=?
+        WHERE
+          trx_id=?
+          AND status='Pending'
+      `)
+        .bind(
+          status || null,
+          gatewayAmount ?? null,
+          extra.txHash || null,
+          extra.amountReceived ??
+            null,
+          trx.trx_id
+        )
+        .run();
+    }
+
+    return await findTransaction(
+      env,
+      trx.trx_id
+    );
+  }
+
+  const amount =
+    safeNumber(
+      trx.amount
+    );
+
+  if (
+    !Number.isFinite(amount) ||
+    amount <= 0
+  ) {
+    throw new Error(
+      "Nominal deposit tidak valid."
+    );
+  }
+
+
+  /* CRYPTO */
+
+  if (
+    trx.gateway_type ===
+    "CRYPTO"
+  ) {
+
+    const received =
+      safeNumber(
+        extra.amountReceived,
+        gatewayAmount
+      );
+
+    if (
+      !Number.isFinite(received) ||
+      received <= 0
+    ) {
+      throw new Error(
+        "Jumlah crypto yang diterima tidak valid."
+      );
+    }
+
+    const expectedUsd =
+      safeNumber(
+        trx.payment_amount,
+        0
+      );
+
+    if (
+      expectedUsd > 0 &&
+      received <
+        expectedUsd * 0.99
+    ) {
+
+      await env.DB.prepare(`
+        UPDATE transactions
+        SET
+          gateway_status=?,
+          gateway_amount=?,
+          amount_received=?,
+          tx_hash=?,
+          admin_note=?
+        WHERE
+          trx_id=?
+          AND status='Pending'
+      `)
+        .bind(
+          status,
+          received,
+          received,
+          extra.txHash ||
+            null,
+          "Jumlah crypto di bawah toleransi Instanpay.",
+          trx.trx_id
+        )
+        .run();
+
+      throw new Error(
+        "Jumlah crypto yang diterima di bawah toleransi pembayaran."
+      );
+    }
+
+  } else {
+
+    /* QRIS */
+
+    const expectedPayment =
+      safeNumber(
+        trx.payment_amount,
+        amount
+      );
+
+    const received =
+      safeNumber(
+        gatewayAmount,
+        expectedPayment
+      );
+
+    if (
+      Math.round(received) !==
+      Math.round(expectedPayment)
+    ) {
+
+      await env.DB.prepare(`
+        UPDATE transactions
+        SET
+          gateway_status=?,
+          gateway_amount=?,
+          admin_note=?
+        WHERE
+          trx_id=?
+          AND status='Pending'
+      `)
+        .bind(
+          status,
+          received,
+          "Nominal QRIS yang terdeteksi tidak sama dengan total pembayaran.",
+          trx.trx_id
+        )
+        .run();
+
+      throw new Error(
+        "Nominal pembayaran QRIS tidak cocok."
+      );
+    }
+  }
+
+
+  const processedAt =
+    new Date().toISOString();
+
+  const claim =
+    await env.DB.prepare(`
+      UPDATE transactions
+      SET
+        status='Success',
+        balance_processed=1,
+        processed_at=?,
+        gateway_status=?,
+        gateway_amount=?,
+        tx_hash=?,
+        amount_received=?,
+        admin_note=?
+      WHERE
+        trx_id=?
+        AND status='Pending'
+        AND balance_processed=0
+    `)
+      .bind(
+        processedAt,
+        status,
+        gatewayAmount ?? amount,
+        extra.txHash || null,
+        extra.amountReceived ??
+          null,
+        note,
+        trx.trx_id
+      )
+      .run();
+
+  if (
+    !claim.success ||
+    claim.meta.changes !== 1
+  ) {
+    return await findTransaction(
+      env,
+      trx.trx_id
+    );
+  }
+
+
+  const balance =
+    await env.DB.prepare(
+      "UPDATE users SET saldo=saldo+? WHERE id=?"
+    )
+      .bind(
+        amount,
+        trx.user_id
+      )
+      .run();
+
+  if (
+    !balance.success ||
+    balance.meta.changes !== 1
+  ) {
+
+    await env.DB.prepare(`
+      UPDATE transactions
+      SET
+        status='Pending',
+        balance_processed=0,
+        processed_at=NULL,
+        admin_note=?
+      WHERE
+        trx_id=?
+        AND status='Success'
+        AND balance_processed=1
+    `)
+      .bind(
+        "Gagal menambahkan saldo; transaksi dikembalikan ke Pending.",
+        trx.trx_id
+      )
+      .run();
+
+    throw new Error(
+      "Gagal menambahkan saldo."
+    );
+  }
+
+  return await findTransaction(
+    env,
+    trx.trx_id
+  );
+}
+
+
+/* =========================================================
+   SYNC DEPOSIT
+========================================================= */
+
+async function syncDepositStatus(
+  env,
+  trx
+) {
+  if (
+    !trx ||
+    trx.type !== "DEPOSIT" ||
+    trx.status !== "Pending"
+  ) {
+    return trx;
+  }
+
+  if (
+    !trx.gateway_transaction_id &&
+    !trx.gateway_order_id
+  ) {
+    return trx;
+  }
+
+  let data;
+
+  if (
+    safeString(
+      trx.gateway_type
+    ).toUpperCase() ===
+    "CRYPTO"
+  ) {
+
+    data =
+      await checkCryptoPayment(
+        env,
+        trx.gateway_transaction_id ||
+          trx.gateway_order_id
+      );
+
+    const d =
+      data?.data || {};
+
+    return await finalizeDeposit(
+      env,
+      trx,
+      d.status,
+      safeNumber(
+        d.amount_received,
+        0
+      ),
+      "Pembayaran Crypto Instanpay otomatis terverifikasi.",
+      {
+        txHash:
+          safeString(
+            d.tx_hash
+          ),
+
+        amountReceived:
+          safeNumber(
+            d.amount_received,
+            0
+          )
+      }
+    );
+  }
+
+
+  data =
+    await checkQrisPayment(
+      env,
+      trx.gateway_transaction_id ||
+        trx.gateway_order_id
+    );
+
+  const d =
+    data?.data || {};
+
+  return await finalizeDeposit(
+    env,
+    trx,
+    d.status,
+    safeNumber(
+      d.totalAmount,
+      0
+    ),
+    "Pembayaran QRIS Instanpay otomatis terverifikasi.",
+    {}
+  );
+}
+
+async function findTransaction(
+  env,
+  trxId
+) {
+  return await env.DB.prepare(`
+    SELECT
+      transactions.*,
+      users.username
+    FROM transactions
+    INNER JOIN users
+      ON users.id=transactions.user_id
+    WHERE
+      transactions.trx_id=?
+    LIMIT 1
+  `)
+    .bind(trxId)
+    .first();
+}
+
+
+/* =========================================================
+   WEBHOOK INSTANPAY
+========================================================= */
+
+async function handleWebhook(
+  request,
+  env
+) {
+  const body =
+    await readJson(request);
+
+  const isCrypto =
+    safeString(
+      body.type
+    ).toUpperCase() ===
+    "CRYPTO";
+
+  const transactionId =
+    safeString(
+      body.transactionId
+    );
+
+  if (!transactionId) {
+    return json(
+      {
+        success: false,
+        message:
+          "transactionId wajib diisi."
+      },
+      400
+    );
+  }
+
+  const trx =
+    await env.DB.prepare(`
+      SELECT *
+      FROM transactions
+      WHERE
+        gateway_transaction_id=?
+        AND type='DEPOSIT'
+      LIMIT 1
+    `)
+      .bind(transactionId)
+      .first();
+
+  if (!trx) {
+    return json(
+      {
+        success: false,
+        message:
+          "Transaksi tidak ditemukan."
+      },
+      404
+    );
+  }
+
+  const status =
+    instanpayStatus(
+      body.status
+    );
+
+  if (
+    ![
+      "PAID",
+      "PENDING",
+      "EXPIRED"
+    ].includes(status)
+  ) {
+    return json(
+      {
+        success: true
+      },
+      200
+    );
+  }
+
+  try {
+
+    if (isCrypto) {
+
+      await finalizeDeposit(
+        env,
+        trx,
+        status,
+        safeNumber(
+          body.amount_received,
+          0
+        ),
+        "Webhook Crypto Instanpay terverifikasi.",
+        {
+          txHash:
+            safeString(
+              body.tx_hash
+            ),
+
+          amountReceived:
+            safeNumber(
+              body.amount_received,
+              0
+            )
+        }
+      );
+
+    } else {
+
+      await finalizeDeposit(
+        env,
+        trx,
+        status,
+        safeNumber(
+          body.totalAmount,
+          0
+        ),
+        "Webhook QRIS Instanpay terverifikasi.",
+        {}
+      );
+    }
+
+  } catch (error) {
+
+    console.error(
+      "INSTANPAY WEBHOOK FINALIZE",
+      error
+    );
+
+    return json(
+      {
+        success: false,
+        message:
+          error?.message ||
+          "Gagal memproses webhook."
+      },
+      500
+    );
+  }
+
+  return json(
+    {
+      success: true
+    },
+    200
+  );
+}
+
+
+/* =========================================================
+   WORKER
+========================================================= */
+
+export default {
+
+  async fetch(request, env) {
+
+    if (
+      request.method ===
+      "OPTIONS"
+    ) {
+      return new Response(
+        null,
+        {
+          status: 204,
+          headers:
+            corsHeaders
+        }
+      );
+    }
+
+    const url =
+      new URL(request.url);
+
+    const path =
+      url.pathname;
+
+    try {
+
+      await createTables(env);
+
+
+      /* ROOT */
+
+      if (
+        path === "/" &&
+        request.method === "GET"
+      ) {
+
+        const cfg =
+          await getGatewayConfig(
+            env
+          );
+
+        return json({
+          success: true,
+
+          message:
+            "Game Login API + Instanpay aktif.",
+
+          apiHost: url.hostname,
+          compatibleFrontendHost:
+            FRONTEND_API_HOSTS.has(url.hostname),
+
+          paymentGateway:
+            Boolean(
+              cfg.apiKey &&
+              cfg.baseUrl
+            )
+        });
+      }
+
+
+      /* WEBHOOK */
+
+      if (
+        path ===
+          "/webhook/payment" &&
+        request.method === "POST"
+      ) {
+        return await handleWebhook(
+          request,
+          env
+        );
+      }
+
+      if (
+        path === "/webhook.php" &&
+        request.method === "POST"
+      ) {
+        return await handleWebhook(
+          request,
+          env
+        );
+      }
+
+
+      /* ADMIN TEST */
+
+      if (
+        path === "/admin/test" &&
+        request.method === "GET"
+      ) {
+
+        if (
+          !isAdmin(
+            request,
+            env
+          )
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Admin tidak diizinkan."
+            },
+            401
+          );
+        }
+
+        const cfg =
+          await getGatewayConfig(
+            env
+          );
+
+        return json({
+          success: true,
+          message:
+            "Admin berhasil terhubung.",
+          paymentGateway:
+            Boolean(
+              cfg.apiKey &&
+              cfg.baseUrl
+            )
+        });
+      }
+
+
+      /* GET GATEWAY CONFIG */
+
+      if (
+        path ===
+          "/admin/gateway/config" &&
+        request.method === "GET"
+      ) {
+
+        if (
+          !isAdmin(
+            request,
+            env
+          )
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Admin tidak diizinkan."
+            },
+            401
+          );
+        }
+
+        const cfg =
+          await getGatewayConfig(
+            env
+          );
+
+        const key =
+          cfg.apiKey;
+
+        return json({
+          success: true,
+
+          configured:
+            Boolean(
+              key &&
+              cfg.baseUrl
+            ),
+
+          baseUrl:
+            cfg.baseUrl || "",
+
+          apiKeyConfigured:
+            Boolean(key),
+
+          apiKeyMasked:
+            key
+              ? (
+                  key.length <= 8
+                    ? "********"
+                    : key.slice(0, 4) +
+                      "********" +
+                      key.slice(-4)
+                )
+              : ""
+        });
+      }
+
+
+      /* SAVE GATEWAY CONFIG */
+
+      if (
+        path ===
+          "/admin/gateway/config" &&
+        request.method === "POST"
+      ) {
+
+        if (
+          !isAdmin(
+            request,
+            env
+          )
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Admin tidak diizinkan."
+            },
+            401
+          );
+        }
+
+        const body =
+          await readJson(
+            request
+          );
+
+        const apiKey =
+          safeString(
+            body.apiKey
+          );
+
+        const baseUrl =
+          safeString(
+            body.baseUrl ||
+              "https://instanpay.net"
+          ).replace(
+            /\/+$/,
+            ""
+          );
+
+        if (
+          !apiKey ||
+          !baseUrl
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "API Key dan Base URL wajib diisi."
+            },
+            400
+          );
+        }
+
+        let parsed;
+
+        try {
+          parsed =
+            new URL(baseUrl);
+        } catch {
+          return json(
+            {
+              success: false,
+              message:
+                "Base URL tidak valid."
+            },
+            400
+          );
+        }
+
+        if (
+          !/^https?:$/.test(
+            parsed.protocol
+          )
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Base URL harus HTTP/HTTPS."
+            },
+            400
+          );
+        }
+
+        if (
+          parsed.hostname !==
+          "instanpay.net"
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Base URL Instanpay harus https://instanpay.net"
+            },
+            400
+          );
+        }
+
+        await env.DB.prepare(`
+          INSERT INTO gateway_config(
+            id,
+            api_key,
+            base_url,
+            updated_at
+          )
+          VALUES(
+            1,
+            ?,
+            ?,
+            ?
+          )
+          ON CONFLICT(id)
+          DO UPDATE SET
+            api_key=excluded.api_key,
+            base_url=excluded.base_url,
+            updated_at=excluded.updated_at
+        `)
+          .bind(
+            apiKey,
+            baseUrl,
+            new Date().toISOString()
+          )
+          .run();
+
+        return json({
+          success: true,
+
+          message:
+            "Konfigurasi gateway berhasil disimpan.",
+
+          baseUrl,
+
+          apiKeyMasked:
+            apiKey.length <= 8
+              ? "********"
+              : apiKey.slice(0, 4) +
+                "********" +
+                apiKey.slice(-4)
+        });
+      }
+
+
+      /* =====================================================
+         REGISTER
+      ===================================================== */
+
+      if (
+        path === "/register" &&
+        request.method === "POST"
+      ) {
+
+        const body =
+          await readJson(
+            request
+          );
+
+        const username =
+          safeString(
+            body.username
+          );
+
+        const password =
+          safeString(
+            body.password
+          );
+
+        const bank =
+          safeString(
+            body.bank
+          );
+
+        const namaRekening =
+          safeString(
+            body.namaRekening
+          );
+
+        const nomorRekening =
+          safeString(
+            body.nomorRekening
+          );
+
+        const nomorHp =
+          safeString(
+            body.nomorHp
+          );
+
+        if (
+          !username ||
+          !password ||
+          !bank ||
+          !namaRekening ||
+          !nomorRekening ||
+          !nomorHp
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Semua data wajib diisi."
+            },
+            400
+          );
+        }
+
+        if (
+          username.length < 3 ||
+          !/^[a-zA-Z0-9_.-]+$/.test(
+            username
+          )
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Username tidak valid."
+            },
+            400
+          );
+        }
+
+        if (
+          password.length < 8
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Password minimal 8 karakter."
+            },
+            400
+          );
+        }
+
+        const existing =
+          await env.DB.prepare(
+            "SELECT id FROM users WHERE username=? LIMIT 1"
+          )
+            .bind(username)
+            .first();
+
+        if (existing) {
+          return json(
+            {
+              success: false,
+              message:
+                "Username sudah digunakan."
+            },
+            409
+          );
+        }
+
+        const pd =
+          await hashPassword(
+            password
+          );
+
+        const insert =
+          await env.DB.prepare(`
+            INSERT INTO users(
+              username,
+              password_hash,
+              bank,
+              nama_rekening,
+              nomor_rekening,
+              nomor_hp,
+              saldo
+            )
+            VALUES(
+              ?,
+              ?,
+              ?,
+              ?,
+              ?,
+              ?,
+              0
+            )
+          `)
+            .bind(
+              username,
+              pd.salt +
+                ":" +
+                pd.hash,
+              bank,
+              namaRekening,
+              nomorRekening,
+              nomorHp
+            )
+            .run();
+
+        const user =
+          await env.DB.prepare(`
+            SELECT
+              id,
+              username,
+              bank,
+              nama_rekening,
+              nomor_rekening,
+              nomor_hp,
+              saldo,
+              created_at
+            FROM users
+            WHERE id=?
+          `)
+            .bind(
+              insert.meta.last_row_id
+            )
+            .first();
+
+        return json({
+          success: true,
+          message:
+            "Akun berhasil dibuat.",
+          user:
+            cleanUser(user)
+        });
+      }
+
+
+      /* =====================================================
+         LOGIN
+      ===================================================== */
+
+      if (
+        path === "/login" &&
+        request.method === "POST"
+      ) {
+
+        const body =
+          await readJson(
+            request
+          );
+
+        const username =
+          safeString(
+            body.username
+          );
+
+        const password =
+          safeString(
+            body.password
+          );
+
+        if (
+          !username ||
+          !password
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Username dan password wajib diisi."
+            },
+            400
+          );
+        }
+
+        const user =
+          await env.DB.prepare(
+            "SELECT * FROM users WHERE username=? LIMIT 1"
+          )
+            .bind(username)
+            .first();
+
+        if (!user) {
+          return json(
+            {
+              success: false,
+              message:
+                "Username atau password salah."
+            },
+            401
+          );
+        }
+
+        const parts =
+          safeString(
+            user.password_hash
+          ).split(":");
+
+        if (
+          parts.length !== 2
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Data password tidak valid."
+            },
+            500
+          );
+        }
+
+        const calc =
+          await hashPassword(
+            password,
+            parts[0]
+          );
+
+        if (
+          calc.hash !==
+          parts[1]
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Username atau password salah."
+            },
+            401
+          );
+        }
+
+        const token =
+          bytesToHex(
+            crypto.getRandomValues(
+              new Uint8Array(32)
+            )
+          );
+
+        const tokenHash =
+          await sha256(token);
+
+        const expiresAt =
+          Date.now() +
+          30 *
+            24 *
+            60 *
+            60 *
+            1000;
+
+        await env.DB.prepare(`
+          INSERT INTO sessions(
+            user_id,
+            token_hash,
+            expires_at
+          )
+          VALUES(
+            ?,
+            ?,
+            ?
+          )
+        `)
+          .bind(
+            user.id,
+            tokenHash,
+            expiresAt
+          )
+          .run();
+
+        return json({
+          success: true,
+          message:
+            "Login berhasil.",
+          token,
+          expiresAt,
+          user:
+            cleanUser(user)
+        });
+      }
+
+
+      /* ME */
+
+      if (
+        path === "/me" &&
+        request.method === "GET"
+      ) {
+
+        const user =
+          await getAuthenticatedUser(
+            request,
+            env
+          );
+
+        if (!user) {
+          return json(
+            {
+              success: false,
+              message:
+                "Session tidak valid."
+            },
+            401
+          );
+        }
+
+        return json({
+          success: true,
+
+          user: {
+            id:
+              user.uid,
+
+            username:
+              user.username,
+
+            bank:
+              user.bank || "",
+
+            namaRekening:
+              user.nama_rekening ||
+              "",
+
+            nomorRekening:
+              user.nomor_rekening ||
+              "",
+
+            nomorHp:
+              user.nomor_hp ||
+              "",
+
+            saldo:
+              safeNumber(
+                user.saldo
+              ),
+
+            createdAt:
+              user.user_created_at
+          }
+        });
+      }
+
+
+      /* LOGOUT */
+
+      if (
+        path === "/logout" &&
+        request.method === "POST"
+      ) {
+
+        const auth =
+          request.headers.get(
+            "Authorization"
+          );
+
+        if (auth) {
+
+          const token =
+            auth
+              .replace(
+                /^Bearer\s+/i,
+                ""
+              )
+              .trim();
+
+          if (token) {
+
+            await env.DB.prepare(
+              "DELETE FROM sessions WHERE token_hash=?"
+            )
+              .bind(
+                await sha256(
+                  token
+                )
+              )
+              .run();
+          }
+        }
+
+        return json({
+          success: true,
+          message:
+            "Logout berhasil."
+        });
+      }
+
+
+      /* =====================================================
+         DEPOSIT
+      ===================================================== */
+
+      if (
+        path === "/deposit" &&
+        request.method === "POST"
+      ) {
+
+        const user =
+          await getAuthenticatedUser(
+            request,
+            env
+          );
+
+        if (!user) {
+          return json(
+            {
+              success: false,
+              message:
+                "Silakan login terlebih dahulu."
+            },
+            401
+          );
+        }
+
+        const body =
+          await readJson(
+            request
+          );
+
+        const method =
+          safeString(
+            body.method,
+            "QRIS"
+          ).toUpperCase() ||
+          "QRIS";
+
+        const webhookUrl =
+          webhookUrlFromRequest(
+            request
+          );
+
+
+        /* CEK DEPOSIT PENDING */
+
+        const pending =
+          await env.DB.prepare(`
+            SELECT *
+            FROM transactions
+            WHERE
+              user_id=?
+              AND type='DEPOSIT'
+              AND status='Pending'
+            ORDER BY id DESC
+            LIMIT 1
+          `)
+            .bind(
+              user.uid
+            )
+            .first();
+
+        if (pending) {
+
+          if (
+            pending.gateway_transaction_id ||
+            pending.gateway_order_id
+          ) {
+
+            try {
+
+              const synced =
+                await syncDepositStatus(
+                  env,
+                  pending
+                );
+
+              if (
+                !synced ||
+                synced.status ===
+                  "Pending"
+              ) {
+                return json(
+                  {
+                    success: false,
+                    message:
+                      "Masih ada deposit yang sedang diproses.",
+                    transaction:
+                      cleanTransaction(
+                        synced ||
+                          pending
+                      )
+                  },
+                  409
+                );
+              }
+
+            } catch {
+
+              return json(
+                {
+                  success: false,
+                  message:
+                    "Masih ada deposit yang sedang diproses.",
+                  transaction:
+                    cleanTransaction(
+                      pending
+                    )
+                },
+                409
+              );
+            }
+
+          } else {
+
+            return json(
+              {
+                success: false,
+                message:
+                  "Masih ada deposit yang sedang diproses.",
+                transaction:
+                  cleanTransaction(
+                    pending
+                  )
+              },
+              409
+            );
+          }
+        }
+
+
+        let trxId =
+          "DEP" +
+          Date.now() +
+          Math.floor(
+            Math.random() * 1000
+          );
+
+        let gateway;
+        let dbAmount;
+
+
+        /* =================================================
+           CRYPTO
+        ================================================= */
+
+        if (
+          method === "CRYPTO"
+        ) {
+
+          const amountUsd =
+            Number(
+              body.amount_usd ??
+              body.amountUsd
+            );
+
+          const chain =
+            safeString(
+              body.chain
+            ).toUpperCase();
+
+          const token =
+            safeString(
+              body.token
+            ).toUpperCase();
+
+          const validChains = [
+            "BSC",
+            "BASE",
+            "ETH",
+            "POLYGON",
+            "SOL"
+          ];
+
+          const validTokens = [
+            "USDT",
+            "USDC"
+          ];
+
+          if (
+            !Number.isFinite(
+              amountUsd
+            ) ||
+            amountUsd < 0.01
+          ) {
+            return json(
+              {
+                success: false,
+                message:
+                  "Minimal deposit Crypto adalah $0.01 USD."
+              },
+              400
+            );
+          }
+
+          if (
+            !validChains.includes(
+              chain
+            )
+          ) {
+            return json(
+              {
+                success: false,
+                message:
+                  "Chain Crypto tidak valid."
+              },
+              400
+            );
+          }
+
+          if (
+            !validTokens.includes(
+              token
+            )
+          ) {
+            return json(
+              {
+                success: false,
+                message:
+                  "Token Crypto hanya USDT atau USDC."
+              },
+              400
+            );
+          }
+
+          dbAmount =
+            Math.round(
+              amountUsd * 100
+            );
+
+          if (
+            dbAmount <= 0
+          ) {
+            return json(
+              {
+                success: false,
+                message:
+                  "Nominal Crypto tidak valid."
+              },
+              400
+            );
+          }
+
+          await env.DB.prepare(`
+            INSERT INTO transactions(
+              trx_id,
+              user_id,
+              type,
+              amount,
+              method,
+              status,
+              balance_processed,
+              gateway_type
+            )
+            VALUES(
+              ?,
+              ?,
+              'DEPOSIT',
+              ?,
+              ?,
+              'Pending',
+              0,
+              'CRYPTO'
+            )
+          `)
+            .bind(
+              trxId,
+              user.uid,
+              dbAmount,
+              "CRYPTO"
+            )
+            .run();
+
+          try {
+
+            gateway =
+              await createCryptoPayment(
+                env,
+                {
+                  amountUsd,
+                  chain,
+                  token,
+                  customerName:
+                    user.username,
+
+                  customerEmail:
+                    safeString(
+                      body.customer_email ||
+                      body.customerEmail
+                    )
+                }
+              );
+
+          } catch (error) {
+
+            await env.DB.prepare(`
+              UPDATE transactions
+              SET
+                status='Reject',
+                processed_at=?,
+                admin_note=?
+              WHERE
+                trx_id=?
+            `)
+              .bind(
+                new Date().toISOString(),
+                "Instanpay error: " +
+                  (
+                    error?.message ||
+                    String(error)
+                  ),
+                trxId
+              )
+              .run();
+
+            return json(
+              {
+                success: false,
+                message:
+                  error?.message ||
+                  "Gagal membuat pembayaran Crypto."
+              },
+              502
+            );
+          }
+
+          await env.DB.prepare(`
+            UPDATE transactions
+            SET
+              gateway_order_id=?,
+              gateway_transaction_id=?,
+              gateway_amount=?,
+              payment_amount=?,
+              gateway_status=?,
+              gateway_type='CRYPTO',
+              payment_url=?,
+              checkout_url=?,
+              deposit_address=?,
+              crypto_chain=?,
+              crypto_token=?,
+              gateway_created_at=?
+            WHERE
+              trx_id=?
+          `)
+            .bind(
+              gateway.orderId,
+              gateway.transactionId,
+              gateway.amountUsd * 100,
+              gateway.amountUsd,
+              gateway.status,
+              gateway.paymentUrl,
+              gateway.paymentUrl,
+              gateway.depositAddress,
+              gateway.chain,
+              gateway.token,
+              gateway.createdAt,
+              trxId
+            )
+            .run();
+
+          const transaction =
+            await findTransaction(
+              env,
+              trxId
+            );
+
+        return json({
+            success: true,
+
+            message:
+              "Pembayaran Crypto berhasil dibuat.",
+
+            transaction:
+              cleanTransaction(
+                transaction
+              ),
+
+            payment: {
+              type:
+                "CRYPTO",
+
+              transactionId:
+                gateway.transactionId,
+
+              gatewayOrderId:
+                gateway.orderId,
+
+              amountUsd:
+                gateway.amountUsd,
+
+              chain:
+                gateway.chain,
+
+              token:
+                gateway.token,
+
+              depositAddress:
+                gateway.depositAddress,
+
+              paymentUrl:
+                gateway.paymentUrl,
+
+              expiresAt:
+                gateway.expiredAt
+            }
+          });
+        }
+
+
+        /* =================================================
+           QRIS
+        ================================================= */
+
+        if (
+          method !== "QRIS"
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Metode deposit hanya QRIS atau CRYPTO."
+            },
+            400
+          );
+        }
+
+        const amount =
+          Number(
+            body.amount
+          );
+
+        if (
+          !Number.isInteger(
+            amount
+          ) ||
+          amount < 100
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Minimal deposit QRIS Rp 100 dan harus angka bulat."
+            },
+            400
+          );
+        }
+
+        if (
+          amount >
+          10000000
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Maksimal deposit QRIS Rp 10.000.000."
+            },
+            400
+          );
+        }
+
+        await env.DB.prepare(`
+          INSERT INTO transactions(
+            trx_id,
+            user_id,
+            type,
+            amount,
+            method,
+            status,
+            balance_processed,
+            gateway_type
+          )
+          VALUES(
+            ?,
+            ?,
+            'DEPOSIT',
+            ?,
+            ?,
+            'Pending',
+            0,
+            'QRIS'
+          )
+        `)
+          .bind(
+            trxId,
+            user.uid,
+            amount,
+            "QRIS"
+          )
+          .run();
+
+        try {
+
+          gateway =
+            await createQrisPayment(
+              env,
+              {
+                amount,
+                customerName:
+                  user.username,
+                webhookUrl
+              }
+            );
+
+        } catch (error) {
+
+          await env.DB.prepare(`
+            UPDATE transactions
+            SET
+              status='Reject',
+              processed_at=?,
+              admin_note=?
+            WHERE
+              trx_id=?
+          `)
+            .bind(
+              new Date().toISOString(),
+              "Instanpay error: " +
+                (
+                  error?.message ||
+                  String(error)
+                ),
+              trxId
+            )
+            .run();
+
+          return json(
+            {
+              success: false,
+              message:
+                error?.message ||
+                "Gagal membuat pembayaran QRIS."
+            },
+            502
+          );
+        }
+
+        if (
+          Math.round(
+            gateway.baseAmount
+          ) !== amount
+        ) {
+
+          await env.DB.prepare(`
+            UPDATE transactions
+            SET
+              status='Reject',
+              gateway_amount=?,
+              payment_amount=?,
+              gateway_status='INVALID',
+              processed_at=?,
+              admin_note=?
+            WHERE
+              trx_id=?
+          `)
+            .bind(
+              gateway.baseAmount,
+              gateway.totalAmount,
+              new Date().toISOString(),
+              "baseAmount Instanpay tidak sama dengan nominal deposit.",
+              trxId
+            )
+            .run();
+
+          return json(
+            {
+              success: false,
+              message:
+                "Nominal Instanpay tidak sama dengan nominal deposit."
+            },
+            502
+          );
+        }
+
+        await env.DB.prepare(`
+          UPDATE transactions
+          SET
+            gateway_order_id=?,
+            gateway_transaction_id=?,
+            gateway_amount=?,
+            payment_amount=?,
+            gateway_status=?,
+            gateway_type='QRIS',
+            qris_string=?,
+            qr_code_svg=?,
+            gateway_created_at=?
+          WHERE
+            trx_id=?
+        `)
+          .bind(
+            gateway.orderId,
+            gateway.transactionId,
+            gateway.baseAmount,
+            gateway.totalAmount,
+            gateway.status,
+            gateway.qrisString,
+            gateway.qrCodeSvg,
+            gateway.createdAt,
+            trxId
+          )
+          .run();
+
+        const transaction =
+          await findTransaction(
+            env,
+            trxId
+          );
+
+        return json({
+          success: true,
+
+          message:
+            "Pembayaran QRIS berhasil dibuat.",
+
+          transaction:
+            cleanTransaction(
+              transaction
+            ),
+
+          payment: {
+            type:
+              "QRIS",
+
+            transactionId:
+              gateway.transactionId,
+
+            qrisString:
+              gateway.qrisString,
+
+            qrCodeSvg:
+              gateway.qrCodeSvg,
+
+            baseAmount:
+              gateway.baseAmount,
+
+            uniqueCode:
+              gateway.uniqueCode,
+
+            totalAmount:
+              gateway.totalAmount,
+
+            baseFormatted:
+              `Rp ${gateway.baseAmount.toLocaleString("id-ID")}`,
+
+            totalFormatted:
+              `Rp ${gateway.totalAmount.toLocaleString("id-ID")}`,
+
+            expiredAt:
+              gateway.expiredAt
+          }
+        });
+      }
+
+
+      /* =====================================================
+         DEPOSIT STATUS
+      ===================================================== */
+
+      if (
+        path === "/deposit/status" &&
+        request.method === "GET"
+      ) {
+
+        const user =
+          await getAuthenticatedUser(
+            request,
+            env
+          );
+
+        if (!user) {
+          return json(
+            {
+              success: false,
+              message:
+                "Session tidak valid."
+            },
+            401
+          );
+        }
+
+        const trxId =
+          safeString(
+            url.searchParams.get(
+              "trx_id"
+            )
+          );
+
+        if (!trxId) {
+          return json(
+            {
+              success: false,
+              message:
+                "trx_id wajib diisi."
+            },
+            400
+          );
+        }
+
+        const trx =
+          await env.DB.prepare(`
+            SELECT
+              transactions.*,
+              users.username
+            FROM transactions
+            INNER JOIN users
+              ON users.id=
+                 transactions.user_id
+            WHERE
+              transactions.trx_id=?
+              AND transactions.user_id=?
+            LIMIT 1
+          `)
+            .bind(
+              trxId,
+              user.uid
+            )
+            .first();
+
+        if (!trx) {
+          return json(
+            {
+              success: false,
+              message:
+                "Transaksi tidak ditemukan."
+            },
+            404
+          );
+        }
+
+        let current =
+          trx;
+
+        if (
+          trx.status === "Pending" &&
+          trx.gateway_order_id
+        ) {
+
+          try {
+
+            current =
+              await syncDepositStatus(
+                env,
+                trx
+              );
+
+          } catch (error) {
+
+            console.error(
+              "DEPOSIT STATUS ERROR",
+              error
+            );
+          }
+        }
+
+        return json({
+          success: true,
+          transaction:
+            cleanTransaction(
+              current
+            )
+        });
+      }
+
+
+      if (
+
+        path === "/deposit/cancel" &&
+        request.method === "POST"
+      ) {
+
+        const user =
+          await getAuthenticatedUser(
+            request,
+            env
+          );
+
+        if (!user) {
+          return json(
+            {
+              success: false,
+              message: "Session tidak valid."
+            },
+            401
+          );
+        }
+
+        let body = {};
+
+        try {
+          body = await request.json();
+        } catch (error) {
+          return json(
+            {
+              success: false,
+              message: "Request JSON tidak valid."
+            },
+            400
+          );
+        }
+
+        const trxId =
+          safeString(
+            body.trx_id || body.id
+          );
+
+        if (!trxId) {
+          return json(
+            {
+              success: false,
+              message: "trx_id wajib diisi."
+            },
+            400
+          );
+        }
+
+        const trx =
+          await env.DB.prepare(`
+            SELECT
+              transactions.*,
+              users.username
+            FROM transactions
+            INNER JOIN users
+              ON users.id = transactions.user_id
+            WHERE
+              transactions.trx_id = ?
+              AND transactions.user_id = ?
+            LIMIT 1
+          `)
+            .bind(
+              trxId,
+              user.uid
+            )
+            .first();
+
+        if (!trx) {
+          return json(
+            {
+              success: false,
+              message: "Transaksi tidak ditemukan."
+            },
+            404
+          );
+        }
+
+        if (
+          String(trx.status || "").toLowerCase() !==
+          "pending"
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Pembayaran sudah tidak dapat dibatalkan."
+            },
+            409
+          );
+        }
+
+        const update =
+          await env.DB.prepare(`
+            UPDATE transactions
+            SET
+              status = 'Reject',
+              gateway_status = 'CANCELLED',
+              processed_at = ?,
+              admin_note = ?
+            WHERE
+              trx_id = ?
+              AND user_id = ?
+              AND status = 'Pending'
+          `)
+            .bind(
+              new Date().toISOString(),
+              "Pembayaran dibatalkan oleh user.",
+              trxId,
+              user.uid
+            )
+            .run();
+
+        if (
+          !update.success ||
+          update.meta.changes !== 1
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Pembayaran sudah berubah status atau gagal dibatalkan."
+            },
+            409
+          );
+        }
+
+        const transaction =
+          await findTransaction(
+            env,
+            trxId
+          );
+
+        return json({
+          success: true,
+          message:
+            "Pembayaran berhasil dibatalkan.",
+          transaction:
+            cleanTransaction(
+              transaction
+            )
+        });
+      }
+
+      if (
+        path === "/deposit/history" &&
+        request.method === "GET"
+      ) {
+
+        const user =
+          await getAuthenticatedUser(
+            request,
+            env
+          );
+
+        if (!user) {
+          return json(
+            {
+              success: false,
+              message:
+                "Session tidak valid."
+            },
+            401
+          );
+        }
+
+        let result =
+          await env.DB.prepare(`
+            SELECT
+              transactions.*,
+              users.username
+            FROM transactions
+            INNER JOIN users
+              ON users.id=
+                 transactions.user_id
+            WHERE
+              transactions.user_id=?
+              AND transactions.type='DEPOSIT'
+            ORDER BY
+              transactions.id DESC
+          `)
+            .bind(
+              user.uid
+            )
+            .all();
+
+        for (
+          const row of
+            result.results || []
+        ) {
+
+          if (
+            row.status === "Pending" &&
+            row.gateway_order_id
+          ) {
+
+            try {
+
+              await syncDepositStatus(
+                env,
+                row
+              );
+
+            } catch (error) {
+
+              console.error(
+                "HISTORY SYNC",
+                error
+              );
+            }
+          }
+        }
+
+        result =
+          await env.DB.prepare(`
+            SELECT
+              transactions.*,
+              users.username
+            FROM transactions
+            INNER JOIN users
+              ON users.id=
+                 transactions.user_id
+            WHERE
+              transactions.user_id=?
+              AND transactions.type='DEPOSIT'
+            ORDER BY
+              transactions.id DESC
+          `)
+            .bind(
+              user.uid
+            )
+            .all();
+
+        return json({
+          success: true,
+
+          transactions:
+            (
+              result.results ||
+              []
+            ).map(
+              cleanTransaction
+            )
+        });
+      }
+
+
+      /* =====================================================
+         WITHDRAW HISTORY
+      ===================================================== */
+
+      if (
+        path === "/withdraw/history" &&
+        request.method === "GET"
+      ) {
+
+        const user =
+          await getAuthenticatedUser(
+            request,
+            env
+          );
+
+        if (!user) {
+          return json(
+            {
+              success: false,
+              message:
+                "Session tidak valid."
+            },
+            401
+          );
+        }
+
+        const result =
+          await env.DB.prepare(`
+            SELECT
+              transactions.*,
+              users.username
+            FROM transactions
+            INNER JOIN users
+              ON users.id=
+                 transactions.user_id
+            WHERE
+              transactions.user_id=?
+              AND transactions.type='WITHDRAW'
+            ORDER BY
+              transactions.id DESC
+          `)
+            .bind(
+              user.uid
+            )
+            .all();
+
+        return json({
+          success: true,
+
+          transactions:
+            (
+              result.results ||
+              []
+            ).map(
+              cleanTransaction
+            )
+        });
+      }
+
+
+      /* =====================================================
+         WITHDRAW
+      ===================================================== */
+
+      if (
+        path === "/withdraw" &&
+        request.method === "POST"
+      ) {
+
+        const user =
+          await getAuthenticatedUser(
+            request,
+            env
+          );
+
+        if (!user) {
+          return json(
+            {
+              success: false,
+              message:
+                "Silakan login terlebih dahulu."
+            },
+            401
+          );
+        }
+
+        const body =
+          await readJson(
+            request
+          );
+
+        const amount =
+          Number(
+            body.amount
+          );
+
+        const accountName =
+          safeString(
+            body.accountName
+          );
+
+        const accountNumber =
+          safeString(
+            body.accountNumber
+          );
+
+        const phone =
+          safeString(
+            body.phone
+          );
+
+        if (
+          !Number.isFinite(
+            amount
+          ) ||
+          amount <= 0
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Nominal withdraw tidak valid."
+            },
+            400
+          );
+        }
+
+        if (
+          !accountName ||
+          !accountNumber ||
+          !phone
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Data rekening wajib diisi."
+            },
+            400
+          );
+        }
+
+        const freshUser =
+          await env.DB.prepare(`
+            SELECT
+              id,
+              saldo,
+              bank
+            FROM users
+            WHERE id=?
+            LIMIT 1
+          `)
+            .bind(
+              user.uid
+            )
+            .first();
+
+        const saldo =
+          safeNumber(
+            freshUser?.saldo
+          );
+
+        if (
+          amount > saldo
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Saldo tidak cukup."
+            },
+            400
+          );
+        }
+
+        const pending =
+          await env.DB.prepare(`
+            SELECT id
+            FROM transactions
+            WHERE
+              user_id=?
+              AND type='WITHDRAW'
+              AND status='Pending'
+            LIMIT 1
+          `)
+            .bind(
+              user.uid
+            )
+            .first();
+
+        if (pending) {
+          return json(
+            {
+              success: false,
+              message:
+                "Masih ada withdraw yang sedang diproses."
+            },
+            409
+          );
+        }
+
+        const trxId =
+          "WD" +
+          Date.now() +
+          Math.floor(
+            Math.random() * 1000
+          );
+
+        const update =
+          await env.DB.prepare(`
+            UPDATE users
+            SET saldo=saldo-?
+            WHERE
+              id=?
+              AND saldo>=?
+          `)
+            .bind(
+              amount,
+              user.uid,
+              amount
+            )
+            .run();
+
+        if (
+          !update.success ||
+          update.meta.changes !== 1
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Saldo berubah atau tidak mencukupi."
+            },
+            409
+          );
+        }
+
+        try {
+
+          await env.DB.prepare(`
+            INSERT INTO transactions(
+              trx_id,
+              user_id,
+              type,
+              amount,
+              method,
+              bank,
+              account_name,
+              account_number,
+              phone,
+              status,
+              balance_processed
+            )
+            VALUES(
+              ?,
+              ?,
+              'WITHDRAW',
+              ?,
+              'BANK',
+              ?,
+              ?,
+              ?,
+              ?,
+              'Pending',
+              1
+            )
+          `)
+            .bind(
+              trxId,
+              user.uid,
+              amount,
+              freshUser.bank || "",
+              accountName,
+              accountNumber,
+              phone
+            )
+            .run();
+
+        } catch (error) {
+
+          await env.DB.prepare(
+            "UPDATE users SET saldo=saldo+? WHERE id=?"
+          )
+            .bind(
+              amount,
+              user.uid
+            )
+            .run();
+
+          throw error;
+        }
+
+        return json({
+          success: true,
+
+          message:
+            "Withdraw berhasil dikirim.",
+
+          transaction:
+            cleanTransaction(
+              await findTransaction(
+                env,
+                trxId
+              )
+            )
+        });
+      }
+
+
+      /* =====================================================
+         ADMIN TRANSACTIONS
+      ===================================================== */
+
+      if (
+        path === "/admin/transactions" &&
+        request.method === "GET"
+      ) {
+
+        if (
+          !isAdmin(
+            request,
+            env
+          )
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Admin tidak diizinkan."
+            },
+            401
+          );
+        }
+
+        const status =
+          safeString(
+            url.searchParams.get(
+              "status"
+            )
+          );
+
+        let result =
+          status &&
+          [
+            "Pending",
+            "Success",
+            "Reject"
+          ].includes(status)
+
+            ? await env.DB.prepare(`
+                SELECT
+                  transactions.*,
+                  users.username
+                FROM transactions
+                INNER JOIN users
+                  ON users.id=
+                     transactions.user_id
+                WHERE
+                  transactions.status=?
+                ORDER BY
+                  transactions.id DESC
+              `)
+                .bind(status)
+                .all()
+
+            : await env.DB.prepare(`
+                SELECT
+                  transactions.*,
+                  users.username
+                FROM transactions
+                INNER JOIN users
+                  ON users.id=
+                     transactions.user_id
+                ORDER BY
+                  transactions.id DESC
+              `)
+                .all();
+
+        for (
+          const trx of
+            result.results || []
+        ) {
+
+          if (
+            trx.type === "DEPOSIT" &&
+            trx.status === "Pending" &&
+            trx.gateway_order_id
+          ) {
+
+            try {
+
+              await syncDepositStatus(
+                env,
+                trx
+              );
+
+            } catch (error) {
+
+              console.error(
+                "ADMIN TRANSACTION SYNC",
+                error
+              );
+            }
+          }
+        }
+
+        result =
+          status &&
+          [
+            "Pending",
+            "Success",
+            "Reject"
+          ].includes(status)
+
+            ? await env.DB.prepare(`
+                SELECT
+                  transactions.*,
+                  users.username
+                FROM transactions
+                INNER JOIN users
+                  ON users.id=
+                     transactions.user_id
+                WHERE
+                  transactions.status=?
+                ORDER BY
+                  transactions.id DESC
+              `)
+                .bind(status)
+                .all()
+
+            : await env.DB.prepare(`
+                SELECT
+                  transactions.*,
+                  users.username
+                FROM transactions
+                INNER JOIN users
+                  ON users.id=
+                     transactions.user_id
+                ORDER BY
+                  transactions.id DESC
+              `)
+                .all();
+
+        return json({
+          success: true,
+
+          transactions:
+            (
+              result.results ||
+              []
+            ).map(
+              cleanTransaction
+            )
+        });
+      }
+
+
+      /* =====================================================
+         ADMIN TRANSACTION ACTION
+      ===================================================== */
+
+      if (
+        path ===
+          "/admin/transaction/action" &&
+        request.method === "POST"
+      ) {
+
+        if (
+          !isAdmin(
+            request,
+            env
+          )
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Admin tidak diizinkan."
+            },
+            401
+          );
+        }
+
+        const body =
+          await readJson(
+            request
+          );
+
+        const trxId =
+          safeString(
+            body.id
+          );
+
+        const action =
+          safeString(
+            body.action
+          ).toLowerCase();
+
+        const note =
+          safeString(
+            body.note
+          );
+
+        if (
+          !trxId ||
+          ![
+            "confirm",
+            "reject"
+          ].includes(
+            action
+          )
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Request admin tidak valid."
+            },
+            400
+          );
+        }
+
+        const trx =
+          await env.DB.prepare(
+            "SELECT * FROM transactions WHERE trx_id=? LIMIT 1"
+          )
+            .bind(
+              trxId
+            )
+            .first();
+
+        if (!trx) {
+          return json(
+            {
+              success: false,
+              message:
+                "Transaksi tidak ditemukan."
+            },
+            404
+          );
+        }
+
+        if (
+          trx.status !==
+          "Pending"
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Transaksi sudah diproses."
+            },
+            409
+          );
+        }
+
+
+        /* DEPOSIT OTOMATIS */
+
+        if (
+          trx.type ===
+          "DEPOSIT"
+        ) {
+
+          try {
+
+            const synced =
+              trx.gateway_order_id
+                ? await syncDepositStatus(
+                    env,
+                    trx
+                  )
+                : trx;
+
+            if (
+              synced?.status ===
+              "Success"
+            ) {
+
+        return json({
+                success: true,
+
+                message:
+                  "Deposit telah dikonfirmasi otomatis oleh gateway.",
+
+                transaction:
+                  cleanTransaction(
+                    synced
+                  )
+              });
+            }
+
+          } catch {}
+
+          return json(
+            {
+              success: false,
+              message:
+                "Deposit diproses otomatis berdasarkan status payment gateway."
+            },
+            403
+          );
+        }
+
+
+        const processedAt =
+          new Date().toISOString();
+
+
+        /* CONFIRM WITHDRAW */
+
+        if (
+          action ===
+          "confirm"
+        ) {
+
+          await env.DB.prepare(`
+            UPDATE transactions
+            SET
+              status='Success',
+              processed_at=?,
+              admin_note=?
+            WHERE
+              trx_id=?
+              AND status='Pending'
+          `)
+            .bind(
+              processedAt,
+              note,
+              trxId
+            )
+            .run();
+
+        return json({
+            success: true,
+
+            message:
+              "Withdraw berhasil dikonfirmasi.",
+
+            transaction:
+              cleanTransaction(
+                await findTransaction(
+                  env,
+                  trxId
+                )
+              )
+          });
+        }
+
+
+        /* REJECT WITHDRAW */
+
+        if (
+          action ===
+          "reject"
+        ) {
+
+          if (
+            trx.type ===
+              "WITHDRAW" &&
+            Number(
+              trx.balance_processed
+            ) === 1
+          ) {
+
+            await env.DB.prepare(
+              "UPDATE users SET saldo=saldo+? WHERE id=?"
+            )
+              .bind(
+                safeNumber(
+                  trx.amount
+                ),
+                trx.user_id
+              )
+              .run();
+          }
+
+          await env.DB.prepare(`
+            UPDATE transactions
+            SET
+              status='Reject',
+              balance_processed=0,
+              processed_at=?,
+              admin_note=?
+            WHERE
+              trx_id=?
+              AND status='Pending'
+          `)
+            .bind(
+              processedAt,
+              note,
+              trxId
+            )
+            .run();
+
+        return json({
+            success: true,
+
+            message:
+              "Withdraw berhasil ditolak dan saldo dikembalikan.",
+
+            transaction:
+              cleanTransaction(
+                await findTransaction(
+                  env,
+                  trxId
+                )
+              )
+          });
+        }
+      }
+
+
+      /* =====================================================
+         ADMIN USERS
+      ===================================================== */
+
+      if (
+        path === "/admin/users" &&
+        request.method === "GET"
+      ) {
+
+        if (
+          !isAdmin(
+            request,
+            env
+          )
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Admin tidak diizinkan."
+            },
+            401
+          );
+        }
+
+        const result =
+          await env.DB.prepare(`
+            SELECT
+              id,
+              username,
+              bank,
+              nama_rekening,
+              nomor_rekening,
+              nomor_hp,
+              saldo,
+              created_at
+            FROM users
+            ORDER BY id DESC
+          `)
+            .all();
+
+        return json({
+          success: true,
+
+          users:
+            (
+              result.results ||
+              []
+            ).map(
+              cleanUser
+            )
+        });
+      }
+
+
+      /* =====================================================
+         RESET PASSWORD
+      ===================================================== */
+
+      if (
+        path ===
+          "/admin/users/reset-password" &&
+        request.method === "POST"
+      ) {
+
+        if (
+          !isAdmin(
+            request,
+            env
+          )
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Admin tidak diizinkan."
+            },
+            401
+          );
+        }
+
+        const body =
+          await readJson(
+            request
+          );
+
+        const username =
+          safeString(
+            body.username
+          );
+
+        const newPassword =
+          safeString(
+            body.password
+          );
+
+        if (
+          !username ||
+          !newPassword
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Username dan password wajib diisi."
+            },
+            400
+          );
+        }
+
+        if (
+          newPassword.length <
+          6
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Password minimal 6 karakter."
+            },
+            400
+          );
+        }
+
+        const user =
+          await env.DB.prepare(
+            "SELECT id,username FROM users WHERE username=? LIMIT 1"
+          )
+            .bind(
+              username
+            )
+            .first();
+
+        if (!user) {
+          return json(
+            {
+              success: false,
+              message:
+                "User tidak ditemukan."
+            },
+            404
+          );
+        }
+
+        const pd =
+          await hashPassword(
+            newPassword
+          );
+
+        await env.DB.prepare(
+          "UPDATE users SET password_hash=? WHERE id=?"
+        )
+          .bind(
+            pd.salt +
+              ":" +
+              pd.hash,
+            user.id
+          )
+          .run();
+
+        await env.DB.prepare(
+          "DELETE FROM sessions WHERE user_id=?"
+        )
+          .bind(
+            user.id
+          )
+          .run();
+
+        return json({
+          success: true,
+
+          message:
+            "Password berhasil diubah.",
+
+          username:
+            user.username
+        });
+      }
+
+
+      /* =====================================================
+         USER CHAT
+      ===================================================== */
+
+      if (
+        path === "/chat/messages" &&
+        request.method === "GET"
+      ) {
+
+        const user =
+          await getAuthenticatedUser(
+            request,
+            env
+          );
+
+        if (!user) {
+          return json(
+            {
+              success: false,
+              message:
+                "Session tidak valid."
+            },
+            401
+          );
+        }
+
+        const result =
+          await env.DB.prepare(`
+            SELECT
+              id,
+              user_id,
+              sender,
+              message,
+              created_at
+            FROM chat_messages
+            WHERE user_id=?
+            ORDER BY id ASC
+          `)
+            .bind(
+              user.uid
+            )
+            .all();
+
+        return json({
+          success: true,
+          messages:
+            result.results || []
+        });
+      }
+
+
+      /* USER SEND CHAT */
+
+      if (
+        path === "/chat/send" &&
+        request.method === "POST"
+      ) {
+
+        const user =
+          await getAuthenticatedUser(
+            request,
+            env
+          );
+
+        if (!user) {
+          return json(
+            {
+              success: false,
+              message:
+                "Session tidak valid."
+            },
+            401
+          );
+        }
+
+        const body =
+          await readJson(
+            request
+          );
+
+        const message =
+          safeString(
+            body.message
+          );
+
+        if (!message) {
+          return json(
+            {
+              success: false,
+              message:
+                "Pesan tidak boleh kosong."
+            },
+            400
+          );
+        }
+
+        if (
+          message.length >
+          1000
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Pesan terlalu panjang."
+            },
+            400
+          );
+        }
+
+        const result =
+          await env.DB.prepare(`
+            INSERT INTO chat_messages(
+              user_id,
+              sender,
+              message
+            )
+            VALUES(
+              ?,
+              'user',
+              ?
+            )
+          `)
+            .bind(
+              user.uid,
+              message
+            )
+            .run();
+
+        return json({
+          success: true,
+
+          message:
+            "Pesan berhasil dikirim.",
+
+          id:
+            result.meta
+              ?.last_row_id ||
+            null
+        });
+      }
+
+
+      /* =====================================================
+         ADMIN CHAT USERS
+      ===================================================== */
+
+      if (
+        path ===
+          "/admin/chat/users" &&
+        request.method === "GET"
+      ) {
+
+        if (
+          !isAdmin(
+            request,
+            env
+          )
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Admin tidak diizinkan."
+            },
+            401
+          );
+        }
+
+        const result =
+          await env.DB.prepare(`
+            SELECT
+              users.id,
+              users.username,
+              COUNT(
+                chat_messages.id
+              ) AS message_count,
+              MAX(
+                chat_messages.created_at
+              ) AS last_message
+            FROM users
+            LEFT JOIN chat_messages
+              ON chat_messages.user_id=
+                 users.id
+            GROUP BY
+              users.id
+            ORDER BY
+              last_message DESC
+          `)
+            .all();
+
+        return json({
+          success: true,
+          users:
+            result.results ||
+            []
+        });
+      }
+
+
+      /* =====================================================
+         ADMIN CHAT MESSAGES
+      ===================================================== */
+
+      if (
+        path ===
+          "/admin/chat/messages" &&
+        request.method === "GET"
+      ) {
+
+        if (
+          !isAdmin(
+            request,
+            env
+          )
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Admin tidak diizinkan."
+            },
+            401
+          );
+        }
+
+        const userId =
+          Number(
+            url.searchParams.get(
+              "user_id"
+            )
+          );
+
+        if (
+          !Number.isInteger(
+            userId
+          ) ||
+          userId <= 0
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "user_id tidak valid."
+            },
+            400
+          );
+        }
+
+        const result =
+          await env.DB.prepare(`
+            SELECT
+              id,
+              user_id,
+              sender,
+              message,
+              created_at
+            FROM chat_messages
+            WHERE user_id=?
+            ORDER BY id ASC
+          `)
+            .bind(
+              userId
+            )
+            .all();
+
+        return json({
+          success: true,
+          messages:
+            result.results ||
+            []
+        });
+      }
+
+
+      /* =====================================================
+         ADMIN SEND CHAT
+      ===================================================== */
+
+      if (
+        path ===
+          "/admin/chat/send" &&
+        request.method === "POST"
+      ) {
+
+        if (
+          !isAdmin(
+            request,
+            env
+          )
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Admin tidak diizinkan."
+            },
+            401
+          );
+        }
+
+        const body =
+          await readJson(
+            request
+          );
+
+        const userId =
+          Number(
+            body.user_id
+          );
+
+        const message =
+          safeString(
+            body.message
+          );
+
+        if (
+          !Number.isInteger(
+            userId
+          ) ||
+          userId <= 0
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "user_id tidak valid."
+            },
+            400
+          );
+        }
+
+        if (!message) {
+          return json(
+            {
+              success: false,
+              message:
+                "Pesan tidak boleh kosong."
+            },
+            400
+          );
+        }
+
+        if (
+          message.length >
+          1000
+        ) {
+          return json(
+            {
+              success: false,
+              message:
+                "Pesan terlalu panjang."
+            },
+            400
+          );
+        }
+
+        const userExists =
+          await env.DB.prepare(
+            "SELECT id FROM users WHERE id=? LIMIT 1"
+          )
+            .bind(
+              userId
+            )
+            .first();
+
+        if (!userExists) {
+          return json(
+            {
+              success: false,
+              message:
+                "User tidak ditemukan."
+            },
+            404
+          );
+        }
+
+        const result =
+          await env.DB.prepare(`
+            INSERT INTO chat_messages(
+              user_id,
+              sender,
+              message
+            )
+            VALUES(
+              ?,
+              'admin',
+              ?
+            )
+          `)
+            .bind(
+              userId,
+              message
+            )
+            .run();
+
+        return json({
+          success: true,
+
+          message:
+            "Balasan admin berhasil dikirim.",
+
+          id:
+            result.meta
+              ?.last_row_id ||
+            null
+        });
+      }
+
+
+      /* =====================================================
+         NOT FOUND
+      ===================================================== */
+
+      return json(
+        {
+          success: false,
+          message:
+            "Endpoint tidak ditemukan.",
+          path
+        },
+        404
+      );
+
+    } catch (error) {
+
+      console.error(
+        "WORKER ERROR:",
+        error
+      );
+
+      return json(
+        {
+          success: false,
+          message:
+            "Terjadi kesalahan pada server.",
+          error:
+            error?.message ||
+            String(error)
+        },
+        500
+      );
+    }
+  }
+};
+
