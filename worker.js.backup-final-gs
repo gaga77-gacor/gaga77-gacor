@@ -2454,58 +2454,29 @@ if (
           .bind(gameId)
           .first();
 
-          let result;
-
           if (!exists) {
-
-            const gameName =
-              String(
-                body?.gameName ||
-                gameId
-              )
-              .trim()
-              .slice(0, 100);
-
-            result = await env.DB.prepare(`
-              INSERT INTO game_settings
-              (
-                game_id,
-                game_name,
-                enabled,
-                rtp,
-                max_payout
-              )
-              VALUES (?, ?, ?, ?, ?)
-            `)
-            .bind(
-              gameId,
-              gameName,
-              enabled ? 1 : 0,
-              rtp,
-              maxPayout
-            )
-            .run();
-
-          } else {
-
-            result = await env.DB.prepare(`
-              UPDATE game_settings
-              SET
-                enabled = ?,
-                rtp = ?,
-                max_payout = ?,
-                updated_at = CURRENT_TIMESTAMP
-              WHERE game_id = ?
-            `)
-            .bind(
-              enabled ? 1 : 0,
-              rtp,
-              maxPayout,
-              gameId
-            )
-            .run();
-
+            return json({
+              success: false,
+              message: "Game tidak ditemukan."
+            }, 404);
           }
+
+          const result = await env.DB.prepare(`
+            UPDATE game_settings
+            SET
+              enabled = ?,
+              rtp = ?,
+              max_payout = ?,
+              updated_at = CURRENT_TIMESTAMP
+            WHERE game_id = ?
+          `)
+          .bind(
+            enabled ? 1 : 0,
+            rtp,
+            maxPayout,
+            gameId
+          )
+          .run();
 
           if (
             !result?.success ||
@@ -2545,92 +2516,6 @@ if (
             }
           });
         }
-
-        /* =====================================================
-           ADMIN GAME SETTINGS - GLOBAL
-           ===================================================== */
-
-        if (
-          path === "/admin/game-settings/global" &&
-          request.method === "POST"
-        ) {
-
-          if (!isAdmin(request, env)) {
-            return json({
-              success: false,
-              message: "Admin tidak diizinkan."
-            }, 401);
-          }
-
-          const body = await readJson(request);
-
-          const rtp =
-            Number(body?.rtp);
-
-          const maxPayout =
-            Number(body?.maxPayout);
-
-          const enabled =
-            Boolean(body?.enabled);
-
-          if (
-            !Number.isFinite(rtp) ||
-            rtp < 1 ||
-            rtp > 100
-          ) {
-            return json({
-              success: false,
-              message: "RTP harus antara 1 sampai 100."
-            }, 400);
-          }
-
-          if (
-            !Number.isFinite(maxPayout) ||
-            maxPayout <= 0
-          ) {
-            return json({
-              success: false,
-              message: "Max payout tidak valid."
-            }, 400);
-          }
-
-          await env.DB.prepare(`
-            CREATE TABLE IF NOT EXISTS game_settings (
-              game_id TEXT PRIMARY KEY,
-              game_name TEXT NOT NULL,
-              enabled INTEGER NOT NULL DEFAULT 1,
-              rtp REAL NOT NULL DEFAULT 95,
-              max_payout REAL NOT NULL DEFAULT 10000000,
-              updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-            )
-          `).run();
-
-          const result =
-            await env.DB.prepare(`
-              UPDATE game_settings
-              SET
-                enabled = ?,
-                rtp = ?,
-                max_payout = ?,
-                updated_at = CURRENT_TIMESTAMP
-            `)
-            .bind(
-              enabled ? 1 : 0,
-              rtp,
-              maxPayout
-            )
-            .run();
-
-          return json({
-            success: true,
-            message:
-              "Pengaturan global berhasil diterapkan.",
-            updated:
-              Number(result?.meta?.changes || 0)
-          });
-
-        }
-
 
         /* =====================================================
            PUBLIC GAME SETTINGS
