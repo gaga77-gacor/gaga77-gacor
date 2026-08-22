@@ -1605,106 +1605,95 @@ function getTransactionTime(data){
 async function loadTransactions(){
 
     const historyList =
-        document.getElementById(
-            "historyList"
-        );
-
+        document.getElementById("historyList");
 
     const currentUser =
         getCurrentUser();
 
-
-    const username =
-        getUsername(
-            currentUser
-        );
-
-
-    if(!username){
-
+    if(!currentUser){
         historyList.innerHTML = `
-
             <div class="emptyHistory">
-
-                <div class="emptyIcon">
-                    🔐
-                </div>
-
+                <div class="emptyIcon">🔐</div>
                 Silakan login untuk melihat
                 riwayat transaksi.
-
             </div>
-
         `;
-
         return;
-
     }
 
+    const username =
+        getUsername(currentUser);
 
     /*
-     * Transaksi tetap mengambil dari server
-     * jika endpoint tersedia.
+     * TOKEN SESSION USER
      */
+    const token =
+        currentUser.token ||
+        currentUser.accessToken ||
+        currentUser.authToken ||
+        currentUser.sessionToken;
+
+    if(!token){
+        historyList.innerHTML = `
+            <div class="emptyHistory">
+                <div class="emptyIcon">🔐</div>
+                Session login tidak ditemukan.
+                <div style="
+                    font-size:10px;
+                    margin-top:6px;
+                    color:#566477;
+                ">
+                    Silakan login kembali.
+                </div>
+            </div>
+        `;
+        return;
+    }
 
     try{
 
         const response =
             await fetch(
-
                 "https://game-login-api.orkutstok64.workers.dev" +
                 "/transactions?username=" +
-                encodeURIComponent(
-                    username
-                ),
-
+                encodeURIComponent(username),
                 {
                     method:"GET",
 
                     headers:{
                         "Accept":
-                            "application/json"
+                            "application/json",
+
+                        "Authorization":
+                            "Bearer " +
+                            String(token).trim()
                     },
 
                     cache:"no-store"
                 }
-
             );
-
 
         const result =
             await response.json();
-
 
         if(
             !response.ok ||
             !result.success
         ){
-
             throw new Error(
                 result.message ||
                 "Gagal mengambil transaksi"
             );
-
         }
-
 
         let transactions =
             result.transactions ||
             result.data ||
             [];
 
-
-        if(
-            !Array.isArray(
-                transactions
-            )
-        ){
-
+        if(!Array.isArray(transactions)){
             transactions = [];
-
         }
-
 
         transactions.sort(
             function(a,b){
@@ -1714,44 +1703,28 @@ async function loadTransactions(){
                         getTransactionTime(a)
                     ).getTime() || 0;
 
-
                 const dateB =
                     new Date(
                         getTransactionTime(b)
                     ).getTime() || 0;
 
-
                 return dateB - dateA;
-
             }
         );
 
-
-        if(
-            transactions.length === 0
-        ){
+        if(!transactions.length){
 
             historyList.innerHTML = `
-
                 <div class="emptyHistory">
-
-                    <div class="emptyIcon">
-                        📭
-                    </div>
-
+                    <div class="emptyIcon">📭</div>
                     Belum ada transaksi
-
                 </div>
-
             `;
 
             return;
-
         }
 
-
         let html = "";
-
 
         transactions.forEach(
             function(t){
@@ -1764,71 +1737,55 @@ async function loadTransactions(){
                         ""
                     ).toLowerCase();
 
-
                 const isDeposit =
                     type === "deposit" ||
                     type === "depo" ||
                     type === "deposit_request";
-
 
                 const icon =
                     isDeposit
                     ? "💳"
                     : "💸";
 
-
                 const title =
                     isDeposit
                     ? "Deposit"
                     : "Withdraw";
-
 
                 const amount =
                     Number(
                         t.nominal ??
                         t.amount ??
                         t.jumlah ??
+                        t.payment_amount ??
                         0
                     );
-
 
                 const amountClass =
                     isDeposit
                     ? "depositAmount"
                     : "withdrawAmount";
 
-
                 const sign =
                     isDeposit
                     ? "+"
                     : "-";
 
-
                 const status =
                     t.status ||
+                    t.gateway_status ||
                     "Pending";
 
-
                 const statusClass =
-                    getStatusClass(
-                        status
-                    );
-
+                    getStatusClass(status);
 
                 const statusText =
-                    getStatusText(
-                        status
-                    );
-
+                    getStatusText(status);
 
                 const time =
-                    getTransactionTime(
-                        t
-                    );
-
+                    getTransactionTime(t);
 
                 html += `
-
                     <div class="historyItem">
 
                         <div
@@ -1863,10 +1820,8 @@ async function loadTransactions(){
                             <div
                                 class="historyAmount ${amountClass}"
                             >
-
                                 ${sign}
                                 Rp ${formatIDR(amount)}
-
                             </div>
 
                             <span
@@ -1878,16 +1833,12 @@ async function loadTransactions(){
                         </div>
 
                     </div>
-
                 `;
-
             }
         );
 
-
         historyList.innerHTML =
             html;
-
 
     }catch(error){
 
@@ -1896,9 +1847,7 @@ async function loadTransactions(){
             error
         );
 
-
         historyList.innerHTML = `
-
             <div class="emptyHistory">
 
                 <div class="emptyIcon">
@@ -1907,25 +1856,21 @@ async function loadTransactions(){
 
                 Gagal mengambil riwayat
 
-                <div
-                    style="
+                <div style="
                     font-size:10px;
-                    margin-top:5px;
-                    color:#566477;
                     margin-top:6px;
-                    "
-                >
-                    Server tidak dapat dihubungi.
+                    color:#566477;
+                ">
+                    ${escapeHTML(
+                        error.message ||
+                        "Server tidak dapat dihubungi."
+                    )}
                 </div>
 
             </div>
-
         `;
-
     }
-
 }
-
 
 /* =====================================================
    LOAD SEMUA DATA
