@@ -991,10 +991,80 @@ function extractMessages(data){
    API REQUEST
 ===================================================== */
 
+async function getChatToken(){
+    try{
+        const currentUser =
+            JSON.parse(
+                localStorage.getItem("currentUser") || "null"
+            );
+
+        if(currentUser){
+            const token =
+                currentUser.token ||
+                currentUser.accessToken ||
+                currentUser.authToken ||
+                currentUser.sessionToken;
+
+            if(
+                typeof token === "string" &&
+                token.trim()
+            ){
+                return token.trim();
+            }
+        }
+
+        /* fallback jika token disimpan terpisah */
+        const keys = [
+            "authToken",
+            "accessToken",
+            "loginToken",
+            "userToken",
+            "token",
+            "sessionToken"
+        ];
+
+        for(const key of keys){
+            const value =
+                localStorage.getItem(key);
+
+            if(
+                typeof value === "string" &&
+                value.trim()
+            ){
+                return value.trim();
+            }
+        }
+    }catch(error){
+        console.warn(
+            "Gagal membaca token chat:",
+            error
+        );
+    }
+
+    return null;
+}
+
 async function apiRequest(
     url,
     options={}
 ){
+    const token =
+        await getChatToken();
+
+    const headers = {
+        "Accept":
+            "application/json",
+        ...(options.headers || {})
+    };
+
+    /*
+     * Worker menggunakan session Bearer.
+     * Selalu kirim token jika tersedia.
+     */
+    if(token){
+        headers["Authorization"] =
+            "Bearer " + token;
+    }
 
     const response =
         await fetch(
@@ -1003,32 +1073,20 @@ async function apiRequest(
                 credentials:"include",
                 cache:"no-store",
                 ...options,
-                headers:{
-                    "Accept":
-                        "application/json",
-                    ...(options.headers || {})
-                }
+                headers
             }
         );
 
-
     let data = null;
 
-
     try{
-
         data =
             await response.json();
-
     }catch(error){
-
         data = null;
-
     }
 
-
     if(!response.ok){
-
         const error =
             new Error(
                 data?.message ||
@@ -1043,14 +1101,10 @@ async function apiRequest(
             data;
 
         throw error;
-
     }
 
-
     return data;
-
 }
-
 
 /* =====================================================
    LOAD CHAT
