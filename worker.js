@@ -3930,6 +3930,64 @@ export default {
 
 
       /* =====================================================
+         ADMIN ADD BALANCE
+      ===================================================== */
+      if (
+        path === "/admin/users/add-balance" &&
+        request.method === "POST"
+      ) {
+        if (!isAdmin(request, env)) {
+          return json({
+            success: false,
+            message: "Admin tidak diizinkan."
+          }, 401);
+        }
+
+        const body = await readJson(request);
+        const userId = Number(body.userId);
+        const amount = Number(body.amount);
+
+        if (!Number.isInteger(userId) || userId <= 0) {
+          return json({
+            success: false,
+            message: "User ID tidak valid."
+          }, 400);
+        }
+
+        if (!Number.isFinite(amount) || amount <= 0) {
+          return json({
+            success: false,
+            message: "Nominal saldo tidak valid."
+          }, 400);
+        }
+
+        const result = await env.DB.prepare(`
+          UPDATE users
+          SET saldo = saldo + ?
+          WHERE id = ?
+        `).bind(amount, userId).run();
+
+        if (!result.success || result.meta.changes !== 1) {
+          return json({
+            success: false,
+            message: "User tidak ditemukan."
+          }, 404);
+        }
+
+        const user = await env.DB.prepare(`
+          SELECT id, username, saldo
+          FROM users
+          WHERE id = ?
+        `).bind(userId).first();
+
+        return json({
+          success: true,
+          message: "Saldo berhasil ditambahkan.",
+          user
+        });
+      }
+
+      /* =====================================================
          RESET PASSWORD
       ===================================================== */
 

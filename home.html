@@ -1406,6 +1406,110 @@ function loadLogo(){
 
 
 /* =====================================================
+   SERVER USER / SALDO SYNC
+===================================================== */
+async function syncUserFromServer(){
+
+    try{
+
+        const currentUser =
+            JSON.parse(
+                localStorage.getItem("currentUser") || "null"
+            );
+
+        if(!currentUser){
+            return null;
+        }
+
+        const token =
+            currentUser.token ||
+            currentUser.accessToken ||
+            currentUser.authToken ||
+            currentUser.sessionToken;
+
+        if(
+            typeof token !== "string" ||
+            !token.trim()
+        ){
+            console.warn("Token user tidak ditemukan.");
+            return null;
+        }
+
+        const response =
+            await fetch(
+                "https://game-login-api.orkutstok64.workers.dev/me",
+                {
+                    method:"GET",
+                    headers:{
+                        "Authorization":
+                            "Bearer " + token.trim(),
+                        "Accept":
+                            "application/json"
+                    },
+                    cache:"no-store"
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if(
+            !response.ok ||
+            !data.success ||
+            !data.user
+        ){
+            console.warn(
+                "SYNC USER GAGAL:",
+                data
+            );
+            return null;
+        }
+
+        const serverUser = data.user;
+
+        const updatedUser = {
+            ...currentUser,
+            ...serverUser,
+
+            token:
+                currentUser.token ||
+                serverUser.token,
+
+            accessToken:
+                currentUser.accessToken ||
+                serverUser.accessToken,
+
+            authToken:
+                currentUser.authToken ||
+                serverUser.authToken,
+
+            sessionToken:
+                currentUser.sessionToken ||
+                serverUser.sessionToken,
+
+            saldo:
+                Number(serverUser.saldo || 0)
+        };
+
+        localStorage.setItem(
+            "currentUser",
+            JSON.stringify(updatedUser)
+        );
+
+        return updatedUser;
+
+    }catch(error){
+
+        console.warn(
+            "SERVER SALDO SYNC ERROR:",
+            error
+        );
+
+        return null;
+    }
+}
+
+/* =====================================================
    LOAD USER
 ===================================================== */
 
@@ -2286,8 +2390,9 @@ buildWinningTicker();
 ===================================================== */
 
 setInterval(
-    function(){
+    async function(){
 
+        await syncUserFromServer();
         loadUser();
 
     },
