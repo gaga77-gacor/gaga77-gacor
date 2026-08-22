@@ -1535,6 +1535,192 @@ tbody tr:hover{
   .chat-users-head{padding-top:14px;}
   .chat-user{min-height:70px;padding:11px 13px;}
 }
+
+.add-balance-overlay{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.72);
+  backdrop-filter:blur(8px);
+}
+
+.add-balance-modal{
+  width:100%;
+  max-width:420px;
+  position:relative;
+  padding:28px;
+  border-radius:22px;
+  background:#111522;
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:0 25px 80px rgba(0,0,0,.55);
+  animation:addBalanceIn .18s ease-out;
+}
+
+@keyframes addBalanceIn{
+  from{
+    opacity:0;
+    transform:translateY(12px) scale(.97);
+  }
+  to{
+    opacity:1;
+    transform:none;
+  }
+}
+
+.add-balance-close{
+  position:absolute;
+  right:16px;
+  top:14px;
+  width:36px;
+  height:36px;
+  border:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.07);
+  color:#fff;
+  font-size:24px;
+  cursor:pointer;
+}
+
+.add-balance-icon{
+  width:58px;
+  height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0 auto 14px;
+  border-radius:18px;
+  background:rgba(0,200,140,.12);
+  color:#20d99a;
+  font-size:32px;
+  font-weight:700;
+}
+
+.add-balance-modal h3{
+  margin:0;
+  text-align:center;
+  color:#fff;
+  font-size:22px;
+}
+
+.add-balance-user{
+  margin:7px 0 24px;
+  text-align:center;
+  color:#8e96a8;
+  font-size:14px;
+}
+
+.add-balance-user strong{
+  color:#fff;
+}
+
+.add-balance-modal label{
+  display:block;
+  margin-bottom:8px;
+  color:#aeb6c7;
+  font-size:13px;
+  font-weight:600;
+}
+
+.add-balance-input{
+  display:flex;
+  align-items:center;
+  height:58px;
+  padding:0 16px;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:14px;
+  background:#0b0f19;
+}
+
+.add-balance-input span{
+  margin-right:10px;
+  color:#20d99a;
+  font-weight:700;
+}
+
+.add-balance-input input{
+  width:100%;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:#fff;
+  font-size:20px;
+  font-weight:700;
+}
+
+.add-balance-input input::placeholder{
+  color:#555d6d;
+}
+
+.add-balance-presets{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin:12px 0 16px;
+}
+
+.add-balance-presets button{
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:10px;
+  padding:9px 4px;
+  background:rgba(255,255,255,.05);
+  color:#dce2ee;
+  cursor:pointer;
+}
+
+.add-balance-presets button:hover{
+  background:rgba(32,217,154,.12);
+  border-color:rgba(32,217,154,.35);
+  color:#20d99a;
+}
+
+.add-balance-message{
+  min-height:20px;
+  margin:8px 0 14px;
+  font-size:13px;
+  text-align:center;
+}
+
+.add-balance-message.success{
+  color:#20d99a;
+}
+
+.add-balance-message.error{
+  color:#ff6b7a;
+}
+
+.add-balance-actions{
+  display:grid;
+  grid-template-columns:1fr 1.5fr;
+  gap:10px;
+}
+
+.add-balance-actions button{
+  height:48px;
+  border-radius:12px;
+  border:0;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.add-balance-cancel{
+  background:rgba(255,255,255,.07);
+  color:#c4cada;
+}
+
+.add-balance-submit{
+  background:#20d99a;
+  color:#07120e;
+}
+
+.add-balance-submit:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
 </style>
 </head>
 
@@ -2184,7 +2370,7 @@ tbody tr:hover{
             <input
               id="gatewayWebhookUrl"
               readonly
-              value="https://gaga77-worker.orkutstok64.workers.dev/webhook/payment"
+              value="https://game-login-api.orkutstok64.workers.dev/webhook/payment"
               style="width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.08);background:#101827;color:#fff"
               onclick="this.select()"
             >
@@ -2428,7 +2614,7 @@ tbody tr:hover{
 ===================================================== */
 
 const API_URL =
-  "https://gaga77-worker.orkutstok64.workers.dev";
+  "https://game-login-api.orkutstok64.workers.dev";
 
 let transactions = [];
 let users = [];
@@ -2842,29 +3028,109 @@ function renderUsers(){
 
 
 
-async function addBalance(userId, username) {
-  const input = prompt(
-    "Tambah saldo untuk " + username + "\nMasukkan nominal:"
-  );
+function addBalance(userId, username) {
+  const old = document.getElementById("addBalanceModal");
+  if (old) old.remove();
 
-  if (input === null) return;
+  const modal = document.createElement("div");
+  modal.id = "addBalanceModal";
+  modal.innerHTML = `
+    <div class="add-balance-overlay">
+      <div class="add-balance-modal">
+        <button class="add-balance-close" onclick="closeAddBalance()">×</button>
+
+        <div class="add-balance-icon">＋</div>
+
+        <h3>Tambah Saldo</h3>
+        <p class="add-balance-user">
+          Saldo untuk <strong>${escapeHtml(username)}</strong>
+        </p>
+
+        <label>Nominal Saldo</label>
+        <div class="add-balance-input">
+          <span>Rp</span>
+          <input
+            id="addBalanceAmount"
+            type="text"
+            inputmode="numeric"
+            placeholder="10.000"
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="add-balance-presets">
+          <button onclick="setAddBalanceAmount(10000)">10K</button>
+          <button onclick="setAddBalanceAmount(25000)">25K</button>
+          <button onclick="setAddBalanceAmount(50000)">50K</button>
+          <button onclick="setAddBalanceAmount(100000)">100K</button>
+        </div>
+
+        <div id="addBalanceMessage" class="add-balance-message"></div>
+
+        <div class="add-balance-actions">
+          <button class="add-balance-cancel" onclick="closeAddBalance()">
+            Batal
+          </button>
+          <button class="add-balance-submit" onclick="submitAddBalance(${Number(userId)}, '${escapeHtml(username)}')">
+            Tambahkan Saldo
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  const input = document.getElementById("addBalanceAmount");
+
+  input.addEventListener("input", () => {
+    const raw = input.value.replace(/[^\d]/g, "");
+    input.value = raw
+      ? Number(raw).toLocaleString("id-ID")
+      : "";
+  });
+
+  setTimeout(() => input.focus(), 100);
+}
+
+function setAddBalanceAmount(amount) {
+  const input = document.getElementById("addBalanceAmount");
+  if (input) {
+    input.value = Number(amount).toLocaleString("id-ID");
+    input.focus();
+  }
+}
+
+function closeAddBalance() {
+  const modal = document.getElementById("addBalanceModal");
+  if (modal) modal.remove();
+}
+
+async function submitAddBalance(userId, username) {
+  const input = document.getElementById("addBalanceAmount");
+  const message = document.getElementById("addBalanceMessage");
+  const button = document.querySelector(".add-balance-submit");
 
   const amount = Number(
-    String(input).replace(/[^\d]/g, "")
+    String(input?.value || "").replace(/[^\d]/g, "")
   );
 
   if (!amount || amount <= 0) {
-    alert("Nominal tidak valid.");
+    message.textContent = "Masukkan nominal saldo yang valid.";
+    message.className = "add-balance-message error";
+    input?.focus();
     return;
   }
 
-  if (!confirm(
-    "Tambahkan " +
-    formatRupiah(amount) +
-    " ke saldo " +
-    username +
-    "?"
-  )) return;
+  if (amount < 1000) {
+    message.textContent = "Minimal saldo Rp1.000.";
+    message.className = "add-balance-message error";
+    input?.focus();
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Memproses...";
 
   try {
     const response = await fetch(
@@ -2890,16 +3156,28 @@ async function addBalance(userId, username) {
       );
     }
 
-    alert(
-      "✅ Saldo berhasil ditambahkan.\nSaldo sekarang: " +
-      formatRupiah(data.user.saldo)
-    );
+    message.textContent =
+      "✓ Saldo berhasil ditambahkan " +
+      formatRupiah(amount);
+
+    message.className = "add-balance-message success";
 
     await loadUsers();
 
+    setTimeout(() => {
+      closeAddBalance();
+    }, 900);
+
   } catch (error) {
     console.error("ADD BALANCE:", error);
-    alert("❌ " + error.message);
+
+    message.textContent =
+      "✕ " + (error.message || "Gagal menambahkan saldo.");
+
+    message.className = "add-balance-message error";
+
+    button.disabled = false;
+    button.textContent = "Tambahkan Saldo";
   }
 }
 
