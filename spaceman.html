@@ -4711,12 +4711,369 @@ renderHistory();
 startLoading();
 
 const initialServerBalanceSync = syncServerBalance();
-initialServerBalanceSync.finally(() => { startBetting(); });
+initialServerBalanceSync.finally(() => { globalFetchSpacemanState(); });
 setInterval(() => {
     if(round.phase === "betting" && !bet.placed && !bet.active){
         syncServerBalance();
     }
 }, 3000);
+
+
+/* =========================================================
+   GLOBAL SPACEMAN LIVE FINAL
+   Worker = satu-satunya sumber ronde/crash/history.
+   ========================================================= */
+
+const GLOBAL_SPACEMAN_API =
+    "https://game-login-api.orkutstok64.workers.dev";
+
+let globalSpacemanRound = null;
+let globalSpacemanTimer = null;
+let globalSpacemanBusy = false;
+
+function globalServerMultiplier(state) {
+
+    if (!state) return 1;
+
+    if (state.phase === "betting") {
+        return 1;
+    }
+
+    if (state.phase === "crashed") {
+        return Number(state.crash || state.multiplier || 1);
+    }
+
+    return Number(state.multiplier || 1);
+}
+
+function globalRenderState(state) {
+
+    if (!state) return;
+
+    globalSpacemanRound = state;
+
+    const previous =
+        window.__GLOBAL_SPACEMAN_LAST_ROUND;
+
+    window.__GLOBAL_SPACEMAN_LAST_ROUND =
+        state.roundId;
+
+    const multiplier =
+        globalServerMultiplier(state);
+
+    round.phase =
+        state.phase;
+
+    round.multiplier =
+        multiplier;
+
+    round.crash =
+        Number(state.crash || 0);
+
+    round.running =
+        state.phase === "running";
+
+    /*
+     * Jangan mengubah bet. Taruhan adalah milik akun lokal,
+     * sedangkan ronde adalah milik server.
+     */
+
+    if (state.phase === "betting") {
+
+        document
+            .getElementById("game")
+            .classList.remove("crashed");
+
+        const remaining =
+            Math.max(
+                0,
+                Math.ceil(
+                    (
+                        Number(state.bettingEndsAt) -
+                        Number(state.serverTime)
+                    ) / 1000
+                )
+            );
+
+        setMultiplier(1);
+
+        setStatus(
+            "TARUHAN DIBUKA • " +
+            remaining +
+            " DETIK"
+        );
+
+        if (bet.placed) {
+            renderBetButton();
+        } else {
+            renderBetButton();
+        }
+
+        return;
+    }
+
+    if (state.phase === "running") {
+
+        document
+            .getElementById("game")
+            .classList.remove("crashed");
+
+        setMultiplier(multiplier);
+
+        setStatus(
+            "PERMAINAN BERJALAN"
+        );
+
+        if (bet.placed && !bet.fullTaken && !bet.halfTaken) {
+            bet.active = true;
+            renderCashoutButtons();
+        } else if (!bet.placed) {
+            renderWaitingButton();
+        }
+
+        /*
+         * Animasi hanya mengikuti multiplier server.
+         * Tidak membuat crash sendiri.
+         */
+        const rocket =
+            document.getElementById("rocket");
+
+        if (rocket) {
+
+            const visual =
+                Math.min(
+                    92,
+                    18 +
+                    Math.log(
+                        Math.max(
+                            1,
+                            multiplier
+                        )
+                    ) *
+                    18
+                );
+
+            rocket.style.left =
+                visual + "%";
+
+            rocket.style.top =
+                Math.max(
+                    40,
+                    100 -
+                    Math.log(
+                        Math.max(
+                            1,
+                            multiplier
+                        )
+                    ) *
+                    22
+                ) + "px";
+
+            rocket.style.transform =
+                "translateX(-50%)";
+        }
+
+        updateCashoutButtons();
+
+        return;
+    }
+
+    if (state.phase === "crashed") {
+
+        document
+            .getElementById("game")
+            .classList.add("crashed");
+
+        setMultiplier(
+            Number(state.crash || 1)
+        );
+
+        setStatus(
+            "CRASH • " +
+            Number(state.crash || 1)
+                .toFixed(2) +
+            "x"
+        );
+
+        const rocket =
+            document.getElementById("rocket");
+
+        if (rocket) {
+
+            rocket.style.transform =
+                "translateX(-50%) " +
+                "rotate(38deg) " +
+                "scale(.85)";
+        }
+
+        if (
+            bet.active &&
+            previous !== state.roundId
+        ) {
+            bet.active = false;
+
+            toast(
+                "CRASH! " +
+                Number(state.crash || 1)
+                    .toFixed(2) +
+                "x • Taruhan hangus",
+                "loss"
+            );
+        }
+
+        /*
+         * History selalu dari server.
+         */
+        if (
+            Array.isArray(state.history)
+        ) {
+
+            try {
+
+                localStorage.setItem(
+                    HISTORY_KEY,
+                    JSON.stringify(
+                        state.history
+                    )
+                );
+
+            } catch (_) {}
+        }
+
+        renderHistory();
+        updateCashoutButtons();
+    }
+}
+
+async function globalFetchSpacemanState() {
+
+    if (globalSpacemanBusy) {
+        return;
+    }
+
+    globalSpacemanBusy = true;
+
+    try {
+
+        const response =
+            await fetch(
+                GLOBAL_SPACEMAN_API +
+                "/spaceman/state?t=" +
+                Date.now(),
+                {
+                    method: "GET",
+                    cache: "no-store",
+                    headers: {
+                        "Cache-Control":
+                            "no-cache"
+                    }
+                }
+            );
+
+        if (!response.ok) {
+            throw new Error(
+                "HTTP " +
+                response.status
+            );
+        }
+
+        const state =
+            await response.json();
+
+        if (
+            !state ||
+            !state.success
+        ) {
+            throw new Error(
+                "State Spaceman tidak valid"
+            );
+        }
+
+        globalRenderState(state);
+
+    } catch (error) {
+
+        console.error(
+            "GLOBAL SPACEMAN SYNC:",
+            error
+        );
+
+        setStatus(
+            "MENGHUBUNGKAN SERVER..."
+        );
+
+    } finally {
+
+        globalSpacemanBusy = false;
+    }
+}
+
+/*
+ * Override mesin lokal.
+ *
+ * startBetting/beginFlight/crashRound TIDAK BOLEH
+ * membuat ronde sendiri lagi.
+ */
+function startBetting() {
+    globalFetchSpacemanState();
+}
+
+function beginFlight() {
+    globalFetchSpacemanState();
+}
+
+function crashRound() {
+    globalFetchSpacemanState();
+}
+
+/*
+ * Matikan animation loop lokal jika fungsi lama
+ * mencoba menjalankannya.
+ */
+function animateFlight() {
+    return;
+}
+
+/*
+ * Polling cepat supaya semua browser mengikuti
+ * waktu server.
+ */
+if (globalSpacemanTimer) {
+    clearInterval(globalSpacemanTimer);
+}
+
+globalFetchSpacemanState();
+
+globalSpacemanTimer =
+    setInterval(
+        globalFetchSpacemanState,
+        250
+    );
+
+/*
+ * Saat tab kembali aktif, langsung sinkron.
+ */
+document.addEventListener(
+    "visibilitychange",
+    function () {
+
+        if (!document.hidden) {
+            globalFetchSpacemanState();
+        }
+
+    }
+);
+
+window.addEventListener(
+    "focus",
+    function () {
+        globalFetchSpacemanState();
+    }
+);
+
+console.log(
+    "SPACEMAN GLOBAL LIVE FINAL AKTIF"
+);
 
 </script>
 
