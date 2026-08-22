@@ -1654,9 +1654,7 @@ async function loadTransactions(){
 
         const response =
             await fetch(
-                "https://game-login-api.orkutstok64.workers.dev" +
-                "/transactions?username=" +
-                encodeURIComponent(username),
+                "https://game-login-api.orkutstok64.workers.dev/transactions",
                 {
                     method:"GET",
 
