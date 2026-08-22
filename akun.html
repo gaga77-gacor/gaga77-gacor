@@ -1361,12 +1361,12 @@ function loadUser(){
     ================================================= */
 
     let saldo =
+        currentUser?.saldo ??
+        currentUser?.balance ??
         userData?.saldo ??
         userData?.balance ??
         userData?.saldoUser ??
         userData?.wallet ??
-        currentUser?.saldo ??
-        currentUser?.balance ??
         0;
 
 

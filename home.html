@@ -1636,12 +1636,12 @@ function loadUser(){
         "User";
 
     let saldo =
+        currentUser?.saldo ??
+        currentUser?.balance ??
         userData?.saldo ??
         userData?.balance ??
         userData?.saldoUser ??
         userData?.wallet ??
-        currentUser?.saldo ??
-        currentUser?.balance ??
         0;
 
     if(
