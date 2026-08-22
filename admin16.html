@@ -2793,6 +2793,15 @@ function renderUsers(){
         </div>
 
 
+        <button
+          class="primary-btn"
+          type="button"
+          onclick="addBalance(${Number(user.id)}, '${escapeHtml(user.username)}')"
+          style="width:100%;margin:10px 0;"
+        >
+          + Tambah Saldo
+        </button>
+
         <div class="user-details">
 
           <div class="detail">
@@ -2831,6 +2840,68 @@ function renderUsers(){
 
 }
 
+
+
+async function addBalance(userId, username) {
+  const input = prompt(
+    "Tambah saldo untuk " + username + "\nMasukkan nominal:"
+  );
+
+  if (input === null) return;
+
+  const amount = Number(
+    String(input).replace(/[^\d]/g, "")
+  );
+
+  if (!amount || amount <= 0) {
+    alert("Nominal tidak valid.");
+    return;
+  }
+
+  if (!confirm(
+    "Tambahkan " +
+    formatRupiah(amount) +
+    " ke saldo " +
+    username +
+    "?"
+  )) return;
+
+  try {
+    const response = await fetch(
+      API_URL + "/admin/users/add-balance",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Admin-Key": getAdminKey()
+        },
+        body: JSON.stringify({
+          userId: Number(userId),
+          amount
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message || "Gagal menambahkan saldo."
+      );
+    }
+
+    alert(
+      "✅ Saldo berhasil ditambahkan.\nSaldo sekarang: " +
+      formatRupiah(data.user.saldo)
+    );
+
+    await loadUsers();
+
+  } catch (error) {
+    console.error("ADD BALANCE:", error);
+    alert("❌ " + error.message);
+  }
+}
 
 function filterUsers(){
 
