@@ -3574,136 +3574,23 @@ function generateCrash(){
 
 function startBetting(){
 
-    stopStats();
+    /*
+     * SERVER AUTHORITATIVE
+     *
+     * Jangan membuat ronde lokal.
+     * Jangan membuat countdown lokal.
+     * Jangan membuat timer lokal.
+     *
+     * Worker menentukan:
+     * - roundId
+     * - phase
+     * - bettingEndsAt
+     * - running
+     * - multiplier
+     * - crash
+     */
 
-
-    if(
-        round.countdown
-    ){
-
-        clearInterval(
-            round.countdown
-        );
-
-        round.countdown =
-            null;
-    }
-
-
-    round.phase =
-        "betting";
-
-
-    round.running =
-        false;
-
-
-    round.multiplier = 1;
-
-    round.crash = 0;
-
-
-    resetUserBet();
-
-    renderBetButton();
-
-
-    round.cashedPeople = 0;
-
-    round.cashedTotal = 0;
-
-
-    setAutoLocked(
-        false
-    );
-
-
-    document.getElementById(
-        "game"
-    ).classList.remove(
-        "crashed"
-    );
-
-
-    const rocket =
-        document.getElementById(
-            "rocket"
-        );
-
-
-    rocket.style.left =
-        "50%";
-
-    rocket.style.top =
-        "100px";
-
-    rocket.style.transform =
-        "translateX(-50%)";
-
-
-    setMultiplier(
-        1
-    );
-
-
-    let seconds = 8;
-
-
-    setStatus(
-        "TARUHAN DIBUKA • " +
-        seconds +
-        " DETIK"
-    );
-
-
-    startStats();
-
-
-    round.countdown =
-        setInterval(
-            ()=>{
-
-                if(
-                    round.phase !==
-                    "betting"
-                ){
-
-                    clearInterval(
-                        round.countdown
-                    );
-
-                    return;
-                }
-
-
-                seconds--;
-
-
-                if(
-                    seconds > 0
-                ){
-
-                    setStatus(
-                        "TARUHAN DIBUKA • " +
-                        seconds +
-                        " DETIK"
-                    );
-
-                }else{
-
-                    clearInterval(
-                        round.countdown
-                    );
-
-                    round.countdown =
-                        null;
-
-                    beginFlight();
-                }
-
-            },
-            1000
-        );
+    return globalFetchSpacemanState();
 }
 
 
@@ -3713,75 +3600,12 @@ function startBetting(){
 
 function beginFlight(){
 
-    stopStats();
+    /*
+     * SERVER AUTHORITATIVE
+     * Worker menentukan fase running.
+     */
 
-
-    round.phase =
-        "running";
-
-
-    round.running =
-        true;
-
-
-    round.multiplier =
-        1;
-
-
-    round.crash =
-        generateCrash();
-
-
-    round.startedAt =
-        performance.now();
-
-
-    setAutoLocked(
-        true
-    );
-
-
-    round.cashedPeople = 0;
-
-    round.cashedTotal = 0;
-
-
-    if(bet.placed){
-
-        bet.active = true;
-
-        renderCashoutButtons();
-
-    }else{
-
-        renderWaitingButton();
-    }
-
-
-    setStatus(
-        "PERMAINAN BERJALAN"
-    );
-
-
-    if(
-        round.animation
-    ){
-
-        cancelAnimationFrame(
-            round.animation
-        );
-
-        round.animation = null;
-    }
-
-
-    startRunningStats();
-
-
-    round.animation =
-        requestAnimationFrame(
-            animateFlight
-        );
+    return globalFetchSpacemanState();
 }
 
 
@@ -4037,149 +3861,14 @@ function updateCashoutButtons(){
 
 function animateFlight(){
 
-    if(
-        !round.running
-    ){
-        return;
-    }
+    /*
+     * SERVER AUTHORITATIVE
+     *
+     * Multiplier tidak dihitung dari performance.now().
+     * globalRenderState() yang menampilkan multiplier Worker.
+     */
 
-
-    const now =
-        performance.now();
-
-
-    const elapsed =
-        (
-            now -
-            round.startedAt
-        ) / 1000;
-
-
-    round.multiplier =
-        Number(
-            Math.exp(
-                elapsed *
-                .135
-            ).toFixed(2)
-        );
-
-
-    if(
-        round.multiplier >=
-        round.crash
-    ){
-
-        round.multiplier =
-            round.crash;
-
-
-        setMultiplier(
-            round.crash
-        );
-
-
-        crashRound();
-
-        return;
-    }
-
-
-    setMultiplier(
-        round.multiplier
-    );
-
-
-    const progress =
-        Math.min(
-            1,
-            elapsed /
-            24
-        );
-
-
-    const x =
-        50 +
-        Math.sin(
-            progress *
-            1.2
-        ) *
-        26;
-
-
-    const y =
-        100 -
-        progress *
-        100;
-
-
-    const scale =
-        1 +
-        progress *
-        .25;
-
-
-    const rocket =
-        document.getElementById(
-            "rocket"
-        );
-
-
-    rocket.style.left =
-        x + "%";
-
-
-    rocket.style.top =
-        y + "px";
-
-
-    rocket.style.transform =
-        "translateX(-50%) " +
-        "rotate(" +
-        (
-            -8 -
-            progress *
-            12
-        ) +
-        "deg) scale(" +
-        scale +
-        ")";
-
-
-    updateCashoutButtons();
-
-
-    if(
-        bet.active &&
-        auto.enabled &&
-        round.multiplier >=
-        auto.value
-    ){
-
-        cashFull(true);
-    }
-
-
-    if(
-        bet.active &&
-        !bet.halfTaken &&
-        auto.halfEnabled &&
-        round.multiplier >=
-        auto.halfValue
-    ){
-
-        cashHalf(true);
-    }
-
-
-    if(
-        round.running
-    ){
-
-        round.animation =
-            requestAnimationFrame(
-                animateFlight
-            );
-    }
+    return;
 }
 
 
@@ -4364,114 +4053,12 @@ async function cashFull(
 
 function crashRound(){
 
-    if(
-        round.phase ===
-        "crashed"
-    ){
-        return;
-    }
+    /*
+     * SERVER AUTHORITATIVE
+     * Crash hanya berasal dari Worker.
+     */
 
-
-    round.running =
-        false;
-
-
-    round.phase =
-        "crashed";
-
-
-    stopStats();
-
-
-    if(
-        round.animation
-    ){
-
-        cancelAnimationFrame(
-            round.animation
-        );
-
-        round.animation =
-            null;
-    }
-
-
-    document.getElementById(
-        "game"
-    ).classList.add(
-        "crashed"
-    );
-
-
-    setMultiplier(
-        round.crash
-    );
-
-
-    setStatus(
-        round.crash >= 5000
-            ? "TAMAT • 5000.00x"
-            : "CRASH • " +
-              round.crash.toFixed(
-                  2
-              ) +
-              "x"
-    );
-
-
-    const rocket =
-        document.getElementById(
-            "rocket"
-        );
-
-
-    rocket.style.transform =
-        "translateX(-50%) " +
-        "rotate(38deg) " +
-        "scale(.85)";
-
-
-    if(
-        bet.active
-    ){
-
-        bet.active =
-            false;
-
-
-        toast(
-            "CRASH! " +
-            round.crash.toFixed(
-                2
-            ) +
-            "x • Taruhan hangus",
-            "loss"
-        );
-
-    }else if(
-        bet.placed
-    ){
-
-        toast(
-            "CRASH • " +
-            round.crash.toFixed(
-                2
-            ) +
-            "x",
-            "info"
-        );
-    }
-
-
-    addHistory(
-        round.crash
-    );
-
-
-    setTimeout(
-        startBetting,
-        2500
-    );
+    return globalFetchSpacemanState();
 }
 
 
@@ -4711,7 +4298,6 @@ renderHistory();
 startLoading();
 
 const initialServerBalanceSync = syncServerBalance();
-initialServerBalanceSync.finally(() => { globalFetchSpacemanState(); });
 setInterval(() => {
     if(round.phase === "betting" && !bet.placed && !bet.active){
         syncServerBalance();
@@ -4953,22 +4539,41 @@ async function globalFetchSpacemanState() {
 
     globalSpacemanBusy = true;
 
+    const controller =
+        new AbortController();
+
+    const timeout =
+        setTimeout(
+            () => controller.abort(),
+            5000
+        );
+
     try {
+
+        const url =
+            GLOBAL_SPACEMAN_API +
+            "/spaceman/state?t=" +
+            Date.now();
+
+        console.log(
+            "SPACEMAN FETCH:",
+            url
+        );
 
         const response =
             await fetch(
-                GLOBAL_SPACEMAN_API +
-                "/spaceman/state?t=" +
-                Date.now(),
+                url,
                 {
                     method: "GET",
                     cache: "no-store",
-                    headers: {
-                        "Cache-Control":
-                            "no-cache"
-                    }
+                    signal: controller.signal
                 }
             );
+
+        console.log(
+            "SPACEMAN HTTP:",
+            response.status
+        );
 
         if (!response.ok) {
             throw new Error(
@@ -4980,33 +4585,90 @@ async function globalFetchSpacemanState() {
         const state =
             await response.json();
 
+        console.log(
+            "SPACEMAN STATE:",
+            state
+        );
+
         if (
             !state ||
-            !state.success
+            state.success !== true ||
+            !state.roundId ||
+            !state.phase
         ) {
             throw new Error(
                 "State Spaceman tidak valid"
             );
         }
 
-        globalRenderState(state);
+        if (
+            Number.isFinite(
+                Number(state.serverTime)
+            )
+        ) {
+
+            window.__SPACEMAN_SERVER_OFFSET =
+                Number(state.serverTime) -
+                Date.now();
+        }
+
+        window.__SPACEMAN_LAST_SUCCESS =
+            Date.now();
+
+        /*
+         * Pisahkan error render dari error fetch.
+         */
+        try {
+
+            globalRenderState(state);
+
+            console.log(
+                "SPACEMAN RENDER: OK"
+            );
+
+        } catch (renderError) {
+
+            console.error(
+                "SPACEMAN RENDER ERROR:",
+                renderError,
+                renderError &&
+                renderError.stack
+            );
+
+            throw renderError;
+        }
 
     } catch (error) {
 
         console.error(
-            "GLOBAL SPACEMAN SYNC:",
-            error
+            "SPACEMAN FETCH ERROR:",
+            error,
+            error && error.stack
         );
 
-        setStatus(
-            "MENGHUBUNGKAN SERVER..."
-        );
+        if (
+            !window.__SPACEMAN_LAST_SUCCESS
+        ) {
+
+            setStatus(
+                "SERVER ERROR — CEK CONSOLE"
+            );
+
+        } else {
+
+            console.warn(
+                "Spaceman sync gagal sementara."
+            );
+        }
 
     } finally {
+
+        clearTimeout(timeout);
 
         globalSpacemanBusy = false;
     }
 }
+
 
 /*
  * Override mesin lokal.
@@ -5015,15 +4677,18 @@ async function globalFetchSpacemanState() {
  * membuat ronde sendiri lagi.
  */
 function startBetting() {
-    globalFetchSpacemanState();
+    // SERVER AUTHORITATIVE
+    return globalFetchSpacemanState();
 }
 
 function beginFlight() {
-    globalFetchSpacemanState();
+    // SERVER AUTHORITATIVE
+    return globalFetchSpacemanState();
 }
 
 function crashRound() {
-    globalFetchSpacemanState();
+    // SERVER AUTHORITATIVE
+    return globalFetchSpacemanState();
 }
 
 /*
@@ -5031,6 +4696,7 @@ function crashRound() {
  * mencoba menjalankannya.
  */
 function animateFlight() {
+    // Animasi mengikuti state server.
     return;
 }
 
@@ -5049,6 +4715,11 @@ globalSpacemanTimer =
         globalFetchSpacemanState,
         250
     );
+
+// Initial server state setelah seluruh fungsi global tersedia.
+initialServerBalanceSync.finally(() => {
+    globalFetchSpacemanState();
+});
 
 /*
  * Saat tab kembali aktif, langsung sinkron.
@@ -5083,131 +4754,6 @@ console.log(
    GLOBAL SPACEMAN SERVER SYNC
    ===================================================== */
 
-const SPACEMAN_SERVER_URL =
-  "https://game-login-api.orkutstok64.workers.dev";
-
-let globalSpacemanTimer = null;
-let globalSpacemanRound = null;
-
-async function syncGlobalSpaceman() {
-  try {
-    const response = await fetch(
-      SPACEMAN_SERVER_URL + "/spaceman/state",
-      {
-        method: "GET",
-        cache: "no-store"
-      }
-    );
-
-    if (!response.ok) return;
-
-    const data = await response.json();
-
-    if (!data || !data.success) return;
-
-    globalSpacemanRound = data.roundId;
-
-    /*
-     * Update multiplier/status/history hanya jika
-     * elemen yang sesuai tersedia.
-     */
-    if (typeof setMultiplier === "function") {
-      setMultiplier(
-        Number(data.multiplier || 1)
-      );
-    }
-
-    if (
-      data.phase === "crashed" &&
-      typeof setStatus === "function"
-    ) {
-      const crash =
-        Number(data.crash || data.multiplier || 1);
-
-      setStatus(
-        "CRASH • " +
-        crash.toFixed(2) +
-        "x"
-      );
-    }
-
-    /*
-     * Jika game lokal memiliki object round,
-     * sinkronkan state tanpa mengganti sistem taruhan.
-     */
-    if (
-      typeof round !== "undefined" &&
-      round
-    ) {
-      round.phase =
-        String(data.phase || "betting");
-
-      round.multiplier =
-        Number(data.multiplier || 1);
-
-      if (data.crash !== null) {
-        round.crash =
-          Number(data.crash);
-      }
-
-      if (
-        Array.isArray(data.history)
-      ) {
-        round.history =
-          data.history.slice();
-      }
-    }
-
-    /*
-     * History server menjadi sumber utama.
-     */
-    if (
-      Array.isArray(data.history)
-    ) {
-      const history = data.history;
-
-      if (
-        typeof renderHistory === "function"
-      ) {
-        try {
-          renderHistory(history);
-        } catch (_) {}
-      }
-
-      if (
-        typeof updateHistory === "function"
-      ) {
-        try {
-          updateHistory(history);
-        } catch (_) {}
-      }
-    }
-
-  } catch (error) {
-    console.warn(
-      "GLOBAL SPACEMAN SYNC:",
-      error
-    );
-  }
-}
-
-function startGlobalSpacemanSync() {
-  if (globalSpacemanTimer) {
-    clearInterval(
-      globalSpacemanTimer
-    );
-  }
-
-  syncGlobalSpaceman();
-
-  globalSpacemanTimer =
-    setInterval(
-      syncGlobalSpaceman,
-      500
-    );
-}
-
-startGlobalSpacemanSync();
 </script>
 
 </body>
