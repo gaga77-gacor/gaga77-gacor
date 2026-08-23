@@ -1392,6 +1392,263 @@ async function handleWebhook(
    WORKER
 ========================================================= */
 
+
+/* =====================================================
+   SPACEMAN GLOBAL LIVE
+   Server-authoritative round state
+   ===================================================== */
+
+
+/* =========================================================
+   SPACEMAN GLOBAL LIVE - SERVER AUTHORITATIVE
+   Semua akun memakai waktu server dan roundId yang sama.
+   Tidak menggunakan memory Worker sebagai sumber ronde.
+   ========================================================= */
+
+const SPACEMAN_BETTING_MS = 8000;
+const SPACEMAN_RUNNING_MS = 15000;
+const SPACEMAN_CRASHED_MS = 3000;
+
+const SPACEMAN_CYCLE_MS =
+  SPACEMAN_BETTING_MS +
+  SPACEMAN_RUNNING_MS +
+  SPACEMAN_CRASHED_MS;
+
+function spacemanCrashForRound(roundId) {
+  let x =
+    Math.sin(Number(roundId) * 12.9898) *
+    43758.5453;
+
+  x = x - Math.floor(x);
+
+  const value = 1 + x * 8;
+
+  return Number(value.toFixed(2));
+}
+
+function spacemanState() {
+
+  const now = Date.now();
+
+  /*
+   * Round ditentukan langsung dari Unix time.
+   * Karena semua request memakai waktu epoch yang sama,
+   * Worker isolate berbeda tetap menghasilkan ronde sama.
+   */
+  const roundId =
+    Math.floor(now / SPACEMAN_CYCLE_MS);
+
+  const cycleStart =
+    roundId * SPACEMAN_CYCLE_MS;
+
+  const elapsed =
+    now - cycleStart;
+
+  let phase;
+  let multiplier = 1;
+  let crash = null;
+
+  const targetCrash =
+    spacemanCrashForRound(roundId);
+
+  if (elapsed < SPACEMAN_BETTING_MS) {
+
+    phase = "betting";
+    multiplier = 1;
+
+  } else if (
+    elapsed <
+    SPACEMAN_BETTING_MS +
+    SPACEMAN_RUNNING_MS
+  ) {
+
+    phase = "running";
+
+    const runningElapsed =
+      elapsed -
+      SPACEMAN_BETTING_MS;
+
+    /*
+     * Multiplier deterministik berdasarkan
+     * waktu server.
+     */
+    const progress =
+      Math.min(
+        0.999999,
+        runningElapsed /
+        SPACEMAN_RUNNING_MS
+      );
+
+    multiplier =
+      Number(
+        Math.min(
+          targetCrash,
+          Math.max(
+            1,
+            Math.exp(
+              Math.log(targetCrash) *
+              progress
+            )
+          )
+        ).toFixed(2)
+      );
+
+  } else {
+
+    phase = "crashed";
+
+    multiplier = targetCrash;
+    crash = targetCrash;
+  }
+
+  /*
+   * =====================================================
+   * SPACEMAN GLOBAL STATISTICS
+   * =====================================================
+   *
+   * Statistik ini adalah SIMULASI visual.
+   * Nilainya dibuat deterministik berdasarkan roundId,
+   * sehingga semua browser melihat angka yang sama
+   * selama ronde yang sama dan tidak berubah setiap
+   * polling.
+   */
+
+  function spacemanStatSeed(seed) {
+    const x =
+      Math.sin(seed * 12.9898) *
+      43758.5453;
+
+    return x - Math.floor(x);
+  }
+
+  const statSeed =
+    Number(roundId) || 0;
+
+  /*
+   * Jumlah orang yang sedang bermain.
+   * Range: 80 - 500 orang.
+   */
+  const peopleCount =
+    80 +
+    Math.floor(
+      spacemanStatSeed(
+        statSeed + 101
+      ) * 421
+    );
+
+  /*
+   * Jumlah orang yang memasang taruhan.
+   * Selalu lebih kecil atau sama dengan
+   * jumlah orang yang bermain.
+   */
+  const betPeople =
+    Math.max(
+      1,
+      Math.min(
+        peopleCount,
+        Math.floor(
+          peopleCount *
+          (
+            0.35 +
+            spacemanStatSeed(
+              statSeed + 202
+            ) * 0.45
+          )
+        )
+      )
+    );
+
+  /*
+   * Total nominal penarikan simulasi.
+   *
+   * Dibuat berdasarkan jumlah pemain taruhan
+   * supaya tetap masuk akal dan tidak berubah
+   * selama roundId yang sama.
+   */
+  const averageCashout =
+    2000 +
+    Math.floor(
+      spacemanStatSeed(
+        statSeed + 303
+      ) * 48000
+    );
+
+  const cashoutFactor =
+    0.65 +
+    spacemanStatSeed(
+      statSeed + 404
+    ) * 0.85;
+
+  const cashedTotal =
+    Math.floor(
+      betPeople *
+      averageCashout *
+      cashoutFactor
+    );
+
+  /*
+   * History berasal dari roundId.
+   * Maksimal 1000 ronde terakhir.
+   *
+   * Semua akun mendapatkan history identik.
+   * History terbaru berada di depan.
+   */
+  const history = [];
+
+  for (let i = 1; i <= 1000; i++) {
+
+    const previousRound =
+      roundId - i;
+
+    if (previousRound < 0) {
+      break;
+    }
+
+    history.push(
+      spacemanCrashForRound(previousRound)
+    );
+  }
+  return {
+    success: true,
+    roundId,
+    phase,
+    multiplier,
+    crash,
+
+    /*
+     * Statistik pemain simulasi.
+     */
+    peopleCount,
+    betPeople,
+    cashedPeople:
+      Math.max(
+        1,
+        Math.floor(
+          betPeople *
+          (
+            0.18 +
+            spacemanStatSeed(
+              statSeed + 505
+            ) * 0.55
+          )
+        )
+      ),
+    cashedTotal,
+
+    history,
+    serverTime: now,
+    roundStartedAt: cycleStart,
+    bettingEndsAt:
+      cycleStart +
+      SPACEMAN_BETTING_MS,
+    crashAt:
+      cycleStart +
+      SPACEMAN_BETTING_MS +
+      SPACEMAN_RUNNING_MS
+  };
+}
+
+
 export default {
 
   async fetch(request, env) {
@@ -1415,6 +1672,19 @@ export default {
 
     const path =
       url.pathname;
+
+      /* ===================================================
+         SPACEMAN GLOBAL STATE
+         Must execute BEFORE createTables(env)
+         =================================================== */
+      if (
+        path === "/spaceman/state" &&
+        request.method === "GET"
+      ) {
+        return json(spacemanState());
+      }
+
+
 
     try {
 
@@ -5358,6 +5628,19 @@ if (
         });
       }
 
+
+
+      /* ===================================================
+         SPACEMAN GLOBAL STATE
+         =================================================== */
+      if (
+        path === "/spaceman/state" &&
+        request.method === "GET"
+      ) {
+        return json(
+          spacemanState()
+        );
+      }
 
       /* =====================================================
          NOT FOUND

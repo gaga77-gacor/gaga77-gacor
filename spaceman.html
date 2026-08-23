@@ -4360,6 +4360,35 @@ function globalRenderState(state) {
         state.phase === "running";
 
     /*
+     * =====================================================
+     * GLOBAL SPACEMAN STATISTICS
+     * =====================================================
+     * Statistik pemain berasal dari Worker /spaceman/state.
+     * Jangan membuat angka statistik lokal sendiri.
+     */
+    if (Number.isFinite(Number(state.peopleCount))) {
+        round.people =
+            Math.max(0, Math.floor(Number(state.peopleCount)));
+    }
+
+    if (Number.isFinite(Number(state.betPeople))) {
+        round.betPeople =
+            Math.max(0, Math.floor(Number(state.betPeople)));
+    }
+
+    if (Number.isFinite(Number(state.cashedPeople))) {
+        round.cashedPeople =
+            Math.max(0, Math.floor(Number(state.cashedPeople)));
+    }
+
+    if (Number.isFinite(Number(state.cashedTotal))) {
+        round.cashedTotal =
+            Math.max(0, Math.floor(Number(state.cashedTotal)));
+    }
+
+    updateStats();
+
+    /*
      * Jangan mengubah bet. Taruhan adalah milik akun lokal,
      * sedangkan ronde adalah milik server.
      */
