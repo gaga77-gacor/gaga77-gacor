@@ -928,10 +928,10 @@ button{
 }
 
 .action{
-    margin-top:9px;
+    margin-top:10px;
 
     width:100%;
-    height:60px;
+    min-height:60px;
 
     border-radius:30px;
 
@@ -957,12 +957,138 @@ button{
 .action.cancel{
     background:
         linear-gradient(
-            180deg,
-            #ff4965,
-            #b90f34
+            145deg,
+            #ff5570,
+            #c3133d
         );
 
-    border-color:#ff6680;
+    border-color:#ff7890;
+
+    box-shadow:
+        0 0 24px rgba(255,55,100,.35),
+        inset 0 1px 0 rgba(255,255,255,.25);
+
+    animation:betReadyPulse 1.8s ease-in-out infinite;
+}
+
+.action.bet-processing{
+    background:
+        linear-gradient(
+            145deg,
+            #7058a8,
+            #39275e
+        );
+
+    border-color:rgba(255,255,255,.25);
+
+    color:#fff;
+
+    pointer-events:none;
+
+    animation:betProcessingPulse 1s ease-in-out infinite;
+}
+
+.action.bet-confirmed{
+    background:
+        linear-gradient(
+            145deg,
+            #18e982,
+            #078c4d
+        );
+
+    border-color:#6affb1;
+
+    color:#fff;
+
+    box-shadow:
+        0 0 28px rgba(0,255,130,.42),
+        inset 0 1px 0 rgba(255,255,255,.35);
+
+    animation:betConfirmedPulse 1.8s ease-in-out infinite;
+}
+
+.bet-state{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    line-height:1.05;
+    text-align:center;
+}
+
+.bet-state-icon{
+    width:30px;
+    height:30px;
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:rgba(255,255,255,.18);
+
+    font-size:18px;
+    font-weight:1000;
+
+    flex:none;
+}
+
+.bet-state-text{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+}
+
+.bet-state-title{
+    font-size:15px;
+    font-weight:1000;
+    letter-spacing:.3px;
+}
+
+.bet-state-sub{
+    margin-top:3px;
+    font-size:11px;
+    font-weight:800;
+    opacity:.88;
+}
+
+@keyframes betReadyPulse{
+    0%,100%{
+        box-shadow:
+            0 0 18px rgba(255,55,100,.25),
+            inset 0 1px 0 rgba(255,255,255,.25);
+    }
+
+    50%{
+        box-shadow:
+            0 0 30px rgba(255,55,100,.48),
+            inset 0 1px 0 rgba(255,255,255,.3);
+    }
+}
+
+@keyframes betProcessingPulse{
+    0%,100%{
+        opacity:.72;
+    }
+
+    50%{
+        opacity:1;
+    }
+}
+
+@keyframes betConfirmedPulse{
+    0%,100%{
+        box-shadow:
+            0 0 18px rgba(0,255,130,.28),
+            inset 0 1px 0 rgba(255,255,255,.3);
+    }
+
+    50%{
+        box-shadow:
+            0 0 34px rgba(0,255,130,.55),
+            inset 0 1px 0 rgba(255,255,255,.35);
+    }
 }
 
 .action.disabled{
@@ -983,25 +1109,46 @@ button{
 
     grid-template-columns:1fr 1fr;
 
-    gap:4px;
+    gap:6px;
 
-    padding:4px;
+    padding:5px;
 
-    height:64px;
+    min-height:70px;
 
-    background:rgba(40,8,75,.95);
+    background:
+        linear-gradient(
+            145deg,
+            rgba(40,8,75,.98),
+            rgba(20,4,45,.98)
+        );
 
-    border-color:rgba(255,255,255,.15);
+    border:1px solid rgba(255,255,255,.18);
+
+    box-shadow:
+        0 0 22px rgba(0,255,120,.12),
+        inset 0 1px 0 rgba(255,255,255,.12);
 }
 
 .action-part{
-    height:54px;
+    width:100%;
+    height:58px;
 
     border:0;
 
-    border-radius:27px;
+    border-radius:25px;
 
     color:#fff;
+
+    cursor:pointer;
+
+    -webkit-tap-highlight-color:transparent;
+
+    touch-action:manipulation;
+
+    transition:
+        transform .12s ease,
+        filter .12s ease,
+        box-shadow .12s ease;
 
     font-size:14px;
 
@@ -1019,9 +1166,33 @@ button{
     background:
         linear-gradient(
             180deg,
-            #ffc928,
+            #ffd84a,
             #d57b00
         );
+
+    box-shadow:
+        0 5px 14px rgba(255,190,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.28);
+}
+
+.action-part:not(.half){
+    box-shadow:
+        0 5px 14px rgba(0,255,120,.20),
+        inset 0 1px 0 rgba(255,255,255,.28);
+}
+
+.action-part:active{
+    transform:scale(.965);
+    filter:brightness(.88);
+}
+
+.action-part:hover{
+    filter:brightness(1.08);
+}
+
+.action-part:focus-visible{
+    outline:2px solid #fff;
+    outline-offset:2px;
 }
 
 .action-part.disabled{
@@ -2514,11 +2685,36 @@ function loadHistory(){
             );
 
 
-        return Array.isArray(
-            data
-        )
-            ? data
-            : [];
+        if(!Array.isArray(data)){
+            return [];
+        }
+
+        return data
+            .map(item => ({
+                value: Number(
+                    item && item.value
+                ),
+                time:
+                    Number(
+                        item && item.time
+                    ) || Date.now()
+            }))
+            .filter(
+                item =>
+                    Number.isFinite(item.value) &&
+                    item.value >= 1
+            )
+            .map(
+                item => ({
+                    value:
+                        Number(
+                            item.value.toFixed(2)
+                        ),
+                    time:
+                        item.time
+                })
+            )
+            .slice(0, 100);
 
     }catch{
 
@@ -2543,11 +2739,20 @@ function saveHistory(){
 
 function addHistory(value){
 
+    const n = Number(value);
+
+    // Jangan simpan history yang bukan angka valid.
+    if(
+        !Number.isFinite(n) ||
+        n < 1
+    ){
+        return;
+    }
+
     history.unshift({
 
         value:Number(
-            Number(value)
-            .toFixed(2)
+            n.toFixed(2)
         ),
 
         time:Date.now()
@@ -2604,6 +2809,16 @@ function historyClass(value){
 
 function createHistoryItem(value){
 
+    const n = Number(value);
+
+    // Jangan pernah menampilkan NaNx.
+    if(
+        !Number.isFinite(n) ||
+        n < 1
+    ){
+        return null;
+    }
+
     const el =
         document.createElement(
             "div"
@@ -2613,12 +2828,12 @@ function createHistoryItem(value){
     el.className =
         "result " +
         historyClass(
-            value
+            n
         );
 
 
     el.textContent =
-        Number(value).toFixed(
+        n.toFixed(
             2
         ) +
         "x";
@@ -2642,6 +2857,11 @@ function renderHistory(){
         );
 
 
+    if(!strip || !grid){
+        return;
+    }
+
+
     strip.innerHTML = "";
 
     grid.innerHTML = "";
@@ -2655,11 +2875,14 @@ function renderHistory(){
         .forEach(
             item=>{
 
-                strip.appendChild(
+                const el =
                     createHistoryItem(
                         item.value
-                    )
-                );
+                    );
+
+                if(el){
+                    strip.appendChild(el);
+                }
 
             }
         );
@@ -2668,16 +2891,18 @@ function renderHistory(){
     history.forEach(
         item=>{
 
-            grid.appendChild(
+            const el =
                 createHistoryItem(
                     item.value
-                )
-            );
+                );
+
+            if(el){
+                grid.appendChild(el);
+            }
 
         }
     );
 }
-
 
 /* =====================================================
    PROFILE
@@ -3292,6 +3517,11 @@ function changeAutoHalf(value){
 
 async function mainAction(){
 
+    const mainBtn =
+        document.getElementById(
+            "mainAction"
+        );
+
     if(
         !isLoggedIn()
     ){
@@ -3362,9 +3592,61 @@ async function mainAction(){
     }
 
 
-    const serverDebit = await serverAdjustBalance(-amount, "spaceman");
+    /*
+     * Visual feedback:
+     * request taruhan sedang diproses.
+     */
+
+    if(mainBtn){
+
+        mainBtn.className =
+            "action bet-processing";
+
+        mainBtn.innerHTML = `
+
+            <div class="bet-state">
+
+                <span class="bet-state-icon">
+                    ⏳
+                </span>
+
+                <span class="bet-state-text">
+
+                    <span class="bet-state-title">
+                        MEMPROSES TARUHAN...
+                    </span>
+
+                    <span class="bet-state-sub">
+                        ${money(amount)}
+                    </span>
+
+                </span>
+
+            </div>
+        `;
+
+        mainBtn.disabled = true;
+    }
+
+    const serverDebit =
+        await serverAdjustBalance(
+            -amount,
+            "spaceman"
+        );
+
+    if(mainBtn){
+        mainBtn.disabled = false;
+    }
 
     if(!serverDebit){
+
+        if(mainBtn){
+
+            mainBtn.disabled = false;
+
+            renderBetButton();
+        }
+
         return;
     }
 
@@ -3412,13 +3694,31 @@ function renderCancelButton(){
             "mainAction"
         );
 
-
     btn.className =
-        "action cancel";
+        "action bet-confirmed";
 
+    btn.innerHTML = `
 
-    btn.textContent =
-        "BATALKAN TARUHAN";
+        <div class="bet-state">
+
+            <span class="bet-state-icon">
+                ✓
+            </span>
+
+            <span class="bet-state-text">
+
+                <span class="bet-state-title">
+                    TARUHAN TERPASANG
+                </span>
+
+                <span class="bet-state-sub">
+                    ${money(bet.original)} • TAP UNTUK BATALKAN
+                </span>
+
+            </span>
+
+        </div>
+    `;
 }
 
 
@@ -3487,13 +3787,30 @@ function renderBetButton(){
             "mainAction"
         );
 
-
     btn.className =
         "action";
 
+    btn.innerHTML = `
+        <div class="bet-state">
 
-    btn.textContent =
-        "PASANG TARUHAN";
+            <span class="bet-state-icon">
+                🚀
+            </span>
+
+            <span class="bet-state-text">
+
+                <span class="bet-state-title">
+                    PASANG TARUHAN
+                </span>
+
+                <span class="bet-state-sub">
+                    ${money(bet.amount || 2000)}
+                </span>
+
+            </span>
+
+        </div>
+    `;
 }
 
 
@@ -3725,17 +4042,23 @@ function renderCashoutButtons(){
             "mainAction"
         );
 
+    /*
+     * Cashout memakai DIV, bukan BUTTON.
+     * Sebelumnya mainAction adalah <button> yang
+     * berisi dua <button> lain (HTML invalid).
+     */
 
     btn.className =
         "action running";
 
-
     btn.innerHTML = `
 
-        <button
-            type="button"
+        <div
             class="action-part"
-            onclick="cashFull()">
+            role="button"
+            tabindex="0"
+            onclick="cashFull()"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();cashFull()}">
 
             <small>
                 TARIK FULL
@@ -3745,12 +4068,14 @@ function renderCashoutButtons(){
                 Rp0
             </strong>
 
-        </button>
+        </div>
 
-        <button
-            type="button"
+        <div
             class="action-part half"
-            onclick="cashHalf()">
+            role="button"
+            tabindex="0"
+            onclick="cashHalf()"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();cashHalf()}">
 
             <small>
                 TARIK 50%
@@ -3760,9 +4085,8 @@ function renderCashoutButtons(){
                 Rp0
             </strong>
 
-        </button>
+        </div>
     `;
-
 
     updateCashoutButtons();
 }
@@ -4537,18 +4861,59 @@ function globalRenderState(state) {
         }
 
         /*
-         * History selalu dari server.
+         * HISTORY SELALU DARI SERVER.
+         *
+         * Worker mengirim:
+         *   state.history = [2.48, 1.08, 3.60, ...]
+         *
+         * Frontend menyimpannya dalam format:
+         *   { value: 2.48, time: ... }
+         *
+         * Hanya angka valid yang boleh masuk.
+         * Ini mencegah NaNx.
          */
         if (
             Array.isArray(state.history)
         ) {
+
+            const serverHistory =
+                state.history
+                    .map(
+                        value => Number(value)
+                    )
+                    .filter(
+                        value =>
+                            Number.isFinite(value) &&
+                            value >= 1
+                    )
+                    .map(
+                        value => ({
+                            value:
+                                Number(
+                                    value.toFixed(2)
+                                ),
+                            time:
+                                Date.now()
+                        })
+                    )
+                    .slice(
+                        0,
+                        100
+                    );
+
+            /*
+             * Update variable history yang
+             * benar-benar dipakai renderHistory().
+             */
+            history =
+                serverHistory;
 
             try {
 
                 localStorage.setItem(
                     HISTORY_KEY,
                     JSON.stringify(
-                        state.history
+                        history
                     )
                 );
 
