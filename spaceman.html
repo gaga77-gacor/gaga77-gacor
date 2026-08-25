@@ -5109,6 +5109,61 @@ function globalRenderState(state) {
     updateStats();
 
     /*
+     * =====================================================
+     * GLOBAL HISTORY SYNC
+     * =====================================================
+     *
+     * History authoritative berasal dari Worker.
+     * Jangan menggunakan localStorage sebagai sumber
+     * kebenaran history dan jangan menunggu fase crashed.
+     *
+     * Semua device/account yang menerima roundId yang sama
+     * akan memakai state.history yang sama.
+     */
+    if (Array.isArray(state.history)) {
+
+        const serverHistory =
+            state.history
+                .map(value => Number(value))
+                .filter(
+                    value =>
+                        Number.isFinite(value) &&
+                        value >= 1
+                )
+                .map(value =>
+                    Number(value.toFixed(2))
+                )
+                .slice(0, 100);
+
+        /*
+         * Tambahkan waktu hanya sebagai metadata tampilan.
+         * Nilai dan urutan history tetap sepenuhnya berasal
+         * dari Worker.
+         */
+        history =
+            serverHistory.map(
+                (value, index) => ({
+                    value,
+                    time:
+                        Number(state.serverTime || Date.now()) -
+                        ((index + 1) *
+                         Number(
+                            typeof window.__SPACEMAN_HISTORY_INTERVAL_MS === "number"
+                                ? window.__SPACEMAN_HISTORY_INTERVAL_MS
+                                : 26000
+                         ))
+                })
+            );
+
+        try {
+            localStorage.setItem(
+                HISTORY_KEY,
+                JSON.stringify(history)
+            );
+        } catch (_) {}
+    }
+
+    /*
      * Jangan mengubah bet. Taruhan adalah milik akun lokal,
      * sedangkan ronde adalah milik server.
      */
@@ -5254,66 +5309,6 @@ function globalRenderState(state) {
                 "x • Taruhan hangus",
                 "loss"
             );
-        }
-
-        /*
-         * HISTORY SELALU DARI SERVER.
-         *
-         * Worker mengirim:
-         *   state.history = [2.48, 1.08, 3.60, ...]
-         *
-         * Frontend menyimpannya dalam format:
-         *   { value: 2.48, time: ... }
-         *
-         * Hanya angka valid yang boleh masuk.
-         * Ini mencegah NaNx.
-         */
-        if (
-            Array.isArray(state.history)
-        ) {
-
-            const serverHistory =
-                state.history
-                    .map(
-                        value => Number(value)
-                    )
-                    .filter(
-                        value =>
-                            Number.isFinite(value) &&
-                            value >= 1
-                    )
-                    .map(
-                        value => ({
-                            value:
-                                Number(
-                                    value.toFixed(2)
-                                ),
-                            time:
-                                Date.now()
-                        })
-                    )
-                    .slice(
-                        0,
-                        100
-                    );
-
-            /*
-             * Update variable history yang
-             * benar-benar dipakai renderHistory().
-             */
-            history =
-                serverHistory;
-
-            try {
-
-                localStorage.setItem(
-                    HISTORY_KEY,
-                    JSON.stringify(
-                        history
-                    )
-                );
-
-            } catch (_) {}
         }
 
         renderHistory();
