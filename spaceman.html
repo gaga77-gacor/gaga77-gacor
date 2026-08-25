@@ -5161,6 +5161,13 @@ function globalRenderState(state) {
                 JSON.stringify(history)
             );
         } catch (_) {}
+
+        /*
+         * LANGSUNG RENDER HISTORY.
+         * Tidak menunggu crash dan tidak menunggu klik.
+         * Worker tetap menjadi satu-satunya sumber history.
+         */
+        renderHistory();
     }
 
     /*
@@ -5186,6 +5193,35 @@ function globalRenderState(state) {
             );
 
         setMultiplier(1);
+
+        /*
+         * Reset astronaut setiap ronde baru.
+         * Ini juga menghilangkan transform crash dari ronde
+         * sebelumnya tanpa perlu klik layar.
+         */
+        const rocket =
+            document.getElementById("rocket");
+
+        if (rocket) {
+
+            rocket.style.transition =
+                "none";
+
+            rocket.style.left =
+                "18%";
+
+            rocket.style.top =
+                "100px";
+
+            rocket.style.transform =
+                "translateX(-50%) rotate(0deg) scale(1)";
+
+            /*
+             * Paksa browser menerapkan posisi awal sebelum
+             * transisi running berikutnya.
+             */
+            void rocket.offsetWidth;
+        }
 
         setStatus(
             "TARUHAN DIBUKA • " +
@@ -5230,37 +5266,52 @@ function globalRenderState(state) {
 
         if (rocket) {
 
+            /*
+             * ASTRONAUT GLOBAL SERVER-SYNC
+             *
+             * Posisi ditentukan hanya dari multiplier
+             * yang berasal dari Worker.
+             *
+             * serverTime digunakan sebagai referensi waktu
+             * global sehingga browser/device tidak membuat
+             * kecepatan penerbangan masing-masing.
+             */
+            const m =
+                Math.max(
+                    1,
+                    Number(multiplier) || 1
+                );
+
             const visual =
                 Math.min(
                     92,
                     18 +
-                    Math.log(
-                        Math.max(
-                            1,
-                            multiplier
-                        )
-                    ) *
-                    18
+                    Math.log(m) * 18
                 );
+
+            const vertical =
+                Math.max(
+                    40,
+                    100 -
+                    Math.log(m) * 22
+                );
+
+            /*
+             * Transisi tetap sama di setiap update server.
+             * Tidak menggunakan animation loop lokal.
+             */
+            rocket.style.transition =
+                "left 250ms linear, top 250ms linear, " +
+                "transform 250ms linear";
 
             rocket.style.left =
                 visual + "%";
 
             rocket.style.top =
-                Math.max(
-                    40,
-                    100 -
-                    Math.log(
-                        Math.max(
-                            1,
-                            multiplier
-                        )
-                    ) *
-                    22
-                ) + "px";
+                vertical + "px";
 
             rocket.style.transform =
-                "translateX(-50%)";
+                "translateX(-50%) rotate(0deg) scale(1)";
         }
 
         updateCashoutButtons();
@@ -5289,6 +5340,9 @@ function globalRenderState(state) {
             document.getElementById("rocket");
 
         if (rocket) {
+
+            rocket.style.transition =
+                "transform 180ms ease-out";
 
             rocket.style.transform =
                 "translateX(-50%) " +
