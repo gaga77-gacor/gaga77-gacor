@@ -1476,6 +1476,402 @@ button{
     }
 }
 </style>
+
+
+<style>
+/* ===== SPACEMAN BUTTON DESIGN OVERRIDE ===== */
+
+.action{
+    width:100%;
+    min-height:62px !important;
+    margin-top:8px;
+    padding:0 !important;
+    border:1px solid rgba(255,255,255,.16) !important;
+    border-radius:20px !important;
+    overflow:hidden;
+    position:relative;
+    color:#fff;
+    font-size:17px;
+    font-weight:900;
+    letter-spacing:.3px;
+    cursor:pointer;
+
+    background:
+        linear-gradient(
+            135deg,
+            #9b35ff 0%,
+            #6515d6 48%,
+            #3d087f 100%
+        ) !important;
+
+    box-shadow:
+        0 7px 22px rgba(72,0,145,.42),
+        inset 0 1px 0 rgba(255,255,255,.22) !important;
+
+    transition:
+        transform .14s ease,
+        filter .14s ease,
+        opacity .14s ease;
+}
+
+.action:active{
+    transform:scale(.975);
+}
+
+.action:hover{
+    filter:brightness(1.08);
+}
+
+.action:disabled{
+    cursor:wait;
+}
+
+
+/* PROSES TARUHAN */
+
+.action.bet-processing{
+    background:
+        linear-gradient(
+            135deg,
+            #7135dc,
+            #35106d
+        ) !important;
+
+    cursor:wait;
+}
+
+.action.bet-processing .bet-state-icon{
+    animation:spacemanButtonSpin 1s linear infinite;
+}
+
+@keyframes spacemanButtonSpin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+
+/* BATALKAN TARUHAN */
+
+.action.bet-confirmed{
+    background:
+        linear-gradient(
+            135deg,
+            #ff5368 0%,
+            #e32645 52%,
+            #9e102b 100%
+        ) !important;
+
+    border-color:rgba(255,255,255,.22) !important;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 7px 22px rgba(220,20,55,.38),
+        inset 0 1px 0 rgba(255,255,255,.24) !important;
+}
+
+.action.bet-confirmed:hover{
+    filter:brightness(1.08);
+}
+
+.action.bet-confirmed:active{
+    transform:scale(.975);
+}
+
+.action.bet-confirmed .bet-state-icon{
+    background:rgba(90,0,15,.25);
+}
+
+
+/* MENUNGGU */
+
+.action.disabled{
+    background:
+        linear-gradient(
+            135deg,
+            #51495d,
+            #2d2633
+        ) !important;
+
+    color:#aaa2b0;
+    opacity:.78;
+
+    cursor:not-allowed;
+
+    box-shadow:none !important;
+}
+
+
+/* STATUS TARUHAN */
+
+.bet-state{
+    width:100%;
+    min-height:62px;
+
+    padding:8px 15px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    gap:12px;
+
+    box-sizing:border-box;
+}
+
+.bet-state-icon{
+    width:38px;
+    height:38px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    flex:none;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle at 35% 30%,
+            rgba(255,255,255,.28),
+            rgba(255,255,255,.08)
+        );
+
+    border:1px solid rgba(255,255,255,.18);
+
+    font-size:19px;
+
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.18),
+        0 3px 9px rgba(0,0,0,.18);
+}
+
+.bet-state-text{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+
+    min-width:0;
+}
+
+.bet-state-title{
+    font-size:15px;
+    line-height:18px;
+    font-weight:950;
+    white-space:nowrap;
+}
+
+.bet-state-sub{
+    margin-top:3px;
+
+    font-size:11px;
+    line-height:14px;
+
+    opacity:.84;
+
+    white-space:nowrap;
+}
+
+
+/* CASHOUT */
+
+.action.running{
+    display:grid !important;
+
+    grid-template-columns:1fr 1fr;
+
+    min-height:74px !important;
+
+    padding:0 !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #8127e8,
+            #4b0fa5
+        ) !important;
+
+    border:1px solid rgba(255,255,255,.18) !important;
+
+    box-shadow:
+        0 7px 20px rgba(73,0,135,.35),
+        inset 0 1px 0 rgba(255,255,255,.18) !important;
+}
+
+.action-part{
+    min-width:0;
+    min-height:74px !important;
+
+    display:flex !important;
+    flex-direction:column;
+
+    align-items:center;
+    justify-content:center;
+
+    gap:4px;
+
+    padding:8px 5px;
+
+    box-sizing:border-box;
+
+    color:#fff;
+
+    cursor:pointer;
+
+    position:relative;
+
+    transition:
+        background .14s ease,
+        transform .14s ease,
+        filter .14s ease;
+}
+
+.action-part + .action-part{
+    border-left:1px solid rgba(255,255,255,.18);
+}
+
+
+/* FULL */
+
+.action-part:not(.half){
+    background:
+        linear-gradient(
+            180deg,
+            rgba(22,232,121,.23),
+            rgba(22,232,121,.05)
+        ) !important;
+}
+
+
+/* 50% */
+
+.action-part.half{
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,196,0,.22),
+            rgba(255,196,0,.05)
+        ) !important;
+}
+
+.action-part:not(.half):hover{
+    filter:brightness(1.12);
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(22,232,121,.31),
+            rgba(22,232,121,.08)
+        ) !important;
+}
+
+.action-part.half:hover{
+    filter:brightness(1.12);
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255,196,0,.31),
+            rgba(255,196,0,.08)
+        ) !important;
+}
+
+.action-part:active{
+    transform:scale(.96);
+}
+
+.action-part:focus-visible{
+    outline:2px solid #fff;
+    outline-offset:-3px;
+}
+
+.action-part.disabled{
+    opacity:.42;
+    cursor:not-allowed;
+    pointer-events:none;
+}
+
+.action-part small{
+    display:block;
+
+    font-size:10px;
+    line-height:13px;
+
+    font-weight:950;
+
+    letter-spacing:.7px;
+
+    opacity:.86;
+}
+
+.action-part strong{
+    display:block;
+
+    max-width:100%;
+
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+
+    font-size:17px;
+    line-height:21px;
+
+    font-weight:950;
+
+    text-shadow:
+        0 1px 4px rgba(0,0,0,.25);
+}
+
+
+/* HP KECIL */
+
+@media(max-width:360px){
+
+    .action{
+        min-height:58px !important;
+        border-radius:18px !important;
+    }
+
+    .bet-state{
+        min-height:58px;
+        padding:7px 11px;
+        gap:9px;
+    }
+
+    .bet-state-icon{
+        width:34px;
+        height:34px;
+        font-size:17px;
+    }
+
+    .bet-state-title{
+        font-size:14px;
+    }
+
+    .bet-state-sub{
+        font-size:10px;
+    }
+
+    .action.running,
+    .action-part{
+        min-height:68px !important;
+    }
+
+    .action-part strong{
+        font-size:14px;
+    }
+
+    .action-part small{
+        font-size:9px;
+    }
+}
+
+/* ===== END SPACEMAN BUTTON DESIGN OVERRIDE ===== */
+</style>
+
 </head>
 
 <body>
@@ -3708,11 +4104,11 @@ function renderCancelButton(){
             <span class="bet-state-text">
 
                 <span class="bet-state-title">
-                    TARUHAN TERPASANG
+                    BATALKAN TARUHAN
                 </span>
 
                 <span class="bet-state-sub">
-                    ${money(bet.original)} • TAP UNTUK BATALKAN
+                    ${money(bet.original)} • TAP UNTUK MEMBATALKAN
                 </span>
 
             </span>
@@ -4743,7 +5139,7 @@ function globalRenderState(state) {
         );
 
         if (bet.placed) {
-            renderBetButton();
+            renderCancelButton();
         } else {
             renderBetButton();
         }
@@ -5152,3 +5548,102 @@ console.log(
 
 </body>
 </html>
+<style id="spaceman-red-cancel-final">
+
+/* =====================================================
+   FINAL CANCEL BUTTON
+   HANYA MENGUBAH TAMPILAN
+===================================================== */
+
+.action.bet-confirmed{
+    background:
+        linear-gradient(
+            135deg,
+            #ff5368 0%,
+            #e32645 50%,
+            #8f1029 100%
+        ) !important;
+
+    background-color:#e32645 !important;
+
+    color:#fff !important;
+
+    border-color:
+        rgba(255,255,255,.25) !important;
+
+    box-shadow:
+        0 7px 22px rgba(220,20,55,.42),
+        inset 0 1px 0 rgba(255,255,255,.25) !important;
+
+    cursor:pointer !important;
+}
+
+.action.bet-confirmed:hover{
+    filter:brightness(1.08) !important;
+}
+
+.action.bet-confirmed:active{
+    transform:scale(.975) !important;
+}
+
+.action.bet-confirmed .bet-state-icon{
+    background:rgba(90,0,15,.28) !important;
+}
+
+/* Jangan biarkan status taruhan terpasang menjadi hijau */
+.action.bet-confirmed,
+.action.bet-confirmed *{
+    --cancel-red:#e32645;
+}
+
+</style>
+
+<style id="spaceman-red-cancel-final">
+
+/* =====================================================
+   FINAL CANCEL BUTTON
+   HANYA MENGUBAH TAMPILAN
+===================================================== */
+
+.action.bet-confirmed{
+    background:
+        linear-gradient(
+            135deg,
+            #ff5368 0%,
+            #e32645 50%,
+            #8f1029 100%
+        ) !important;
+
+    background-color:#e32645 !important;
+
+    color:#fff !important;
+
+    border-color:
+        rgba(255,255,255,.25) !important;
+
+    box-shadow:
+        0 7px 22px rgba(220,20,55,.42),
+        inset 0 1px 0 rgba(255,255,255,.25) !important;
+
+    cursor:pointer !important;
+}
+
+.action.bet-confirmed:hover{
+    filter:brightness(1.08) !important;
+}
+
+.action.bet-confirmed:active{
+    transform:scale(.975) !important;
+}
+
+.action.bet-confirmed .bet-state-icon{
+    background:rgba(90,0,15,.28) !important;
+}
+
+/* Jangan biarkan status taruhan terpasang menjadi hijau */
+.action.bet-confirmed,
+.action.bet-confirmed *{
+    --cancel-red:#e32645;
+}
+
+</style>
