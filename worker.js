@@ -1406,7 +1406,7 @@ async function handleWebhook(
    ========================================================= */
 
 const SPACEMAN_BETTING_MS = 8000;
-const SPACEMAN_RUNNING_MS = 15000;
+const SPACEMAN_RUNNING_MS = 40000;
 
 // =====================================================
 // SPACEMAN VISUAL FLIGHT SPEED
@@ -1415,7 +1415,7 @@ const SPACEMAN_RUNNING_MS = 15000;
 // Tidak mengubah crash/multiplier.
 // Semakin besar = semakin lambat.
 // =====================================================
-const SPACEMAN_FLIGHT_DURATION_MS = 25000;
+const SPACEMAN_FLIGHT_DURATION_MS = 40000;
 
 const SPACEMAN_CRASHED_MS = 3000;
 

@@ -5124,7 +5124,7 @@ function smoothConstantRocket(state) {
      * Nilai multiplier/crash TIDAK masuk ke rumus.
      */
     const FLIGHT_DURATION =
-        Number(current.flightDuration) || 25000;
+        Number(state.flightDuration) || 40000;
 
     const START_LEFT = 18;
     const END_LEFT = 55;
