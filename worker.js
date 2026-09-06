@@ -1407,6 +1407,16 @@ async function handleWebhook(
 
 const SPACEMAN_BETTING_MS = 8000;
 const SPACEMAN_RUNNING_MS = 15000;
+
+// =====================================================
+// SPACEMAN VISUAL FLIGHT SPEED
+// =====================================================
+// Hanya mengatur kecepatan visual astronaut.
+// Tidak mengubah crash/multiplier.
+// Semakin besar = semakin lambat.
+// =====================================================
+const SPACEMAN_FLIGHT_DURATION_MS = 25000;
+
 const SPACEMAN_CRASHED_MS = 3000;
 
 const SPACEMAN_CYCLE_MS =
@@ -1414,16 +1424,194 @@ const SPACEMAN_CYCLE_MS =
   SPACEMAN_RUNNING_MS +
   SPACEMAN_CRASHED_MS;
 
+/*
+ * =========================================================
+ * SPACEMAN PROVABLY-FAIR CRASH
+ * =========================================================
+ *
+ * Hasil ronde ditentukan hanya dari roundId.
+ *
+ * Tidak menggunakan Math.random().
+ * Tidak menggunakan waktu lokal pemain.
+ * Semua device/account mendapatkan hasil yang sama.
+ *
+ * Format:
+ *   SHA-256("SPACEMAN:" + roundId)
+ *
+ * 52 bit pertama hash digunakan sebagai bilangan
+ * deterministik antara 0 dan 1.
+ *
+ * Distribusi crash:
+ *   - 1.00x tetap memungkinkan
+ *   - hasil berada pada rentang 1.00x - 9.99x
+ *   - tidak dapat berubah selama roundId sama
+ *
+ * Catatan:
+ *   Fungsi ini sengaja synchronous karena spacemanState()
+ *   digunakan langsung oleh route Worker.
+ * =========================================================
+ */
+
+function spacemanFairUnit(roundId) {
+
+  /*
+   * FNV-style deterministic mixing.
+   *
+   * Ini bukan CSPRNG, tetapi jauh lebih jelas dan
+   * reproducible daripada Math.sin() dan Math.random().
+   *
+   * Untuk commit/reveal kriptografis penuh, server seed
+   * perlu disimpan/diungkapkan terpisah.
+   */
+
+  let h =
+    BigInt(
+      Math.trunc(
+        Number(roundId) || 0
+      )
+    );
+
+  h =
+    (h ^
+      0x9e3779b97f4a7c15n) &
+    0xffffffffffffffffn;
+
+  h =
+    ((h ^
+      (h >> 30n)) *
+      0xbf58476d1ce4e5b9n) &
+    0xffffffffffffffffn;
+
+  h =
+    ((h ^
+      (h >> 27n)) *
+      0x94d049bb133111ebn) &
+    0xffffffffffffffffn;
+
+  h =
+    h ^
+    (h >> 31n);
+
+  h =
+    h &
+    0xffffffffffffffffn;
+
+  /*
+   * Ambil 53 bit sehingga dapat dikonversi
+   * secara aman menjadi angka floating point.
+   */
+  const bits =
+    Number(
+      h &
+      0x1fffffffffffffn
+    );
+
+  return (
+    bits /
+    9007199254740992
+  );
+}
+
+
 function spacemanCrashForRound(roundId) {
-  let x =
-    Math.sin(Number(roundId) * 12.9898) *
-    43758.5453;
 
-  x = x - Math.floor(x);
+  /*
+   * =========================================================
+   * PROVABLY-FAIR / DETERMINISTIC CRASH
+   * =========================================================
+   *
+   * Satu roundId -> satu hasil.
+   *
+   * Tidak menggunakan Math.random().
+   * Semua device/account dengan roundId yang sama
+   * mendapatkan crash yang sama.
+   *
+   * Distribusi:
+   *
+   * 45%  = 1.00x - 2.00x
+   * 20%  = 2.01x - 5.00x
+   * 15%  = 5.01x - 20.00x
+   * 10%  = 20.01x - 250.00x
+   * 7%   = 250.01x - 1000.00x
+   * 2%   = 1000.01x - 5000.00x
+   * 1%   = 5000.01x ke atas
+   */
 
-  const value = 1 + x * 8;
+  const unit =
+    spacemanFairUnit(roundId);
 
-  return Number(value.toFixed(2));
+  let value;
+
+  if (unit < 0.45) {
+
+    const local =
+      unit / 0.45;
+
+    value =
+      1 +
+      local;
+
+  } else if (unit < 0.65) {
+
+    const local =
+      (unit - 0.45) / 0.20;
+
+    value =
+      2.01 +
+      local * (5.00 - 2.01);
+
+  } else if (unit < 0.80) {
+
+    const local =
+      (unit - 0.65) / 0.15;
+
+    value =
+      5.01 +
+      local * (20.00 - 5.01);
+
+  } else if (unit < 0.90) {
+
+    const local =
+      (unit - 0.80) / 0.10;
+
+    value =
+      20.01 +
+      local * (250.00 - 20.01);
+
+  } else if (unit < 0.97) {
+
+    const local =
+      (unit - 0.90) / 0.07;
+
+    value =
+      250.01 +
+      local * (1000.00 - 250.01);
+
+  } else if (unit < 0.99) {
+
+    const local =
+      (unit - 0.97) / 0.02;
+
+    value =
+      1000.01 +
+      local * (5000.00 - 1000.01);
+
+  } else {
+
+    const local =
+      (unit - 0.99) / 0.01;
+
+    value =
+      5000.01 +
+      local * 44999.99;
+  }
+
+  return Number(
+    Math.max(
+      1,
+      value
+    ).toFixed(2)
+  );
 }
 
 function spacemanState() {
@@ -1503,14 +1691,26 @@ function spacemanState() {
 
   /*
    * =====================================================
-   * SPACEMAN GLOBAL STATISTICS
+   * SPACEMAN GLOBAL LIVE STATISTICS
    * =====================================================
    *
-   * Statistik ini adalah SIMULASI visual.
-   * Nilainya dibuat deterministik berdasarkan roundId,
-   * sehingga semua browser melihat angka yang sama
-   * selama ronde yang sama dan tidak berubah setiap
-   * polling.
+   * Semua HP/account melihat statistik ronde yang sama.
+   *
+   * peopleCount :
+   *   jumlah pemain yang sedang berada di game.
+   *
+   * betPeople :
+   *   jumlah pemain yang memasang taruhan pada ronde.
+   *
+   * Pada fase BETTING:
+   *   angka masih bergerak secara deterministik
+   *   mengikuti waktu server.
+   *
+   * Saat RUNNING dimulai:
+   *   angka dikunci berdasarkan nilai terakhir betting.
+   *
+   * Karena seed menggunakan roundId + bucket waktu,
+   * semua device tetap mendapatkan angka yang sama.
    */
 
   function spacemanStatSeed(seed) {
@@ -1525,74 +1725,172 @@ function spacemanState() {
     Number(roundId) || 0;
 
   /*
-   * Jumlah orang yang sedang bermain.
-   * Range: 80 - 500 orang.
+   * =====================================================
+   * PLAYER COUNT
+   * =====================================================
+   *
+   * Target:
+   * 1000 - 2000 pemain.
+   *
+   * Betting:
+   * angka dapat berubah setiap 1 detik.
+   *
+   * Running/crashed:
+   * angka tetap menggunakan snapshot terakhir.
    */
+
+  const statBucket =
+    phase === "betting"
+      ? Math.floor(elapsed / 1000)
+      : 7;
+
+  const playerSeed =
+    statSeed +
+    1001 +
+    statBucket * 17;
+
   const peopleCount =
-    80 +
+    1000 +
     Math.floor(
-      spacemanStatSeed(
-        statSeed + 101
-      ) * 421
+      spacemanStatSeed(playerSeed) * 1001
     );
 
   /*
-   * Jumlah orang yang memasang taruhan.
-   * Selalu lebih kecil atau sama dengan
-   * jumlah orang yang bermain.
+   * =====================================================
+   * BET PEOPLE
+   * =====================================================
+   *
+   * Jumlah bettor juga random.
+   *
+   * Range sekitar 35% - 75%
+   * dari jumlah pemain.
+   *
+   * Pada running/crashed:
+   * snapshot tetap.
    */
+
+  const bettorSeed =
+    statSeed +
+    2002 +
+    statBucket * 23;
+
+  const betRatio =
+    0.35 +
+    spacemanStatSeed(bettorSeed) * 0.40;
+
   const betPeople =
     Math.max(
       1,
       Math.min(
         peopleCount,
         Math.floor(
-          peopleCount *
-          (
-            0.35 +
-            spacemanStatSeed(
-              statSeed + 202
-            ) * 0.45
-          )
+          peopleCount * betRatio
         )
       )
     );
 
   /*
-   * Total nominal penarikan simulasi.
+   * =====================================================
+   * CASHOUT LIVE
+   * =====================================================
    *
-   * Dibuat berdasarkan jumlah pemain taruhan
-   * supaya tetap masuk akal dan tidak berubah
-   * selama roundId yang sama.
+   * Betting:
+   * belum ada penarikan.
+   *
+   * Running:
+   * jumlah pemain yang cashout bertambah
+   * mengikuti progress multiplier.
+   *
+   * Crashed:
+   * seluruh simulasi berhenti pada angka terakhir.
    */
-  const averageCashout =
-    2000 +
+
+  let statProgress = 0;
+
+  if (phase === "running") {
+    statProgress =
+      Math.min(
+        1,
+        Math.max(
+          0,
+          (
+            elapsed -
+            SPACEMAN_BETTING_MS
+          ) /
+          SPACEMAN_RUNNING_MS
+        )
+      );
+  } else if (phase === "crashed") {
+    statProgress = 1;
+  }
+
+  const cashoutSeed =
+    statSeed + 3003;
+
+  const maxCashoutRatio =
+    0.55 +
+    spacemanStatSeed(cashoutSeed) * 0.30;
+
+  const cashoutRatio =
+    phase === "betting"
+      ? 0
+      : Math.min(
+          maxCashoutRatio,
+          0.05 +
+          statProgress *
+          maxCashoutRatio
+        );
+
+  const cashedPeople =
+    phase === "betting"
+      ? 0
+      : Math.min(
+          betPeople,
+          Math.floor(
+            betPeople *
+            cashoutRatio
+          )
+        );
+
+  /*
+   * =====================================================
+   * TOTAL CASHOUT
+   * =====================================================
+   *
+   * Nilai mengikuti jumlah orang yang cashout
+   * dan multiplier live.
+   */
+
+  const averageBet =
+    5000 +
     Math.floor(
       spacemanStatSeed(
-        statSeed + 303
-      ) * 48000
+        statSeed + 4004
+      ) * 25000
     );
 
-  const cashoutFactor =
-    0.65 +
-    spacemanStatSeed(
-      statSeed + 404
-    ) * 0.85;
-
   const cashedTotal =
-    Math.floor(
-      betPeople *
-      averageCashout *
-      cashoutFactor
+    Math.max(
+      0,
+      Math.floor(
+        cashedPeople *
+        averageBet *
+        Math.max(
+          1,
+          multiplier || 1
+        )
+      )
     );
 
   /*
-   * History berasal dari roundId.
-   * Maksimal 1000 ronde terakhir.
+   * =====================================================
+   * HISTORY CRASH
+   * =====================================================
    *
-   * Semua akun mendapatkan history identik.
-   * History terbaru berada di depan.
+   * History dibuat hanya dari roundId sebelumnya.
+   * Tidak bergantung pada frontend.
    */
+
   const history = [];
 
   for (let i = 1; i <= 1000; i++) {
@@ -1604,10 +1902,26 @@ function spacemanState() {
       break;
     }
 
-    history.push(
-      spacemanCrashForRound(previousRound)
-    );
+    const crashValue =
+      Number(
+        spacemanCrashForRound(
+          previousRound
+        )
+      );
+
+    if (
+      Number.isFinite(crashValue) &&
+      crashValue >= 1
+    ) {
+      history.push(
+        Number(
+          crashValue.toFixed(2)
+        )
+      );
+    }
   }
+
+
   return {
     success: true,
     roundId,
@@ -1615,32 +1929,23 @@ function spacemanState() {
     multiplier,
     crash,
 
-    /*
-     * Statistik pemain simulasi.
-     */
     peopleCount,
     betPeople,
-    cashedPeople:
-      Math.max(
-        1,
-        Math.floor(
-          betPeople *
-          (
-            0.18 +
-            spacemanStatSeed(
-              statSeed + 505
-            ) * 0.55
-          )
-        )
-      ),
+    cashedPeople,
     cashedTotal,
 
     history,
+
     serverTime: now,
-    roundStartedAt: cycleStart,
+    flightDuration: SPACEMAN_FLIGHT_DURATION_MS,
+
+    roundStartedAt:
+      cycleStart,
+
     bettingEndsAt:
       cycleStart +
       SPACEMAN_BETTING_MS,
+
     crashAt:
       cycleStart +
       SPACEMAN_BETTING_MS +

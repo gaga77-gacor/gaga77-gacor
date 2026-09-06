@@ -5064,27 +5064,26 @@ let smoothRocketRunning = false;
 
 function smoothConstantRocket(state) {
 
-    const rocket =
-        document.getElementById("rocket");
+    const rocket = document.getElementById("rocket");
 
-    if (!rocket || !state) {
-        return;
-    }
+    if (!rocket || !state) return;
 
     /*
-     * SIMPAN STATE SERVER TERBARU
+     * Simpan state server terbaru.
      *
-     * State ini hanya digunakan sebagai anchor:
-     * - bettingEndsAt
-     * - phase
+     * Posisi astronaut HANYA berdasarkan:
+     *   - bettingEndsAt
+     *   - waktu server
      *
-     * Multiplier/crash TIDAK PERNAH digunakan
-     * untuk menentukan kecepatan astronaut.
+     * Tidak menggunakan:
+     *   - multiplier
+     *   - crash
+     *   - targetCrash
      */
     smoothRocketState = state;
 
     /*
-     * Hanya phase RUNNING yang menjalankan animasi.
+     * Kalau bukan running, hentikan loop.
      */
     if (state.phase !== "running") {
 
@@ -5099,8 +5098,8 @@ function smoothConstantRocket(state) {
     }
 
     /*
-     * Jika animation loop sudah berjalan,
-     * jangan membuat loop baru setiap fetch 250ms.
+     * Jangan membuat animation loop baru setiap
+     * server melakukan polling.
      */
     if (smoothRocketRunning) {
         return;
@@ -5110,36 +5109,40 @@ function smoothConstantRocket(state) {
 
     /*
      * =====================================================
-     * ASTRONAUT TRUE CONSTANT SPEED
+     * CONSTANT FLIGHT SPEED
      * =====================================================
      *
-     * Durasi visual selalu 15 detik.
+     * Jarak:
+     *   18% -> 92%
      *
-     * 18% -> 92%
-     * 100px -> 40px
+     * Waktu:
+     *   15 detik
      *
-     * TIDAK TERGANTUNG:
-     * - multiplier
-     * - crash
-     * - targetCrash
-     * - history
+     * Kecepatan:
+     *   74% / 15 detik
+     *
+     * Nilai multiplier/crash TIDAK masuk ke rumus.
      */
-    const RUNNING_DURATION = 15000;
+    const FLIGHT_DURATION =
+        Number(current.flightDuration) || 25000;
 
     const START_LEFT = 18;
-    const END_LEFT = 92;
+    const END_LEFT = 55;
 
     const START_TOP = 100;
-    const END_TOP = 40;
+    const END_TOP = 70;
 
     /*
-     * Gunakan offset waktu server yang sudah dihitung
-     * oleh globalFetchSpacemanState().
+     * Waktu server kontinu.
      *
-     * Dengan cara ini waktu terus berjalan setiap frame,
-     * bukan berhenti pada serverTime dari fetch terakhir.
+     * globalFetchSpacemanState() sudah menghitung:
+     *
+     * serverTime - Date.now()
+     *
+     * sehingga RAF tidak bergantung pada serverTime
+     * yang hanya diperbarui setiap polling.
      */
-    function getSmoothServerNow() {
+    function getServerNow() {
 
         const offset =
             Number(window.__SPACEMAN_SERVER_OFFSET);
@@ -5161,6 +5164,9 @@ function smoothConstantRocket(state) {
         const current =
             smoothRocketState;
 
+        /*
+         * Server sudah masuk betting/crashed.
+         */
         if (
             !current ||
             current.phase !== "running"
@@ -5170,66 +5176,77 @@ function smoothConstantRocket(state) {
             return;
         }
 
-        /*
-         * Waktu server berjalan kontinu.
-         *
-         * PENTING:
-         * Tidak ada multiplier di sini.
-         */
-        const serverNow =
-            getSmoothServerNow();
-
         const runningStart =
             Number(current.bettingEndsAt);
 
         if (!Number.isFinite(runningStart)) {
+
             smoothRocketFrame =
                 requestAnimationFrame(frame);
+
             return;
         }
 
         /*
-         * Hitung posisi berdasarkan waktu,
-         * bukan berdasarkan multiplier.
+         * =================================================
+         * SATU-SATUNYA SUMBER KECEPATAN
+         * =================================================
+         *
+         * elapsed bertambah berdasarkan waktu.
+         *
+         * Tidak ada multiplier di sini.
          */
+        const now =
+            getServerNow();
+
         const elapsed =
             Math.max(
                 0,
-                serverNow - runningStart
+                now - runningStart
             );
 
+        /*
+         * 0.0 = awal
+         * 0.5 = tengah
+         * 1.0 = akhir
+         */
         const progress =
             Math.min(
                 1,
-                elapsed / RUNNING_DURATION
+                elapsed / FLIGHT_DURATION
             );
 
         /*
          * Linear interpolation.
          *
-         * progress 0   = posisi awal
-         * progress 0.5 = posisi tengah
-         * progress 1   = posisi akhir
+         * Karena linear:
          *
-         * Karena linear, kecepatannya konstan.
+         * kecepatan = konstan
          */
         const left =
             START_LEFT +
-            (END_LEFT - START_LEFT) *
-            progress;
+            (
+                END_LEFT -
+                START_LEFT
+            ) * progress;
 
         const top =
             START_TOP +
-            (END_TOP - START_TOP) *
-            progress;
+            (
+                END_TOP -
+                START_TOP
+            ) * progress;
 
         /*
-         * Matikan semua animation/transition lokal
-         * agar CSS tidak mengubah kecepatan astronaut.
+         * Hapus seluruh animation/transition
+         * yang dapat memengaruhi kecepatan.
          */
         rocket.style.animation = "none";
         rocket.style.transition = "none";
 
+        /*
+         * Posisi astronaut.
+         */
         rocket.style.left =
             left + "%";
 
@@ -5240,19 +5257,18 @@ function smoothConstantRocket(state) {
             "translateX(-50%) rotate(0deg) scale(1)";
 
         /*
-         * Lanjutkan frame berikutnya.
+         * Frame berikutnya.
          */
         smoothRocketFrame =
             requestAnimationFrame(frame);
     }
 
     /*
-     * Mulai SATU animation loop.
+     * Mulai SATU loop.
      */
     smoothRocketFrame =
         requestAnimationFrame(frame);
 }
-
 function stopSmoothConstantRocket() {
 
     smoothRocketRunning = false;
