@@ -5288,6 +5288,65 @@ function globalRenderState(state) {
     const previous =
         window.__GLOBAL_SPACEMAN_LAST_ROUND;
 
+    const currentRoundId =
+        Number(state.roundId);
+
+    const previousRoundId =
+        Number(previous);
+
+    const isNewRound =
+        Number.isFinite(currentRoundId) &&
+        Number.isFinite(previousRoundId) &&
+        currentRoundId !== previousRoundId;
+
+    /*
+     * =====================================================
+     * HARD ROUND TRANSITION RESET
+     * =====================================================
+     *
+     * Saat roundId berubah, kondisi visual CRASH dari ronde
+     * sebelumnya wajib dibersihkan SEBELUM state baru dirender.
+     */
+    if (isNewRound) {
+
+        const game =
+            document.getElementById("game");
+
+        if (game) {
+            game.classList.remove("crashed");
+        }
+
+        stopSmoothConstantRocket();
+
+        const rocket =
+            document.getElementById("rocket");
+
+        if (rocket) {
+
+            rocket.style.transition =
+                "none";
+
+            rocket.style.left =
+                "18%";
+
+            rocket.style.top =
+                "100px";
+
+            rocket.style.transform =
+                "translateX(-50%) rotate(0deg) scale(1)";
+
+            void rocket.offsetWidth;
+        }
+
+        /*
+         * Jangan biarkan state CRASH ronde lama terbawa.
+         */
+        round.crash = 0;
+        round.running = false;
+
+        setMultiplier(1);
+    }
+
     window.__GLOBAL_SPACEMAN_LAST_ROUND =
         state.roundId;
 

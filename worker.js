@@ -1636,57 +1636,136 @@ function spacemanState() {
   let multiplier = 1;
   let crash = null;
 
-  const targetCrash =
+  /*
+   * =====================================================
+   * SERVER MULTIPLIER / CRASH TIMING
+   * =====================================================
+   *
+   * Kecepatan multiplier BENAR-BENAR KONSTAN.
+   *
+   * 1.00x -> 1.10x -> 1.20x -> 1.30x -> ...
+   *
+   * Running maksimum:
+   *   40 detik
+   *
+   * Speed:
+   *   +0.10x / detik
+   *
+   * Maka maksimum multiplier yang dapat dicapai:
+   *
+   *   1 + (0.10 * 40) = 5.00x
+   *
+   * Target di atas 5x tidak boleh dibiarkan membuat
+   * multiplier stuck lalu meloncat ke angka besar.
+   */
+
+  const rawTargetCrash =
     spacemanCrashForRound(roundId);
 
-  if (elapsed < SPACEMAN_BETTING_MS) {
+  const MULTIPLIER_SPEED_PER_SECOND =
+    0.10;
+
+  const MAX_REACHABLE_CRASH =
+    Number(
+      (
+        1 +
+        MULTIPLIER_SPEED_PER_SECOND *
+        (SPACEMAN_RUNNING_MS / 1000)
+      ).toFixed(2)
+    );
+
+  const targetCrash =
+    Number(
+      Math.min(
+        rawTargetCrash,
+        MAX_REACHABLE_CRASH
+      ).toFixed(2)
+    );
+
+  /*
+   * =====================================================
+   * PHASE + CONSTANT MULTIPLIER
+   * =====================================================
+   *
+   * Waktu crash dihitung langsung dari targetCrash.
+   *
+   * Tidak ada lagi kondisi:
+   *
+   *   multiplier berhenti
+   *   ↓
+   *   menunggu beberapa detik
+   *   ↓
+   *   langsung meloncat ke target
+   *
+   * Karena crashAt dan multiplier memakai rumus waktu
+   * yang sama, keduanya selalu sinkron.
+   */
+
+  const runningStartAt =
+    cycleStart +
+    SPACEMAN_BETTING_MS;
+
+  const crashDurationMs =
+    Math.max(
+      0,
+      (
+        (targetCrash - 1) /
+        MULTIPLIER_SPEED_PER_SECOND
+      ) * 1000
+    );
+
+  const actualCrashAt =
+    runningStartAt +
+    crashDurationMs;
+
+  if (
+    elapsed <
+    SPACEMAN_BETTING_MS
+  ) {
 
     phase = "betting";
     multiplier = 1;
+    crash = null;
 
   } else if (
-    elapsed <
-    SPACEMAN_BETTING_MS +
-    SPACEMAN_RUNNING_MS
+    now <
+    actualCrashAt
   ) {
 
     phase = "running";
 
     const runningElapsed =
-      elapsed -
-      SPACEMAN_BETTING_MS;
-
-    /*
-     * Multiplier deterministik berdasarkan
-     * waktu server.
-     */
-    const progress =
-      Math.min(
-        0.999999,
-        runningElapsed /
-        SPACEMAN_RUNNING_MS
+      Math.max(
+        0,
+        now - runningStartAt
       );
 
     multiplier =
       Number(
         Math.min(
           targetCrash,
-          Math.max(
-            1,
-            Math.exp(
-              Math.log(targetCrash) *
-              progress
+          1 +
+          (
+            MULTIPLIER_SPEED_PER_SECOND *
+            (
+              runningElapsed /
+              1000
             )
           )
         ).toFixed(2)
       );
 
+    crash = null;
+
   } else {
 
     phase = "crashed";
 
-    multiplier = targetCrash;
-    crash = targetCrash;
+    multiplier =
+      targetCrash;
+
+    crash =
+      targetCrash;
   }
 
   /*
@@ -1808,20 +1887,34 @@ function spacemanState() {
   let statProgress = 0;
 
   if (phase === "running") {
+
+    const runningElapsed =
+      Math.max(
+        0,
+        now -
+        (
+          cycleStart +
+          SPACEMAN_BETTING_MS
+        )
+      );
+
     statProgress =
       Math.min(
         1,
         Math.max(
           0,
-          (
-            elapsed -
-            SPACEMAN_BETTING_MS
-          ) /
-          SPACEMAN_RUNNING_MS
+          runningElapsed /
+          Math.max(
+            1,
+            crashDurationMs
+          )
         )
       );
+
   } else if (phase === "crashed") {
+
     statProgress = 1;
+
   }
 
   const cashoutSeed =
@@ -1902,11 +1995,41 @@ function spacemanState() {
       break;
     }
 
+    /*
+     * HISTORY HARUS MENGGUNAKAN TARGET CRASH EFEKTIF
+     * YANG SAMA DENGAN LIVE STATE.
+     *
+     * Jangan mengambil raw target langsung karena target
+     * asli bisa mencapai puluhan ribu, sementara sistem
+     * multiplier saat ini memiliki batas yang dapat dicapai.
+     */
+
+    const rawHistoryCrash =
+      spacemanCrashForRound(
+        previousRound
+      );
+
+    const historySpeed =
+      0.10;
+
+    const historyMaxCrash =
+      Number(
+        (
+          1 +
+          historySpeed *
+          (
+            SPACEMAN_RUNNING_MS /
+            1000
+          )
+        ).toFixed(2)
+      );
+
     const crashValue =
       Number(
-        spacemanCrashForRound(
-          previousRound
-        )
+        Math.min(
+          rawHistoryCrash,
+          historyMaxCrash
+        ).toFixed(2)
       );
 
     if (
@@ -1947,9 +2070,7 @@ function spacemanState() {
       SPACEMAN_BETTING_MS,
 
     crashAt:
-      cycleStart +
-      SPACEMAN_BETTING_MS +
-      SPACEMAN_RUNNING_MS
+      actualCrashAt
   };
 }
 
