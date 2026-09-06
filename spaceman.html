@@ -5052,6 +5052,217 @@ function globalServerMultiplier(state) {
     return Number(state.multiplier || 1);
 }
 
+
+/* =========================================================
+   SMOOTH CONSTANT ASTRONAUT
+   Visual flight tidak menggunakan multiplier.
+   ========================================================= */
+
+let smoothRocketFrame = null;
+let smoothRocketState = null;
+let smoothRocketRunning = false;
+
+function smoothConstantRocket(state) {
+
+    const rocket =
+        document.getElementById("rocket");
+
+    if (!rocket || !state) {
+        return;
+    }
+
+    /*
+     * SIMPAN STATE SERVER TERBARU
+     *
+     * State ini hanya digunakan sebagai anchor:
+     * - bettingEndsAt
+     * - phase
+     *
+     * Multiplier/crash TIDAK PERNAH digunakan
+     * untuk menentukan kecepatan astronaut.
+     */
+    smoothRocketState = state;
+
+    /*
+     * Hanya phase RUNNING yang menjalankan animasi.
+     */
+    if (state.phase !== "running") {
+
+        smoothRocketRunning = false;
+
+        if (smoothRocketFrame !== null) {
+            cancelAnimationFrame(smoothRocketFrame);
+            smoothRocketFrame = null;
+        }
+
+        return;
+    }
+
+    /*
+     * Jika animation loop sudah berjalan,
+     * jangan membuat loop baru setiap fetch 250ms.
+     */
+    if (smoothRocketRunning) {
+        return;
+    }
+
+    smoothRocketRunning = true;
+
+    /*
+     * =====================================================
+     * ASTRONAUT TRUE CONSTANT SPEED
+     * =====================================================
+     *
+     * Durasi visual selalu 15 detik.
+     *
+     * 18% -> 92%
+     * 100px -> 40px
+     *
+     * TIDAK TERGANTUNG:
+     * - multiplier
+     * - crash
+     * - targetCrash
+     * - history
+     */
+    const RUNNING_DURATION = 15000;
+
+    const START_LEFT = 18;
+    const END_LEFT = 92;
+
+    const START_TOP = 100;
+    const END_TOP = 40;
+
+    /*
+     * Gunakan offset waktu server yang sudah dihitung
+     * oleh globalFetchSpacemanState().
+     *
+     * Dengan cara ini waktu terus berjalan setiap frame,
+     * bukan berhenti pada serverTime dari fetch terakhir.
+     */
+    function getSmoothServerNow() {
+
+        const offset =
+            Number(window.__SPACEMAN_SERVER_OFFSET);
+
+        if (Number.isFinite(offset)) {
+            return Date.now() + offset;
+        }
+
+        return Date.now();
+    }
+
+    function frame() {
+
+        if (!smoothRocketRunning) {
+            smoothRocketFrame = null;
+            return;
+        }
+
+        const current =
+            smoothRocketState;
+
+        if (
+            !current ||
+            current.phase !== "running"
+        ) {
+            smoothRocketRunning = false;
+            smoothRocketFrame = null;
+            return;
+        }
+
+        /*
+         * Waktu server berjalan kontinu.
+         *
+         * PENTING:
+         * Tidak ada multiplier di sini.
+         */
+        const serverNow =
+            getSmoothServerNow();
+
+        const runningStart =
+            Number(current.bettingEndsAt);
+
+        if (!Number.isFinite(runningStart)) {
+            smoothRocketFrame =
+                requestAnimationFrame(frame);
+            return;
+        }
+
+        /*
+         * Hitung posisi berdasarkan waktu,
+         * bukan berdasarkan multiplier.
+         */
+        const elapsed =
+            Math.max(
+                0,
+                serverNow - runningStart
+            );
+
+        const progress =
+            Math.min(
+                1,
+                elapsed / RUNNING_DURATION
+            );
+
+        /*
+         * Linear interpolation.
+         *
+         * progress 0   = posisi awal
+         * progress 0.5 = posisi tengah
+         * progress 1   = posisi akhir
+         *
+         * Karena linear, kecepatannya konstan.
+         */
+        const left =
+            START_LEFT +
+            (END_LEFT - START_LEFT) *
+            progress;
+
+        const top =
+            START_TOP +
+            (END_TOP - START_TOP) *
+            progress;
+
+        /*
+         * Matikan semua animation/transition lokal
+         * agar CSS tidak mengubah kecepatan astronaut.
+         */
+        rocket.style.animation = "none";
+        rocket.style.transition = "none";
+
+        rocket.style.left =
+            left + "%";
+
+        rocket.style.top =
+            top + "px";
+
+        rocket.style.transform =
+            "translateX(-50%) rotate(0deg) scale(1)";
+
+        /*
+         * Lanjutkan frame berikutnya.
+         */
+        smoothRocketFrame =
+            requestAnimationFrame(frame);
+    }
+
+    /*
+     * Mulai SATU animation loop.
+     */
+    smoothRocketFrame =
+        requestAnimationFrame(frame);
+}
+
+function stopSmoothConstantRocket() {
+
+    smoothRocketRunning = false;
+
+    if (smoothRocketFrame !== null) {
+        cancelAnimationFrame(smoothRocketFrame);
+        smoothRocketFrame = null;
+    }
+}
+
 function globalRenderState(state) {
 
     if (!state) return;
@@ -5194,6 +5405,8 @@ function globalRenderState(state) {
 
         setMultiplier(1);
 
+        stopSmoothConstantRocket();
+
         /*
          * Reset astronaut setiap ronde baru.
          * Ini juga menghilangkan transform crash dari ronde
@@ -5261,58 +5474,12 @@ function globalRenderState(state) {
          * Animasi hanya mengikuti multiplier server.
          * Tidak membuat crash sendiri.
          */
-        const rocket =
-            document.getElementById("rocket");
+        /*
+         * Astronaut bergerak dengan kecepatan konstan.
+         * Posisi tidak dihitung dari multiplier.
+         */
+        smoothConstantRocket(state);
 
-        if (rocket) {
-
-            /*
-             * ASTRONAUT GLOBAL SERVER-SYNC
-             *
-             * Posisi ditentukan hanya dari multiplier
-             * yang berasal dari Worker.
-             *
-             * serverTime digunakan sebagai referensi waktu
-             * global sehingga browser/device tidak membuat
-             * kecepatan penerbangan masing-masing.
-             */
-            const m =
-                Math.max(
-                    1,
-                    Number(multiplier) || 1
-                );
-
-            const visual =
-                Math.min(
-                    92,
-                    18 +
-                    Math.log(m) * 18
-                );
-
-            const vertical =
-                Math.max(
-                    40,
-                    100 -
-                    Math.log(m) * 22
-                );
-
-            /*
-             * Transisi tetap sama di setiap update server.
-             * Tidak menggunakan animation loop lokal.
-             */
-            rocket.style.transition =
-                "left 250ms linear, top 250ms linear, " +
-                "transform 250ms linear";
-
-            rocket.style.left =
-                visual + "%";
-
-            rocket.style.top =
-                vertical + "px";
-
-            rocket.style.transform =
-                "translateX(-50%) rotate(0deg) scale(1)";
-        }
 
         updateCashoutButtons();
 
@@ -5320,6 +5487,8 @@ function globalRenderState(state) {
     }
 
     if (state.phase === "crashed") {
+
+        stopSmoothConstantRocket();
 
         document
             .getElementById("game")
